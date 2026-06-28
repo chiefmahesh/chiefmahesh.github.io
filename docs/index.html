@@ -2556,26 +2556,26 @@ footer{background:var(--bg);padding:60px 0 40px}
     onScroll();
 
     /* ───────── Cycling availability text ───────── */
-    if (!prefersReducedMotion) {
-      const phrases = [
-        'advisory engagements',
-        'collaborations',
-        'speaking',
-        'consulting'
-      ];
-      const rotEl = document.querySelector('.avail-rotate');
-      let i = 0;
-      if (rotEl) {
-        setInterval(() => {
-          rotEl.classList.add('swap');
-          setTimeout(() => {
-            i = (i + 1) % phrases.length;
-            rotEl.textContent = phrases[i];
-            rotEl.classList.remove('swap');
-          }, 350);
-        }, 3500);
-      }
-    }
+    // if (!prefersReducedMotion) {
+    //   const phrases = [
+    //     'advisory engagements',
+    //     'collaborations',
+    //     'speaking',
+    //     'consulting'
+    //   ];
+    //   const rotEl = document.querySelector('.avail-rotate');
+    //   let i = 0;
+    //   if (rotEl) {
+    //     setInterval(() => {
+    //       rotEl.classList.add('swap');
+    //       setTimeout(() => {
+    //         i = (i + 1) % phrases.length;
+    //         rotEl.textContent = phrases[i];
+    //         rotEl.classList.remove('swap');
+    //       }, 350);
+    //     }, 3500);
+    //   }
+    // }
   })();
 </script>
 
