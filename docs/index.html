@@ -1,0 +1,1684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Field Notes — Human-Centric AI, by a 20-year technology veteran</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ──────────────────────────────────────────────────────────
+     TOKENS
+     ────────────────────────────────────────────────────────── */
+  :root{
+    --paper:#FBF6EC;
+    --paper-2:#F4ECDC;
+    --ink:#1A1814;
+    --ink-soft:#3A352E;
+    --muted:#7A7166;
+    --indigo:#2B3A8C;
+    --indigo-deep:#1B2766;
+    --turmeric:#F5B82E;
+    --turmeric-deep:#D69A12;
+    --vermilion:#E04E2A;
+    --vermilion-deep:#B83A1E;
+    --leaf:#3F7D54;
+    --lavender:#D4C5F2;
+    --sky:#A8C8E8;
+    --rose:#F4C9C0;
+
+    /* responsive section padding */
+    --pad-section: clamp(56px, 8vw, 96px);
+    --pad-section-sm: clamp(48px, 6vw, 72px);
+    --gap-lg: clamp(32px, 5vw, 64px);
+    --gap-md: clamp(24px, 3vw, 48px);
+  }
+
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+  body{
+    font-family:'Geist',system-ui,sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    background-image:radial-gradient(circle at 1px 1px, rgba(26,24,20,0.06) 1px, transparent 0);
+    background-size:22px 22px;
+    min-width:320px;
+  }
+  ::selection{background:var(--turmeric);color:var(--ink)}
+  a{color:inherit;text-decoration:none}
+  img,svg{max-width:100%;height:auto;display:block}
+
+  /* ──────────────────────────────────────────────────────────
+     SHARED PRIMITIVES
+     ────────────────────────────────────────────────────────── */
+  .wrap{
+    max-width:1280px;margin:0 auto;
+    padding:0 clamp(20px, 4vw, 32px);
+  }
+  .eyebrow{
+    font-family:'Geist',sans-serif;
+    font-size:11px;font-weight:600;
+    letter-spacing:0.18em;text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .display{
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 144,'SOFT' 30;
+    font-weight:400;letter-spacing:-0.02em;line-height:0.95;
+    overflow-wrap:break-word;
+  }
+  .display em{
+    font-style:italic;
+    font-variation-settings:'opsz' 144,'SOFT' 80;
+    color:var(--vermilion);
+  }
+  .mono{font-family:'JetBrains Mono',monospace;font-size:12px}
+
+  /* ──────────────────────────────────────────────────────────
+     TOP BAR
+     ────────────────────────────────────────────────────────── */
+  .topbar{
+    border-bottom:1.5px solid var(--ink);
+    background:rgba(251,246,236,0.92);
+    position:sticky;top:0;z-index:50;
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+  }
+  .topbar-inner{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px clamp(20px, 4vw, 32px);
+    max-width:1280px;margin:0 auto;
+    gap:16px;
+  }
+  .mark{
+    display:flex;align-items:center;gap:10px;
+    font-family:'Fraunces',serif;font-weight:600;
+    font-size:clamp(16px, 2vw, 18px);
+    font-variation-settings:'opsz' 24,'SOFT' 60;
+    flex-shrink:0;
+  }
+  .mark svg{width:26px;height:26px;flex-shrink:0}
+  .nav{display:flex;gap:clamp(16px, 2.5vw, 28px);align-items:center}
+  .nav a{
+    font-size:13px;font-weight:500;color:var(--ink-soft);
+    transition:color .2s;white-space:nowrap;
+  }
+  .nav a:hover{color:var(--vermilion)}
+  .nav .pill{
+    background:var(--ink);color:var(--paper);
+    padding:8px 14px;border-radius:100px;font-size:12px;
+  }
+  .nav .pill:hover{background:var(--vermilion);color:var(--paper)}
+  @media (max-width:820px){.nav a:not(.pill){display:none}}
+  @media (max-width:380px){
+    .nav .pill{padding:7px 12px;font-size:11px}
+    .mark{font-size:15px}
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     TICKER
+     ────────────────────────────────────────────────────────── */
+  .ticker{
+    background:var(--ink);color:var(--paper);
+    border-bottom:1.5px solid var(--ink);
+    overflow:hidden;white-space:nowrap;padding:9px 0;
+    font-family:'JetBrains Mono',monospace;
+    font-size:clamp(10px, 1.2vw, 11.5px);
+    letter-spacing:0.04em;
+  }
+  .ticker-track{
+    display:inline-flex;gap:clamp(28px, 4vw, 48px);
+    animation:slide 44s linear infinite;
+  }
+  .ticker-item{display:inline-flex;align-items:center;gap:10px}
+  .ticker-item .dot{width:6px;height:6px;border-radius:50%;background:var(--turmeric);flex-shrink:0}
+  .ticker-item:nth-child(3n) .dot{background:var(--vermilion)}
+  .ticker-item:nth-child(3n+1) .dot{background:var(--leaf)}
+  @keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* ──────────────────────────────────────────────────────────
+     HERO
+     ────────────────────────────────────────────────────────── */
+  .hero{
+    padding:var(--pad-section) 0 var(--pad-section-sm);
+    position:relative;border-bottom:1.5px solid var(--ink);
+  }
+  .hero-grid{
+    display:grid;
+    grid-template-columns:1.4fr 1fr;
+    gap:var(--gap-lg);align-items:end;
+  }
+  .hero h1{
+    font-size:clamp(44px, 8vw, 120px);
+    line-height:0.95;
+  }
+  .hero-meta{display:flex;flex-direction:column;gap:18px;padding-bottom:4px}
+  .hero-lede{
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 14,'SOFT' 40;
+    font-size:clamp(15px, 1.6vw, 18px);
+    line-height:1.55;
+    color:var(--ink-soft);
+    max-width:38ch;
+  }
+  .hero-lede strong{color:var(--ink);font-weight:600}
+  .hero-roles{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+  .role{
+    font-family:'JetBrains Mono',monospace;font-size:11px;
+    padding:5px 10px;border:1px solid var(--ink);border-radius:100px;
+    background:var(--paper);white-space:nowrap;
+  }
+  .role.r1{background:var(--turmeric)}
+  .role.r2{background:var(--lavender)}
+  .role.r3{background:var(--rose)}
+  .role.r4{background:var(--sky)}
+  .role.r5{background:var(--paper-2)}
+
+  .hero-art{
+    position:absolute;right:-30px;top:50%;
+    transform:translateY(-50%);
+    width:clamp(220px, 22vw, 300px);
+    aspect-ratio:1/1;height:auto;
+    opacity:0.95;pointer-events:none;z-index:0;
+  }
+  .hero-grid{position:relative;z-index:1}
+
+  @media (max-width:1100px){
+    .hero-art{
+      right:-60px;top:auto;bottom:30px;transform:none;
+      width:220px;opacity:0.5;
+    }
+  }
+  @media (max-width:900px){
+    .hero-grid{grid-template-columns:1fr;gap:32px}
+    .hero-art{display:none}
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     ABOUT
+     ────────────────────────────────────────────────────────── */
+  .about{
+    padding:var(--pad-section-sm) 0;
+    border-bottom:1.5px solid var(--ink);
+    background:var(--paper-2);position:relative;
+  }
+  .about::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:
+      linear-gradient(115deg,transparent 0 65%,rgba(245,184,46,0.10) 65% 67%,transparent 67%),
+      linear-gradient(115deg,transparent 0 78%,rgba(43,58,140,0.07) 78% 79%,transparent 79%);
+  }
+  .about-grid{
+    display:grid;grid-template-columns:1fr 1.4fr;
+    gap:var(--gap-lg);position:relative;align-items:start;
+  }
+  .about-label{
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 60,'SOFT' 50;
+    font-size:clamp(34px, 5vw, 56px);
+    line-height:1;letter-spacing:-0.02em;
+  }
+  .about-label em{font-style:italic;color:var(--indigo)}
+  .about-body p{
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 16,'SOFT' 40;
+    font-size:clamp(15.5px, 1.5vw, 17.5px);
+    line-height:1.65;color:var(--ink-soft);
+    margin-bottom:14px;
+  }
+  .about-body p strong{color:var(--ink);font-weight:600}
+  .about-body p .hl{
+    background:linear-gradient(180deg,transparent 60%,rgba(245,184,46,0.45) 60%);
+    padding:0 2px;color:var(--ink);font-weight:500;
+  }
+  .signature-line{
+    display:flex;align-items:center;gap:12px;
+    margin-top:24px;padding-top:18px;border-top:1px dashed var(--ink);
+    font-family:'JetBrains Mono',monospace;font-size:11.5px;
+    color:var(--ink-soft);flex-wrap:wrap;
+  }
+  .signature-line .sep{
+    width:5px;height:5px;border-radius:50%;background:var(--vermilion);
+    flex-shrink:0;
+  }
+
+  @media (max-width:900px){
+    .about-grid{grid-template-columns:1fr;gap:28px}
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     SECTION HEAD (shared)
+     ────────────────────────────────────────────────────────── */
+  .section-head{
+    display:flex;align-items:end;justify-content:space-between;
+    margin-bottom:clamp(36px, 5vw, 56px);
+    gap:24px;flex-wrap:wrap;
+  }
+  .section-head h3{
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 60,'SOFT' 30;
+    font-size:clamp(32px, 4.5vw, 56px);
+    font-weight:400;letter-spacing:-0.02em;line-height:1;
+    flex:1 1 300px;
+  }
+  .section-head h3 em{font-style:italic;color:var(--indigo)}
+  .section-head p{
+    font-size:14px;color:var(--muted);
+    max-width:42ch;flex:0 1 380px;
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     FOCUS AREAS
+     ────────────────────────────────────────────────────────── */
+  .focus{padding:var(--pad-section) 0;border-bottom:1.5px solid var(--ink)}
+
+  .focus-grid{
+    display:grid;
+    grid-template-columns:1.4fr 1fr 1fr;
+    grid-template-rows:auto auto;
+    gap:0;
+    border:1.5px solid var(--ink);background:var(--ink);
+  }
+  .focus-card{
+    background:var(--paper);
+    padding:clamp(24px, 3vw, 32px);
+    display:flex;flex-direction:column;gap:14px;
+    cursor:pointer;transition:background .25s;
+    position:relative;min-height:240px;
+  }
+  .focus-card:hover{background:var(--paper-2)}
+  .focus-card.feature{
+    grid-row:span 2;
+    background:var(--vermilion);color:var(--paper);
+    min-height:auto;
+  }
+  .focus-card.feature:hover{background:var(--vermilion-deep)}
+  .focus-card.feature .focus-num,
+  .focus-card.feature .focus-desc{color:rgba(251,246,236,0.78)}
+  .focus-card.feature .focus-name em{color:var(--turmeric)}
+  .focus-num{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;color:var(--muted);letter-spacing:0.1em;
+  }
+  .focus-icon{
+    width:clamp(56px, 6vw, 72px);
+    height:clamp(56px, 6vw, 72px);
+    flex-shrink:0;
+  }
+  .focus-card.feature .focus-icon{
+    width:clamp(72px, 8vw, 96px);
+    height:clamp(72px, 8vw, 96px);
+    margin:6px 0;
+  }
+  .focus-name{
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 36,'SOFT' 50;
+    font-size:clamp(22px, 2.4vw, 26px);
+    font-weight:500;line-height:1.1;
+  }
+  .focus-card.feature .focus-name{
+    font-size:clamp(28px, 3.4vw, 44px);
+    font-variation-settings:'opsz' 60,'SOFT' 50;
+    line-height:1.05;
+  }
+  .focus-name em{font-style:italic}
+  .focus-card:nth-child(2) .focus-name em{color:var(--indigo)}
+  .focus-card:nth-child(3) .focus-name em{color:var(--leaf)}
+  .focus-card:nth-child(4) .focus-name em{color:var(--turmeric-deep)}
+  .focus-card:nth-child(5) .focus-name em{color:var(--vermilion)}
+  .focus-desc{
+    font-size:13.5px;line-height:1.55;
+    color:var(--ink-soft);margin-top:auto;
+  }
+  .focus-card.feature .focus-desc{
+    font-size:clamp(13.5px, 1.4vw, 15px);max-width:44ch;
+  }
+  .focus-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+  .focus-tag{
+    font-family:'JetBrains Mono',monospace;font-size:10px;
+    padding:3px 8px;border-radius:100px;
+    border:1px solid currentColor;opacity:0.75;
+    white-space:nowrap;
+  }
+
+  @media (max-width:1024px){
+    .focus-grid{grid-template-columns:1fr 1fr;grid-template-rows:auto}
+    .focus-card.feature{grid-row:auto;grid-column:span 2}
+  }
+  @media (max-width:560px){
+    .focus-grid{grid-template-columns:1fr}
+    .focus-card.feature{grid-column:auto}
+    .focus-card{min-height:200px}
+  }
+
+  .also-exploring{
+    margin-top:clamp(24px, 3vw, 32px);
+    display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+  }
+  .also-exploring .label{
+    font-family:'JetBrains Mono',monospace;font-size:11px;
+    color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;
+    margin-right:4px;
+  }
+  .also-tag{
+    padding:6px 12px;border:1px solid var(--ink);border-radius:100px;
+    font-size:12px;background:var(--paper);
+    transition:background .2s;white-space:nowrap;
+  }
+  .also-tag:hover{background:var(--turmeric)}
+
+  /* ──────────────────────────────────────────────────────────
+     STACK
+     ────────────────────────────────────────────────────────── */
+  .stack{
+    padding:var(--pad-section) 0;
+    border-bottom:1.5px solid var(--ink);
+    background:var(--ink);color:var(--paper);
+    position:relative;overflow:hidden;
+  }
+  .stack::before{
+    content:"";position:absolute;
+    top:-150px;right:-100px;width:500px;height:500px;border-radius:50%;
+    background:radial-gradient(circle,var(--indigo) 0%,transparent 65%);opacity:0.45;
+  }
+  .stack::after{
+    content:"";position:absolute;
+    bottom:-200px;left:-100px;width:500px;height:500px;border-radius:50%;
+    background:radial-gradient(circle,var(--vermilion) 0%,transparent 65%);opacity:0.3;
+  }
+  .stack-inner{position:relative;z-index:1}
+  .stack-head{margin-bottom:clamp(36px, 5vw, 48px)}
+  .stack-head .eyebrow{color:var(--turmeric)}
+  .stack-head h3{
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 72,'SOFT' 30;
+    font-size:clamp(34px, 4.8vw, 60px);
+    font-weight:400;letter-spacing:-0.02em;line-height:1;
+    margin-top:14px;
+  }
+  .stack-head h3 em{font-style:italic;color:var(--turmeric)}
+  .stack-head p{
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 18,'SOFT' 50;
+    font-size:clamp(15.5px, 1.6vw, 18px);
+    line-height:1.55;color:rgba(251,246,236,0.75);
+    margin-top:18px;max-width:64ch;
+  }
+  .stack-layers{display:flex;flex-direction:column;gap:14px}
+  .stack-layer{
+    display:grid;
+    grid-template-columns:minmax(180px, 240px) 1fr 50px;
+    gap:24px;align-items:center;
+    border:1.5px solid rgba(251,246,236,0.2);
+    padding:22px clamp(18px, 2vw, 24px);
+    background:rgba(251,246,236,0.03);
+    backdrop-filter:blur(4px);
+    transition:border-color .25s,background .25s;
+  }
+  .stack-layer:hover{
+    border-color:var(--turmeric);
+    background:rgba(245,184,46,0.06);
+  }
+  .layer-title{display:flex;flex-direction:column;gap:4px;min-width:0}
+  .layer-title h4{
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 36,'SOFT' 50;
+    font-size:clamp(20px, 2vw, 22px);
+    font-weight:500;line-height:1.1;
+  }
+  .layer-title h4 em{font-style:italic;color:var(--turmeric)}
+  .layer-title small{
+    font-family:'JetBrains Mono',monospace;font-size:10px;
+    color:rgba(251,246,236,0.55);
+    letter-spacing:0.1em;text-transform:uppercase;
+  }
+  .layer-tools{display:flex;flex-wrap:wrap;gap:6px;min-width:0}
+  .tool{
+    font-family:'JetBrains Mono',monospace;font-size:11px;
+    padding:5px 10px;border-radius:6px;
+    background:rgba(251,246,236,0.08);
+    border:1px solid rgba(251,246,236,0.18);
+    color:var(--paper);white-space:nowrap;
+  }
+  .layer-num{
+    font-family:'JetBrains Mono',monospace;
+    font-size:clamp(24px, 3vw, 32px);
+    font-weight:300;color:rgba(251,246,236,0.25);
+    text-align:right;
+  }
+  .stack-footnote{
+    margin-top:clamp(24px, 3vw, 32px);
+    padding-top:clamp(18px, 2.5vw, 24px);
+    border-top:1px dashed rgba(251,246,236,0.25);
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 16,'SOFT' 50;
+    font-style:italic;
+    font-size:clamp(15px, 1.5vw, 16.5px);
+    color:rgba(251,246,236,0.7);max-width:60ch;
+  }
+
+  @media (max-width:820px){
+    .stack-layer{
+      grid-template-columns:1fr 50px;
+      grid-template-rows:auto auto;
+      gap:12px 16px;
+    }
+    .layer-title{grid-column:1;grid-row:1}
+    .layer-num{grid-column:2;grid-row:1;align-self:start}
+    .layer-tools{grid-column:1 / -1;grid-row:2}
+  }
+  @media (max-width:480px){
+    .stack-layer{padding:18px}
+    .tool{font-size:10.5px;padding:4px 8px}
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     FEATURED ESSAY
+     ────────────────────────────────────────────────────────── */
+  .featured{
+    padding:var(--pad-section-sm) 0;
+    border-bottom:1.5px solid var(--ink);
+    background:var(--paper-2);position:relative;
+  }
+  .featured-inner{
+    display:grid;
+    grid-template-columns:140px 1fr 300px;
+    gap:var(--gap-md);align-items:start;position:relative;
+  }
+  .featured-tag-col{display:flex;flex-direction:column;gap:12px}
+  .stamp{width:120px;height:120px;flex-shrink:0}
+  .featured h2{
+    font-size:clamp(30px, 4.8vw, 60px);
+    margin:8px 0 16px;
+    line-height:1.02;
+  }
+  .featured-lede{
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 18,'SOFT' 50;
+    font-size:clamp(16px, 1.7vw, 19px);
+    line-height:1.5;color:var(--ink-soft);
+    max-width:54ch;margin-bottom:24px;
+  }
+  .featured-meta{
+    display:flex;gap:18px;flex-wrap:wrap;
+    font-size:12px;color:var(--muted);
+    border-top:1px solid var(--ink);
+    padding-top:14px;margin-top:8px;
+  }
+  .featured-meta span strong{color:var(--ink);font-weight:600}
+  .featured-side{
+    background:var(--paper);
+    border:1.5px solid var(--ink);
+    padding:22px;
+    box-shadow:6px 6px 0 var(--ink);
+  }
+  .featured-side .quote{
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 24,'SOFT' 100;
+    font-style:italic;
+    font-size:clamp(18px, 2vw, 21px);
+    line-height:1.3;margin-bottom:14px;
+  }
+  .featured-side .quote-mark{
+    font-family:'Fraunces',serif;font-size:60px;line-height:0.6;
+    color:var(--vermilion);display:block;margin-bottom:8px;
+  }
+  .featured-side .attr{
+    font-family:'JetBrains Mono',monospace;font-size:11px;
+    color:var(--muted);
+    border-top:1px dashed var(--ink);padding-top:10px;
+  }
+  .read-cta{
+    display:inline-flex;align-items:center;gap:10px;
+    background:var(--vermilion);color:var(--paper);
+    padding:13px 22px;border-radius:100px;
+    font-weight:500;font-size:14px;
+    transition:transform .2s,background .2s;
+    margin-top:4px;
+  }
+  .read-cta:hover{transform:translateX(4px);background:var(--vermilion-deep)}
+  .read-cta svg{width:14px;height:14px;flex-shrink:0}
+
+  @media (max-width:1024px){
+    .featured-inner{
+      grid-template-columns:120px 1fr;
+      grid-template-areas:
+        "tag content"
+        "side side";
+    }
+    .featured-tag-col{grid-area:tag}
+    .featured-main{grid-area:content}
+    .featured-side{grid-area:side;margin-top:8px}
+    .stamp{width:110px;height:110px}
+  }
+  @media (max-width:640px){
+    .featured-inner{
+      grid-template-columns:1fr;
+      grid-template-areas:
+        "tag"
+        "content"
+        "side";
+      gap:24px;
+    }
+    .featured-tag-col{flex-direction:row;align-items:center;gap:18px}
+    .stamp{width:90px;height:90px}
+    .featured-side{box-shadow:4px 4px 0 var(--ink)}
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     POSTS LIST
+     ────────────────────────────────────────────────────────── */
+  .posts{padding:var(--pad-section) 0;border-bottom:1.5px solid var(--ink)}
+
+  .post-list{display:flex;flex-direction:column;border-top:1.5px solid var(--ink)}
+  .post-row{
+    display:grid;
+    grid-template-columns:70px 1fr 180px 110px 32px;
+    gap:20px;align-items:center;
+    padding:26px 8px;border-bottom:1.5px solid var(--ink);
+    transition:background .25s,padding-left .25s;
+    cursor:pointer;position:relative;
+  }
+  .post-row:hover{background:var(--paper-2);padding-left:20px}
+  .post-num{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;color:var(--muted);
+  }
+  .post-title{
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 36,'SOFT' 40;
+    font-size:clamp(20px, 2.3vw, 30px);
+    font-weight:400;line-height:1.18;letter-spacing:-0.01em;
+  }
+  .post-title em{
+    font-style:italic;
+    font-variation-settings:'opsz' 36,'SOFT' 80;
+  }
+  .post-cat{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;letter-spacing:0.08em;text-transform:uppercase;
+    color:var(--ink-soft);
+    display:flex;align-items:center;gap:8px;
+  }
+  .post-cat::before{
+    content:"";width:8px;height:8px;border-radius:50%;
+    background:var(--vermilion);flex-shrink:0;
+  }
+  .post-row.c-emotional .post-cat::before{background:var(--vermilion)}
+  .post-row.c-meta .post-cat::before{background:var(--indigo)}
+  .post-row.c-twin .post-cat::before{background:var(--leaf)}
+  .post-row.c-decision .post-cat::before{background:var(--turmeric-deep)}
+  .post-row.c-historical .post-cat::before{
+    background:var(--lavender);
+    outline:1px solid var(--ink);outline-offset:-1px;
+  }
+  .post-row.c-scale .post-cat::before{
+    background:var(--sky);
+    outline:1px solid var(--ink);outline-offset:-1px;
+  }
+  .post-date{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;color:var(--muted);white-space:nowrap;
+  }
+  .post-arrow{
+    width:28px;height:28px;border-radius:50%;
+    border:1.5px solid var(--ink);
+    display:flex;align-items:center;justify-content:center;
+    transition:transform .2s,background .2s,color .2s;
+    color:var(--ink);flex-shrink:0;
+  }
+  .post-row:hover .post-arrow{
+    background:var(--ink);color:var(--paper);transform:rotate(-45deg);
+  }
+  .meta-mobile{display:none}
+
+  /* hide num at smaller-desktop sizes */
+  @media (max-width:1100px){
+    .post-row{grid-template-columns:1fr 160px 100px 32px;gap:16px}
+    .post-num{display:none}
+  }
+  /* tablet: hide date */
+  @media (max-width:900px){
+    .post-row{grid-template-columns:1fr 160px 32px;gap:16px}
+    .post-date{display:none}
+  }
+  /* mobile: only title and arrow */
+  @media (max-width:680px){
+    .post-row{
+      grid-template-columns:1fr 28px;
+      gap:14px;padding:22px 4px;
+    }
+    .post-cat{display:none}
+    .meta-mobile{
+      display:flex;gap:12px;align-items:center;
+      font-family:'JetBrains Mono',monospace;font-size:10px;
+      color:var(--muted);margin-top:8px;letter-spacing:0.06em;
+    }
+    .post-row:hover{padding-left:12px}
+  }
+
+  .post-note{
+    margin-top:24px;padding:14px 18px;
+    border:1px dashed var(--ink);
+    font-family:'JetBrains Mono',monospace;font-size:11.5px;
+    color:var(--ink-soft);background:var(--paper-2);
+    display:flex;align-items:flex-start;gap:10px;line-height:1.5;
+  }
+  .post-note svg{flex-shrink:0;margin-top:2px}
+  .post-note strong{color:var(--ink)}
+  .post-note code{
+    font-family:'JetBrains Mono',monospace;font-size:11px;
+    background:var(--paper);padding:1px 5px;
+    border:1px solid var(--ink);border-radius:3px;
+    white-space:nowrap;
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     FOUNDATION
+     ────────────────────────────────────────────────────────── */
+  .foundation{
+    padding:var(--pad-section) 0;
+    border-bottom:1.5px solid var(--ink);
+  }
+  .foundation-head{
+    display:grid;grid-template-columns:1fr 1.2fr;
+    gap:var(--gap-lg);align-items:end;
+    margin-bottom:clamp(36px, 5vw, 56px);
+  }
+  .foundation-head h3{
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 72,'SOFT' 30;
+    font-size:clamp(34px, 4.8vw, 60px);
+    font-weight:400;letter-spacing:-0.02em;line-height:0.98;
+  }
+  .foundation-head h3 em{font-style:italic;color:var(--vermilion)}
+  .foundation-head p{
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 16,'SOFT' 45;
+    font-size:clamp(15px, 1.55vw, 16.5px);
+    line-height:1.6;color:var(--ink-soft);
+  }
+
+  .stats-grid{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:0;
+    border:1.5px solid var(--ink);background:var(--ink);
+  }
+  .stat{
+    background:var(--paper);
+    padding:clamp(22px, 2.5vw, 32px) clamp(18px, 2vw, 24px);
+    display:flex;flex-direction:column;gap:8px;
+    min-height:200px;
+  }
+  .stat:nth-child(odd){background:var(--paper-2)}
+  .stat .num{
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 144,'SOFT' 50;
+    font-size:clamp(42px, 5.4vw, 72px);
+    line-height:0.95;font-weight:500;letter-spacing:-0.04em;
+  }
+  .stat .num em{font-style:italic;color:var(--indigo)}
+  .stat:nth-child(2) .num em{color:var(--vermilion)}
+  .stat:nth-child(3) .num em{color:var(--leaf)}
+  .stat:nth-child(4) .num em{color:var(--turmeric-deep)}
+  .stat .label{
+    font-family:'Geist',sans-serif;
+    font-size:clamp(12.5px, 1.3vw, 13.5px);
+    color:var(--ink-soft);line-height:1.45;
+  }
+  .stat small{
+    font-family:'JetBrains Mono',monospace;font-size:10px;
+    color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;
+    margin-top:auto;padding-top:14px;
+  }
+
+  @media (max-width:900px){
+    .foundation-head{grid-template-columns:1fr;gap:20px}
+  }
+  @media (max-width:720px){
+    .stats-grid{grid-template-columns:repeat(2,1fr)}
+  }
+  @media (max-width:420px){
+    .stats-grid{grid-template-columns:1fr}
+    .stat{min-height:auto}
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     NOW PANEL
+     ────────────────────────────────────────────────────────── */
+  .now{
+    padding:var(--pad-section) 0;
+    background:var(--ink);color:var(--paper);
+    position:relative;overflow:hidden;
+  }
+  .now::before{
+    content:"";position:absolute;
+    top:-100px;right:-100px;width:400px;height:400px;border-radius:50%;
+    background:radial-gradient(circle,var(--vermilion) 0%,transparent 70%);opacity:0.4;
+  }
+  .now::after{
+    content:"";position:absolute;
+    bottom:-150px;left:-100px;width:500px;height:500px;border-radius:50%;
+    background:radial-gradient(circle,var(--indigo) 0%,transparent 70%);opacity:0.5;
+  }
+  .now-inner{position:relative;z-index:1}
+  .now-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);
+    gap:clamp(20px, 3vw, 32px);
+    margin-top:clamp(32px, 5vw, 48px);
+  }
+  .now-card{
+    border:1.5px solid var(--paper);
+    padding:clamp(22px, 2.5vw, 28px) clamp(20px, 2vw, 24px);
+    display:flex;flex-direction:column;gap:14px;
+    background:rgba(251,246,236,0.04);
+    backdrop-filter:blur(4px);
+  }
+  .now-label{
+    font-family:'JetBrains Mono',monospace;font-size:11px;
+    letter-spacing:0.12em;text-transform:uppercase;
+    display:flex;align-items:center;gap:10px;
+  }
+  .now-label .live{
+    width:8px;height:8px;border-radius:50%;background:var(--turmeric);
+    animation:pulse 2s infinite;flex-shrink:0;
+  }
+  @keyframes pulse{
+    0%,100%{opacity:1;transform:scale(1)}
+    50%{opacity:0.5;transform:scale(1.3)}
+  }
+  .now-title{
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 36,'SOFT' 40;
+    font-size:clamp(20px, 2.2vw, 23px);
+    line-height:1.18;
+  }
+  .now-title em{font-style:italic;color:var(--turmeric)}
+  .now-card p{
+    font-size:13.5px;color:rgba(251,246,236,0.75);
+    line-height:1.55;
+  }
+  .now h3{
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 72,'SOFT' 30;
+    font-size:clamp(34px, 5vw, 60px);
+    font-weight:400;letter-spacing:-0.02em;line-height:1;
+  }
+  .now h3 em{font-style:italic;color:var(--turmeric)}
+  .now-eyebrow{
+    color:var(--turmeric);
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:0.18em;text-transform:uppercase;
+    margin-bottom:12px;
+  }
+
+  @media (max-width:900px){
+    .now-grid{grid-template-columns:1fr;gap:20px}
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     NEWSLETTER
+     ────────────────────────────────────────────────────────── */
+  .newsletter{
+    padding:var(--pad-section) 0;
+    background:var(--turmeric);
+    border-bottom:1.5px solid var(--ink);
+    position:relative;overflow:hidden;
+  }
+  .news-inner{
+    display:grid;grid-template-columns:1fr 1fr;
+    gap:var(--gap-lg);align-items:center;
+    position:relative;z-index:1;
+  }
+  .newsletter h3{
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 96,'SOFT' 40;
+    font-size:clamp(36px, 5.5vw, 68px);
+    font-weight:400;letter-spacing:-0.025em;line-height:0.95;
+  }
+  .newsletter h3 em{
+    font-style:italic;
+    font-variation-settings:'opsz' 96,'SOFT' 100;
+    color:var(--vermilion);
+  }
+  .news-form{display:flex;flex-direction:column;gap:14px}
+  .news-form .field{
+    display:flex;border:1.5px solid var(--ink);
+    background:var(--paper);overflow:hidden;
+  }
+  .news-form input{
+    flex:1;min-width:0;border:0;
+    padding:15px 18px;
+    font-family:'Geist',sans-serif;font-size:14px;
+    background:transparent;outline:none;color:var(--ink);
+  }
+  .news-form input::placeholder{color:var(--muted)}
+  .news-form button{
+    border:0;background:var(--ink);color:var(--paper);
+    padding:0 22px;font-family:'Geist',sans-serif;
+    font-size:13px;font-weight:500;cursor:pointer;
+    transition:background .2s;white-space:nowrap;
+  }
+  .news-form button:hover{background:var(--vermilion)}
+  .news-form small{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;color:var(--ink-soft);line-height:1.5;
+  }
+  .news-art{
+    position:absolute;right:-60px;top:50%;
+    transform:translateY(-50%);
+    width:240px;height:240px;opacity:0.22;
+    pointer-events:none;
+  }
+
+  @media (max-width:820px){
+    .news-inner{grid-template-columns:1fr;gap:28px}
+    .news-art{display:none}
+  }
+  @media (max-width:480px){
+    .news-form input{padding:13px 15px}
+    .news-form button{padding:0 18px;font-size:12.5px}
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     FOOTER
+     ────────────────────────────────────────────────────────── */
+  footer{background:var(--paper);padding:48px 0 32px}
+  .foot-grid{
+    display:grid;
+    grid-template-columns:2fr 1fr 1fr 1fr;
+    gap:clamp(28px, 4vw, 40px);
+    padding-bottom:32px;
+    border-bottom:1px solid var(--ink);margin-bottom:24px;
+  }
+  .foot-brand{
+    font-family:'Fraunces',serif;
+    font-variation-settings:'opsz' 36,'SOFT' 60;
+    font-size:26px;font-weight:500;margin-bottom:8px;
+  }
+  .foot-brand em{font-style:italic;color:var(--vermilion)}
+  .foot-tag{
+    font-size:13px;color:var(--ink-soft);
+    max-width:32ch;line-height:1.5;
+  }
+  .foot-col h5{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;letter-spacing:0.12em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:14px;
+  }
+  .foot-col a{
+    display:block;font-size:13.5px;color:var(--ink-soft);
+    margin-bottom:8px;transition:color .15s;
+  }
+  .foot-col a:hover{color:var(--vermilion)}
+  .foot-bottom{
+    display:flex;justify-content:space-between;
+    font-family:'JetBrains Mono',monospace;font-size:11px;
+    color:var(--muted);flex-wrap:wrap;gap:12px;
+  }
+
+  @media (max-width:900px){
+    .foot-grid{grid-template-columns:1fr 1fr 1fr;gap:32px 24px}
+    .foot-grid > div:first-child{grid-column:1 / -1}
+  }
+  @media (max-width:560px){
+    .foot-grid{grid-template-columns:1fr 1fr}
+    .foot-grid > div:first-child{grid-column:1 / -1}
+  }
+  @media (max-width:400px){
+    .foot-bottom{flex-direction:column;align-items:flex-start;gap:8px}
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     ENTRANCE + REDUCED MOTION
+     ────────────────────────────────────────────────────────── */
+  .reveal{
+    opacity:0;transform:translateY(20px);
+    transition:opacity .8s,transform .8s;
+  }
+  .reveal.in{opacity:1;transform:none}
+
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{
+      animation:none !important;
+      transition:none !important;
+    }
+    .reveal{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="#" class="mark">
+      <svg viewBox="0 0 32 32" fill="none">
+        <circle cx="16" cy="16" r="14" stroke="#1A1814" stroke-width="1.5"/>
+        <path d="M8 20 L14 10 L18 22 L24 12" stroke="#E04E2A" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="14" cy="10" r="1.6" fill="#F5B82E"/>
+        <circle cx="24" cy="12" r="1.6" fill="#2B3A8C"/>
+      </svg>
+      Field&nbsp;Notes
+    </a>
+    <nav class="nav">
+      <a href="#about">About</a>
+      <a href="#focus">Focus</a>
+      <a href="#stack">Stack</a>
+      <a href="#essays">Essays</a>
+      <a href="#newsletter" class="pill">Let's connect →</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ── TICKER ── -->
+<div class="ticker">
+  <div class="ticker-track">
+    <span class="ticker-item"><span class="dot"></span>EXPLORING — Emotional AI &amp; Metacognition</span>
+    <span class="ticker-item"><span class="dot"></span>BUILDING — Human Digital Twin prototypes</span>
+    <span class="ticker-item"><span class="dot"></span>RESEARCHING — Voice cloning + memory architectures</span>
+    <span class="ticker-item"><span class="dot"></span>SCALING — E-commerce &amp; loyalty platforms · 20+ yrs</span>
+    <span class="ticker-item"><span class="dot"></span>WRITING — essays on behavioral AI</span>
+    <span class="ticker-item"><span class="dot"></span>OPEN TO — collaborations on Human-Centric AI</span>
+    <!-- Loop -->
+    <span class="ticker-item"><span class="dot"></span>EXPLORING — Emotional AI &amp; Metacognition</span>
+    <span class="ticker-item"><span class="dot"></span>BUILDING — Human Digital Twin prototypes</span>
+    <span class="ticker-item"><span class="dot"></span>RESEARCHING — Voice cloning + memory architectures</span>
+    <span class="ticker-item"><span class="dot"></span>SCALING — E-commerce &amp; loyalty platforms · 20+ yrs</span>
+    <span class="ticker-item"><span class="dot"></span>WRITING — essays on behavioral AI</span>
+    <span class="ticker-item"><span class="dot"></span>OPEN TO — collaborations on Human-Centric AI</span>
+  </div>
+</div>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div class="reveal">
+        <div class="eyebrow" style="margin-bottom:20px">— Field notes on Human-Centric AI · est. 2026</div>
+        <h1 class="display">
+          Twenty years<br>
+          of <em>shipping</em>.<br>
+          One frontier<br>
+          left: <em>us</em>.
+        </h1>
+      </div>
+      <div class="hero-meta reveal">
+        <p class="hero-lede">
+          Two decades architecting <strong>e-commerce, loyalty &amp; enterprise platforms</strong>
+          — now exploring the next frontier: AI that understands <strong>emotion, memory, behavior</strong>,
+          and <strong>its own thinking</strong>.
+        </p>
+        <div class="hero-roles">
+          <span class="role r1">problem solver</span>
+          <span class="role r2">tech veteran</span>
+          <span class="role r3">scaling specialist</span>
+          <span class="role r4">AI explorer</span>
+          <span class="role r5">innovation lead</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero ornament -->
+    <svg class="hero-art" viewBox="0 0 280 280" fill="none">
+      <circle cx="140" cy="140" r="120" stroke="#1A1814" stroke-width="1.5" stroke-dasharray="3 4"/>
+      <circle cx="140" cy="140" r="100" stroke="#E04E2A" stroke-width="1"/>
+      <circle cx="140" cy="140" r="70" stroke="#1A1814" stroke-width="1"/>
+      <g stroke="#F5B82E" stroke-width="2" stroke-linecap="round">
+        <line x1="140" y1="50" x2="140" y2="70"/>
+        <line x1="140" y1="210" x2="140" y2="230"/>
+        <line x1="50" y1="140" x2="70" y2="140"/>
+        <line x1="210" y1="140" x2="230" y2="140"/>
+        <line x1="78" y1="78" x2="92" y2="92"/>
+        <line x1="188" y1="188" x2="202" y2="202"/>
+        <line x1="78" y1="202" x2="92" y2="188"/>
+        <line x1="188" y1="92" x2="202" y2="78"/>
+      </g>
+      <g transform="translate(140 140)">
+        <path d="M0 28 C -28 10 -38 -8 -38 -22 C -38 -34 -28 -42 -16 -42 C -6 -42 0 -34 0 -26 C 0 -34 6 -42 16 -42 C 28 -42 38 -34 38 -22 C 38 -8 28 10 0 28 Z"
+              fill="#E04E2A" stroke="#1A1814" stroke-width="1.5"/>
+        <g stroke="#FBF6EC" stroke-width="1.3" fill="none">
+          <path d="M-22 -18 L-10 -18 L-10 -8 L4 -8"/>
+          <path d="M14 -22 L14 -10 L22 -10"/>
+        </g>
+        <g fill="#F5B82E" stroke="#1A1814" stroke-width="0.8">
+          <circle cx="-22" cy="-18" r="2.2"/>
+          <circle cx="-10" cy="-8" r="2.2"/>
+          <circle cx="4" cy="-8" r="2.2"/>
+          <circle cx="14" cy="-22" r="2.2"/>
+          <circle cx="22" cy="-10" r="2.2"/>
+        </g>
+      </g>
+      <text fill="#1A1814" font-family="JetBrains Mono,monospace" font-size="9" letter-spacing="2">
+        <textPath href="#circle-text">HUMAN · CENTRIC · AI · MEMORY · EMOTION · METACOGNITION · </textPath>
+      </text>
+      <path id="circle-text" d="M 30,140 a 110,110 0 1,1 220,0 a 110,110 0 1,1 -220,0" fill="none"/>
+    </svg>
+  </div>
+</section>
+
+<!-- ── ABOUT ── -->
+<section class="about" id="about">
+  <div class="wrap about-grid reveal">
+    <div>
+      <div class="eyebrow" style="margin-bottom:14px">— About</div>
+      <h2 class="about-label">More than<br>a <em>career</em>.<br>A way of<br><em>thinking</em>.</h2>
+      <div class="signature-line">
+        <span>20+ yrs</span><span class="sep"></span>
+        <span>Tech Leader</span><span class="sep"></span>
+        <span>Gurugram · IN</span>
+      </div>
+    </div>
+    <div class="about-body">
+      <p>
+        Technology has been more than a career for me — it has been over two decades of solving
+        complex problems, building <strong>scalable platforms</strong>, leading high-performing engineering teams,
+        and continuously learning through innovation.
+      </p>
+      <p>
+        As a technology leader with <strong>20+ years of experience</strong>, I've been fortunate to architect and
+        scale large-scale <span class="hl">e-commerce, loyalty, and enterprise platforms</span> —
+        transforming ideas into reliable, high-impact products. I enjoy simplifying complexity, driving
+        engineering excellence, and building technology that delivers measurable business value.
+      </p>
+      <p>
+        While my foundation lies in scalable software engineering, my curiosity has led me toward the next
+        frontier of AI. Today, I am deeply exploring
+        <span class="hl">Emotional AI, Metacognition, AI Companions, Digital Clones, Voice Cloning,</span> and
+        <strong>Human-Centric Intelligence</strong> — building systems that go beyond data processing to
+        understand human behavior, emotions, memories, and decision-making.
+      </p>
+      <p>
+        I am particularly fascinated by the convergence of <strong>voice intelligence, behavioral modeling,
+        memory architectures, and emotionally adaptive AI</strong> — with the vision of creating digital
+        systems that feel natural, empathetic, and deeply personal.
+      </p>
+      <p>
+        I believe the future of AI is not defined by larger models alone — it will be shaped by systems
+        that <em>understand people, adapt with experience, reason about their own decisions, and augment
+        human potential.</em>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOCUS AREAS ── -->
+<section class="focus" id="focus">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h3>What I'm <em>building toward</em>.</h3>
+      <p>Five threads I keep pulling on. Each one is a question more than an answer — and each shapes what I write here.</p>
+    </div>
+
+    <div class="focus-grid reveal">
+
+      <div class="focus-card feature">
+        <span class="focus-num">01 · FEATURED FOCUS</span>
+        <svg class="focus-icon" viewBox="0 0 96 96" fill="none">
+          <path d="M48 86 C 22 66, 8 50, 8 32 C 8 18, 20 8, 32 8 C 42 8, 48 18, 48 26 C 48 18, 54 8, 64 8 C 76 8, 88 18, 88 32 C 88 50, 74 66, 48 86 Z"
+                fill="#FBF6EC" stroke="#FBF6EC" stroke-width="2.5"/>
+          <g stroke="#1A1814" stroke-width="1.6" fill="none" stroke-linecap="round">
+            <path d="M22 44 L36 44 L36 32 L52 32"/>
+            <path d="M48 56 L48 44 L64 44"/>
+            <path d="M70 50 L60 50 L60 62"/>
+          </g>
+          <g fill="#F5B82E" stroke="#1A1814" stroke-width="1">
+            <circle cx="22" cy="44" r="3"/>
+            <circle cx="36" cy="32" r="3"/>
+            <circle cx="52" cy="32" r="3"/>
+            <circle cx="48" cy="56" r="3"/>
+            <circle cx="64" cy="44" r="3"/>
+            <circle cx="70" cy="50" r="3"/>
+            <circle cx="60" cy="62" r="3"/>
+          </g>
+        </svg>
+        <h4 class="focus-name">Emotional <em>AI</em></h4>
+        <p class="focus-desc">
+          Systems that don't just process language — they read tone, context, and the
+          unspoken weight behind a sentence. Building AI that feels less like a query engine
+          and more like a thoughtful collaborator.
+        </p>
+        <div class="focus-tags">
+          <span class="focus-tag">empathy models</span>
+          <span class="focus-tag">tone &amp; sentiment</span>
+          <span class="focus-tag">adaptive response</span>
+          <span class="focus-tag">emotional memory</span>
+        </div>
+      </div>
+
+      <div class="focus-card">
+        <span class="focus-num">02</span>
+        <svg class="focus-icon" viewBox="0 0 72 72" fill="none">
+          <circle cx="36" cy="36" r="26" stroke="#1A1814" stroke-width="2" fill="#E8E4F6"/>
+          <path d="M22 36 Q22 22 36 22 Q50 22 50 36" stroke="#2B3A8C" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M50 36 Q50 50 36 50 Q22 50 22 36" stroke="#2B3A8C" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="3 3"/>
+          <polygon points="48,32 54,36 48,40" fill="#E04E2A"/>
+          <circle cx="36" cy="36" r="4" fill="#F5B82E" stroke="#1A1814" stroke-width="1"/>
+        </svg>
+        <h4 class="focus-name">Meta<em>cognition</em></h4>
+        <p class="focus-desc">
+          AI that reasons about its own reasoning. Knows what it doesn't know,
+          when to ask, when to slow down, and when to revise.
+        </p>
+      </div>
+
+      <div class="focus-card">
+        <span class="focus-num">03</span>
+        <svg class="focus-icon" viewBox="0 0 72 72" fill="none">
+          <circle cx="22" cy="26" r="10" stroke="#1A1814" stroke-width="2" fill="#D7EBD9"/>
+          <path d="M10 50 Q22 38 34 50" stroke="#1A1814" stroke-width="2" fill="#D7EBD9" stroke-linejoin="round"/>
+          <circle cx="50" cy="26" r="10" stroke="#1A1814" stroke-width="2" fill="#FBF6EC" stroke-dasharray="2 2"/>
+          <path d="M38 50 Q50 38 62 50" stroke="#1A1814" stroke-width="2" fill="#FBF6EC" stroke-linejoin="round" stroke-dasharray="2 2"/>
+          <g stroke="#3F7D54" stroke-width="1.6" fill="none" stroke-linecap="round">
+            <line x1="34" y1="26" x2="36" y2="26"/>
+            <line x1="36" y1="22" x2="36" y2="30"/>
+            <line x1="38" y1="20" x2="38" y2="32"/>
+            <line x1="40" y1="24" x2="40" y2="28"/>
+            <line x1="42" y1="20" x2="42" y2="32"/>
+            <line x1="44" y1="23" x2="44" y2="29"/>
+            <line x1="46" y1="26" x2="48" y2="26"/>
+          </g>
+        </svg>
+        <h4 class="focus-name">Human Digital <em>Twin</em></h4>
+        <p class="focus-desc">
+          Voice cloning, behavioral patterns, memory snapshots — building a faithful digital
+          counterpart that can speak, decide, and learn in someone's stead.
+        </p>
+      </div>
+
+      <div class="focus-card">
+        <span class="focus-num">04</span>
+        <svg class="focus-icon" viewBox="0 0 72 72" fill="none">
+          <circle cx="36" cy="14" r="5" fill="#F5B82E" stroke="#1A1814" stroke-width="1.8"/>
+          <line x1="36" y1="19" x2="20" y2="32" stroke="#1A1814" stroke-width="1.8"/>
+          <line x1="36" y1="19" x2="52" y2="32" stroke="#1A1814" stroke-width="1.8"/>
+          <circle cx="20" cy="36" r="4.5" fill="#FBF6EC" stroke="#1A1814" stroke-width="1.8"/>
+          <circle cx="52" cy="36" r="4.5" fill="#FBF6EC" stroke="#1A1814" stroke-width="1.8"/>
+          <line x1="20" y1="40" x2="12" y2="54" stroke="#1A1814" stroke-width="1.5"/>
+          <line x1="20" y1="40" x2="28" y2="54" stroke="#1A1814" stroke-width="1.5"/>
+          <line x1="52" y1="40" x2="44" y2="54" stroke="#1A1814" stroke-width="1.5"/>
+          <line x1="52" y1="40" x2="60" y2="54" stroke="#1A1814" stroke-width="1.5"/>
+          <circle cx="12" cy="58" r="3.5" fill="#E04E2A" stroke="#1A1814" stroke-width="1.5"/>
+          <circle cx="28" cy="58" r="3.5" fill="#3F7D54" stroke="#1A1814" stroke-width="1.5"/>
+          <circle cx="44" cy="58" r="3.5" fill="#3F7D54" stroke="#1A1814" stroke-width="1.5"/>
+          <circle cx="60" cy="58" r="3.5" fill="#E04E2A" stroke="#1A1814" stroke-width="1.5"/>
+        </svg>
+        <h4 class="focus-name">Behavioral &amp; <em>Decision Systems</em></h4>
+        <p class="focus-desc">
+          Modeling how humans choose, weigh trade-offs, and form habits — so AI can
+          assist decisions instead of replacing them.
+        </p>
+      </div>
+
+      <div class="focus-card">
+        <span class="focus-num">05</span>
+        <svg class="focus-icon" viewBox="0 0 72 72" fill="none">
+          <rect x="14" y="14" width="44" height="44" rx="3" fill="#F4ECDC" stroke="#1A1814" stroke-width="2"/>
+          <path d="M36 22 m -8 0 a 8 8 0 1 0 16 0 a 8 8 0 1 0 -16 0 M36 22 m -5 0 a 5 5 0 1 1 10 0 a 5 5 0 1 1 -10 0 M36 22 m -2 0 a 2 2 0 1 0 4 0 a 2 2 0 1 0 -4 0"
+                fill="none" stroke="#D69A12" stroke-width="1.5"/>
+          <line x1="22" y1="42" x2="50" y2="42" stroke="#1A1814" stroke-width="1.3"/>
+          <line x1="22" y1="48" x2="46" y2="48" stroke="#1A1814" stroke-width="1.3"/>
+          <line x1="22" y1="54" x2="42" y2="54" stroke="#1A1814" stroke-width="1.3"/>
+        </svg>
+        <h4 class="focus-name">Historical <em>AI</em></h4>
+        <p class="focus-desc">
+          Preserving voices, decisions, and minds across time. What if our grandchildren could
+          talk to us — long after we're gone?
+        </p>
+      </div>
+
+    </div>
+
+    <div class="also-exploring reveal">
+      <span class="label">Also exploring →</span>
+      <a class="also-tag" href="#">Personal AI</a>
+      <a class="also-tag" href="#">Memory Architectures</a>
+      <a class="also-tag" href="#">AI Companions</a>
+      <a class="also-tag" href="#">Voice Cloning</a>
+      <a class="also-tag" href="#">Empathy Models</a>
+      <a class="also-tag" href="#">Human-Centric Design</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── STACK ── -->
+<section class="stack" id="stack">
+  <div class="wrap stack-inner reveal">
+    <div class="stack-head">
+      <div class="eyebrow">— The stack</div>
+      <h3>The <em>technologies</em> behind the curiosity.</h3>
+      <p>
+        Engineering depth meets AI exploration. Decades of platform work sits underneath every prototype —
+        and every prototype borrows from the latest in foundation models, voice, memory, and behavioral systems.
+      </p>
+    </div>
+
+    <div class="stack-layers">
+      <div class="stack-layer">
+        <div class="layer-title">
+          <h4>Foundation <em>Models</em></h4>
+          <small>Reasoning · Language</small>
+        </div>
+        <div class="layer-tools">
+          <span class="tool">Claude</span>
+          <span class="tool">GPT-4 / 5</span>
+          <span class="tool">Gemini</span>
+          <span class="tool">Llama 3</span>
+          <span class="tool">Mistral</span>
+          <span class="tool">Fine-tuning</span>
+        </div>
+        <span class="layer-num">01</span>
+      </div>
+
+      <div class="stack-layer">
+        <div class="layer-title">
+          <h4>Voice <em>&amp; Speech</em></h4>
+          <small>Cloning · Synthesis · ASR</small>
+        </div>
+        <div class="layer-tools">
+          <span class="tool">ElevenLabs</span>
+          <span class="tool">Whisper</span>
+          <span class="tool">Coqui TTS</span>
+          <span class="tool">PlayHT</span>
+          <span class="tool">Custom voice models</span>
+          <span class="tool">Real-time STT</span>
+        </div>
+        <span class="layer-num">02</span>
+      </div>
+
+      <div class="stack-layer">
+        <div class="layer-title">
+          <h4>Memory <em>&amp; Context</em></h4>
+          <small>Vectors · Retrieval · RAG</small>
+        </div>
+        <div class="layer-tools">
+          <span class="tool">Pinecone</span>
+          <span class="tool">Weaviate</span>
+          <span class="tool">pgvector</span>
+          <span class="tool">LangChain</span>
+          <span class="tool">LlamaIndex</span>
+          <span class="tool">Knowledge graphs</span>
+        </div>
+        <span class="layer-num">03</span>
+      </div>
+
+      <div class="stack-layer">
+        <div class="layer-title">
+          <h4>Behavioral <em>Layer</em></h4>
+          <small>Modeling · Adaptation · Personalization</small>
+        </div>
+        <div class="layer-tools">
+          <span class="tool">Reinforcement learning</span>
+          <span class="tool">Sentiment analysis</span>
+          <span class="tool">Multi-modal models</span>
+          <span class="tool">Custom embeddings</span>
+          <span class="tool">User-state graphs</span>
+        </div>
+        <span class="layer-num">04</span>
+      </div>
+
+      <div class="stack-layer">
+        <div class="layer-title">
+          <h4>Engineering <em>Spine</em></h4>
+          <small>The 20-year foundation</small>
+        </div>
+        <div class="layer-tools">
+          <span class="tool">Node.js</span>
+          <span class="tool">Python</span>
+          <span class="tool">Java</span>
+          <span class="tool">React / Next.js</span>
+          <span class="tool">AWS · GCP</span>
+          <span class="tool">Microservices</span>
+          <span class="tool">Kubernetes</span>
+          <span class="tool">PostgreSQL · Redis</span>
+          <span class="tool">Event-driven systems</span>
+        </div>
+        <span class="layer-num">05</span>
+      </div>
+    </div>
+
+    <p class="stack-footnote">
+      "The future of AI is not defined by larger models alone — it will be shaped by systems that
+      understand people, adapt with experience, and reason about their own decisions."
+    </p>
+  </div>
+</section>
+
+<!-- ── FEATURED ESSAY ── -->
+<section class="featured" id="essays">
+  <div class="wrap reveal">
+    <div class="featured-inner">
+      <div class="featured-tag-col">
+        <svg class="stamp" viewBox="0 0 120 120" fill="none">
+          <rect x="6" y="6" width="108" height="108" rx="2" stroke="#E04E2A" stroke-width="1.5" stroke-dasharray="2 3"/>
+          <rect x="14" y="14" width="92" height="92" rx="1" stroke="#E04E2A" stroke-width="1"/>
+          <text x="60" y="42" text-anchor="middle" fill="#E04E2A" font-family="JetBrains Mono,monospace" font-size="9" letter-spacing="2">FEATURED</text>
+          <line x1="22" y1="50" x2="98" y2="50" stroke="#E04E2A" stroke-width="0.8"/>
+          <text x="60" y="72" text-anchor="middle" fill="#E04E2A" font-family="Fraunces,serif" font-style="italic" font-size="22" font-weight="500">Essay</text>
+          <text x="60" y="92" text-anchor="middle" fill="#E04E2A" font-family="JetBrains Mono,monospace" font-size="8" letter-spacing="1.5">№ 001</text>
+          <text x="60" y="104" text-anchor="middle" fill="#E04E2A" font-family="JetBrains Mono,monospace" font-size="7" letter-spacing="1.5">2026·06·24</text>
+        </svg>
+        <div class="eyebrow">Featured · long read</div>
+      </div>
+
+      <div class="featured-main">
+        <h2 class="display">
+          We built an <em>autocomplete</em>.<br>
+          People kept saying <em>thank you</em>.
+        </h2>
+        <p class="featured-lede">
+          Somewhere between v0.4 and v0.7, the support inbox stopped being about bugs.
+          Users started writing in to say the assistant had <strong>helped them think</strong>,
+          or had been kind on a hard morning. None of that was in the spec.
+          A field note about what happens when a productivity tool accidentally becomes
+          <em>emotional infrastructure.</em>
+        </p>
+        <a class="read-cta" href="#REPLACE-WITH-YOUR-FILE">
+          Read the essay
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <div class="featured-meta">
+          <span><strong>12 min read</strong></span>
+          <span>Filed under <strong>Emotional AI</strong></span>
+          <span>memory · empathy · responsibility</span>
+        </div>
+      </div>
+
+      <aside class="featured-side">
+        <span class="quote-mark">"</span>
+        <p class="quote">
+          The model didn't <em>know</em> the user was lonely.
+          But the user didn't seem to care — and that's the part we have to design for now.
+        </p>
+        <p class="attr">— from the essay, paragraph 7</p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ── POSTS LIST ── -->
+<section class="posts">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h3>Recent <em>field notes</em></h3>
+      <p>Essays, experiments, and engineering write-ups. Each title links to its own page — attach your HTML and update the <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--paper-2);padding:2px 6px;border:1px solid var(--ink);">href</code> below.</p>
+    </div>
+
+    <!--
+      ─────────────────────────────────────────────────────────────────
+      HOW TO ATTACH YOUR HTML POSTS:
+      1. Put each post HTML file beside this blog.html (e.g. /posts/emotional-ai.html)
+      2. For each post row below, replace href="#REPLACE-WITH-YOUR-FILE" with the real path,
+         e.g. href="posts/emotional-ai.html"
+      3. You can update the <h4 class="post-title"> text to match your post's heading.
+      ─────────────────────────────────────────────────────────────────
+    -->
+    <div class="post-list reveal">
+
+      <a class="post-row c-emotional" href="#REPLACE-WITH-YOUR-FILE">
+        <span class="post-num">№ 001</span>
+        <div>
+          <h4 class="post-title">When an AI starts to <em>listen</em>: building empathy into voice agents.</h4>
+          <div class="meta-mobile"><span>Emotional AI</span><span>·</span><span>Jun 24, 2026</span></div>
+        </div>
+        <span class="post-cat">Emotional AI</span>
+        <span class="post-date">Jun 24, 2026</span>
+        <span class="post-arrow">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </span>
+      </a>
+
+      <a class="post-row c-meta" href="#REPLACE-WITH-YOUR-FILE">
+        <span class="post-num">№ 002</span>
+        <div>
+          <h4 class="post-title">Teaching a model to say <em>"I'm not sure"</em> — notes on metacognition.</h4>
+          <div class="meta-mobile"><span>Metacognition</span><span>·</span><span>Jun 17, 2026</span></div>
+        </div>
+        <span class="post-cat">Metacognition</span>
+        <span class="post-date">Jun 17, 2026</span>
+        <span class="post-arrow">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </span>
+      </a>
+
+      <a class="post-row c-twin" href="#REPLACE-WITH-YOUR-FILE">
+        <span class="post-num">№ 003</span>
+        <div>
+          <h4 class="post-title">A weekend with my own <em>digital twin</em> — voice, memory, and a strange mirror.</h4>
+          <div class="meta-mobile"><span>Digital Twin</span><span>·</span><span>Jun 09, 2026</span></div>
+        </div>
+        <span class="post-cat">Human Digital Twin</span>
+        <span class="post-date">Jun 09, 2026</span>
+        <span class="post-arrow">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </span>
+      </a>
+
+      <a class="post-row c-decision" href="#REPLACE-WITH-YOUR-FILE">
+        <span class="post-num">№ 004</span>
+        <div>
+          <h4 class="post-title">Decision systems that explain themselves — beyond the <em>black box</em>.</h4>
+          <div class="meta-mobile"><span>Decision Systems</span><span>·</span><span>May 30, 2026</span></div>
+        </div>
+        <span class="post-cat">Decision Systems</span>
+        <span class="post-date">May 30, 2026</span>
+        <span class="post-arrow">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </span>
+      </a>
+
+      <a class="post-row c-historical" href="#REPLACE-WITH-YOUR-FILE">
+        <span class="post-num">№ 005</span>
+        <div>
+          <h4 class="post-title">Historical AI: can we let our <em>grandchildren</em> talk to us?</h4>
+          <div class="meta-mobile"><span>Historical AI</span><span>·</span><span>May 22, 2026</span></div>
+        </div>
+        <span class="post-cat">Historical AI</span>
+        <span class="post-date">May 22, 2026</span>
+        <span class="post-arrow">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </span>
+      </a>
+
+      <a class="post-row c-emotional" href="#REPLACE-WITH-YOUR-FILE">
+        <span class="post-num">№ 006</span>
+        <div>
+          <h4 class="post-title">The <em>tone-aware</em> assistant: emotional adaptation in real time.</h4>
+          <div class="meta-mobile"><span>Emotional AI</span><span>·</span><span>May 14, 2026</span></div>
+        </div>
+        <span class="post-cat">Emotional AI</span>
+        <span class="post-date">May 14, 2026</span>
+        <span class="post-arrow">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </span>
+      </a>
+
+      <a class="post-row c-scale" href="#REPLACE-WITH-YOUR-FILE">
+        <span class="post-num">№ 007</span>
+        <div>
+          <h4 class="post-title">Scaling a loyalty platform to <em>10M users</em> — what 20 years taught me.</h4>
+          <div class="meta-mobile"><span>Engineering</span><span>·</span><span>May 06, 2026</span></div>
+        </div>
+        <span class="post-cat">Engineering</span>
+        <span class="post-date">May 06, 2026</span>
+        <span class="post-arrow">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </span>
+      </a>
+
+      <a class="post-row c-twin" href="#REPLACE-WITH-YOUR-FILE">
+        <span class="post-num">№ 008</span>
+        <div>
+          <h4 class="post-title">Voice cloning, ethics, and the <em>consent layer</em> we keep forgetting.</h4>
+          <div class="meta-mobile"><span>Voice &amp; Twin</span><span>·</span><span>Apr 28, 2026</span></div>
+        </div>
+        <span class="post-cat">Voice &amp; Twin</span>
+        <span class="post-date">Apr 28, 2026</span>
+        <span class="post-arrow">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </span>
+      </a>
+
+    </div>
+
+    <div class="post-note">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+      <span><strong>To attach a post:</strong> replace each <code>href="#REPLACE-WITH-YOUR-FILE"</code> with your HTML file path, and update the heading text inside <code>&lt;h4 class="post-title"&gt;</code>.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOUNDATION ── -->
+<section class="foundation">
+  <div class="wrap">
+    <div class="foundation-head reveal">
+      <div>
+        <div class="eyebrow" style="margin-bottom:14px">— The foundation</div>
+        <h3>Twenty years of <em>shipping</em>,<br>before any of this was called AI.</h3>
+      </div>
+      <p>
+        Engineering excellence isn't a buzzword on a slide — it's a habit built over two decades of architecting,
+        scaling, leading, and shipping. The frontier work I do today rests on this foundation.
+      </p>
+    </div>
+
+    <div class="stats-grid reveal">
+      <div class="stat">
+        <span class="num"><em>20</em>+</span>
+        <span class="label">years architecting and scaling enterprise platforms</span>
+        <small>since the early 2000s</small>
+      </div>
+      <div class="stat">
+        <span class="num">10<em>M+</em></span>
+        <span class="label">users served across loyalty &amp; e-commerce systems</span>
+        <small>cumulative reach</small>
+      </div>
+      <div class="stat">
+        <span class="num"><em>50</em>+</span>
+        <span class="label">engineers led across high-performing teams</span>
+        <small>tech leadership</small>
+      </div>
+      <div class="stat">
+        <span class="num"><em>∞</em></span>
+        <span class="label">curiosity for what comes next in Human-Centric AI</span>
+        <small>and still counting</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── NOW PANEL ── -->
+<section class="now" id="now">
+  <div class="wrap now-inner reveal">
+    <div class="now-eyebrow">/now — last updated June 28</div>
+    <h3>What I'm <em>actually</em> exploring right now.</h3>
+    <div class="now-grid">
+      <div class="now-card">
+        <div class="now-label"><span class="live"></span>Building</div>
+        <h4 class="now-title">A voice-first <em>digital twin</em> prototype.</h4>
+        <p>Combining cloned voice, behavioral patterns, and a small memory architecture. Currently teaching it to know when <em>not</em> to answer.</p>
+      </div>
+      <div class="now-card">
+        <div class="now-label"><span class="live"></span>Researching</div>
+        <h4 class="now-title">Metacognition in <em>small models</em>.</h4>
+        <p>Can a 7B-parameter model meaningfully reason about its own confidence? Early experiments suggest yes — with the right scaffolding.</p>
+      </div>
+      <div class="now-card">
+        <div class="now-label"><span class="live"></span>Writing</div>
+        <h4 class="now-title">An essay on what AI <em>shouldn't</em> automate.</h4>
+        <p>The most valuable things in any week are still the ones nothing has learned to do — and probably shouldn't.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── NEWSLETTER / CONNECT ── -->
+<section class="newsletter" id="newsletter">
+  <div class="wrap news-inner reveal">
+    <div>
+      <div class="eyebrow" style="margin-bottom:18px">— let's connect</div>
+      <h3 class="display">
+        If you care about<br>
+        Human-Centric AI,<br>
+        <em>let's talk.</em>
+      </h3>
+    </div>
+    <form class="news-form" onsubmit="event.preventDefault();this.querySelector('button').textContent='Subscribed ✓'">
+      <div class="field">
+        <input type="email" placeholder="your@email.com" required>
+        <button type="submit">Subscribe</button>
+      </div>
+      <small>
+        One letter a month — Emotional AI, metacognition, voice, and the human side of building.
+        Unsubscribe with one click.
+      </small>
+    </form>
+    <svg class="news-art" viewBox="0 0 240 240" fill="none">
+      <rect x="30" y="60" width="180" height="120" rx="2" stroke="#1A1814" stroke-width="2" fill="#FBF6EC"/>
+      <path d="M30 60 L120 130 L210 60" stroke="#1A1814" stroke-width="2" fill="none"/>
+      <path d="M30 180 L100 120" stroke="#1A1814" stroke-width="1.5" fill="none"/>
+      <path d="M210 180 L140 120" stroke="#1A1814" stroke-width="1.5" fill="none"/>
+      <circle cx="180" cy="40" r="22" stroke="#E04E2A" stroke-width="1.5" stroke-dasharray="2 3" fill="none"/>
+      <text x="180" y="45" text-anchor="middle" fill="#E04E2A" font-family="JetBrains Mono,monospace" font-size="9">№01</text>
+    </svg>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand">Field <em>Notes</em></div>
+        <p class="foot-tag">
+          Field notes from a 20-year technology veteran exploring the frontier of Human-Centric AI —
+          Emotional AI, Metacognition, Digital Twins, and Voice.
+        </p>
+      </div>
+      <div class="foot-col">
+        <h5>Focus</h5>
+        <a href="#focus">Emotional AI</a>
+        <a href="#focus">Metacognition</a>
+        <a href="#focus">Human Digital Twin</a>
+        <a href="#focus">Decision Systems</a>
+        <a href="#focus">Historical AI</a>
+      </div>
+      <div class="foot-col">
+        <h5>Foundation</h5>
+        <a href="#about">Scale &amp; Platforms</a>
+        <a href="#about">E-commerce</a>
+        <a href="#about">Loyalty Systems</a>
+        <a href="#stack">Engineering Stack</a>
+      </div>
+      <div class="foot-col">
+        <h5>Elsewhere</h5>
+        <a href="#">LinkedIn</a>
+        <a href="#">GitHub</a>
+        <a href="#">X / Twitter</a>
+        <a href="mailto:hello@example.com">Email me</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 — written, drawn &amp; deployed by hand</span>
+      <span>Built with care · last deploy 2026-06-28</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    });
+  },{threshold:0.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+
+</body>
+</html>
