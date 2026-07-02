@@ -1,22 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-  <html lang="en">
-    <head>
-      <!-- 1. Character Encoding (Ensures symbols and text render correctly) -->
-      <meta charset="UTF-8">
-      
-      <!-- 2. Mobile Responsiveness (Crucial so it looks good on mobile devices) -->
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      
-      <!-- 3. Your Site Title (What shows up on the browser tab) -->
-      <title>ChiefMahesh | Software Engineer & Developer</title>
-      
-      <!-- 4. Your SEO Description (What shows up in Google search results) -->
-      <meta name="description" content="Personal portfolio of ChiefMahesh. Exploring software architecture, intelligent systems, and building robust digital solutions.">
-      
-      <!-- 5. Links to your Stylesheets (If you have a separate CSS file) -->
-      <!-- <link rel="stylesheet" href="css/style.css"> -->
-  </head>
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mahesh Sonker — Exploring Emotional AI, Metacognition, Digital You</title>
@@ -316,14 +300,49 @@ h2.display{font-weight:600;letter-spacing:-0.035em}
   animation:fadeUp 1s var(--ease-out-quart) 0.6s forwards;
   will-change:transform;
 }
-.hero-lede{
-  font-size:clamp(16px,1.55vw,18px);
-  line-height:1.55;color:var(--text-2);
-  max-width:42ch;font-weight:400;
+.hero-statement{
+  font-family:'Geist',sans-serif;
+  font-size:clamp(17px,1.95vw,22px);
+  line-height:1.35;
+  font-weight:500;
+  color:var(--text);
+  letter-spacing:-0.018em;
+  max-width:40ch;
   opacity:0;
-  animation:fadeUp 0.8s var(--ease-out-quart) 1s forwards;
+  animation:fadeUp 0.85s var(--ease-out-quart) 0.9s forwards;
+}
+.hero-statement em{
+  font-style:normal;
+  color:var(--accent);
+  font-weight:500;
+}
+.hero-lede{
+  font-size:clamp(15px,1.5vw,17px);
+  line-height:1.62;color:var(--text-2);
+  max-width:44ch;font-weight:400;
+  opacity:0;
+  animation:fadeUp 0.8s var(--ease-out-quart) 1.15s forwards;
 }
 .hero-lede strong{color:var(--text);font-weight:500}
+.hero-tagline{
+  font-family:'Geist',sans-serif;
+  font-size:clamp(15px,1.6vw,18.5px);
+  line-height:1.4;
+  font-weight:500;
+  font-style:italic;
+  color:#FFAB7C;
+  letter-spacing:-0.005em;
+  opacity:0;
+  animation:fadeUp 0.85s var(--ease-out-quart) 1.45s forwards;
+  text-shadow:0 0 30px rgba(255,171,124,0.18);
+  display:inline-block;
+}
+.hero-tagline .tag-mark{
+  color:rgba(255,171,124,0.5);
+  margin-right:7px;
+  font-style:normal;
+  font-weight:400;
+}
 .hero-roles{
   font-family:'JetBrains Mono',monospace;
   font-size:11px;letter-spacing:0.08em;
@@ -339,6 +358,30 @@ h2.display{font-weight:600;letter-spacing:-0.035em}
   transition:color .25s;
 }
 .hero-roles span:hover{color:var(--accent)}
+
+/* About roles strip — below the portrait */
+.about-roles{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px;
+  letter-spacing:0.08em;
+  color:var(--text-3);
+  text-transform:uppercase;
+  line-height:1.85;
+  margin-top:24px;
+  margin-bottom:24px;
+  padding:18px 0;
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+}
+.about-roles span + span::before{
+  content:" · ";
+  color:var(--text-5);
+  margin:0 2px;
+}
+.about-roles span{
+  transition:color .25s;
+}
+.about-roles span:hover{color:var(--accent)}
 
 @media (max-width:900px){
   .hero-grid{grid-template-columns:1fr;gap:40px;align-items:start}
@@ -1568,6 +1611,312 @@ h2.display{font-weight:600;letter-spacing:-0.035em}
 @media (max-width:820px){.cur-grid{grid-template-columns:1fr}}
 
 /* ──────────────────────────────────────────────────────────
+   EXPLORATIONS — Small project cards linking to static HTML
+   ────────────────────────────────────────────────────────── */
+.explorations{
+  padding:var(--pad-section) 0;
+  border-bottom:1px solid var(--border);
+}
+.exp-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+.exp-card{
+  background:var(--bg-1);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:22px 24px 20px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  min-height:220px;
+  position:relative;
+  transition:border-color .3s var(--ease-out-quart),
+             background .3s var(--ease-out-quart),
+             transform .35s var(--ease-out-quart);
+  overflow:hidden;
+  color:inherit;
+  text-decoration:none;
+}
+.exp-card:hover{
+  border-color:var(--border-2);
+  background:var(--bg-2);
+  transform:translateY(-3px);
+}
+.exp-card::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:radial-gradient(
+    320px circle at var(--mx,50%) var(--my,50%),
+    rgba(124,232,200,0.07),
+    transparent 50%
+  );
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .35s;
+  border-radius:inherit;
+}
+.exp-card:hover::after{opacity:1}
+.exp-card > *{position:relative;z-index:1}
+
+.exp-num{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;
+  letter-spacing:0.12em;
+  color:var(--text-4);
+  text-transform:uppercase;
+}
+.exp-status{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  letter-spacing:0.08em;
+}
+.exp-status::before{
+  content:"";
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  flex-shrink:0;
+}
+.exp-status.live{color:var(--accent)}
+.exp-status.live::before{background:var(--accent);box-shadow:0 0 6px var(--accent)}
+.exp-status.research{color:#A5B4FC}
+.exp-status.research::before{background:#A5B4FC}
+.exp-status.concept{color:#FFAB7C}
+.exp-status.concept::before{background:#FFAB7C}
+.exp-status.notes{color:var(--text-3)}
+.exp-status.notes::before{background:var(--text-3)}
+.exp-status.sketch{color:var(--text-3)}
+.exp-status.sketch::before{
+  background:transparent;
+  border:1px solid var(--text-3);
+  width:5px;height:5px;
+  box-sizing:border-box;
+}
+
+.exp-title{
+  font-family:'Geist',sans-serif;
+  font-size:18px;
+  font-weight:500;
+  letter-spacing:-0.022em;
+  color:var(--text);
+  line-height:1.25;
+  margin-top:2px;
+}
+.exp-title em{
+  font-style:normal;
+  color:var(--accent);
+  font-weight:500;
+}
+
+.exp-subtitle{
+  font-size:13px;
+  line-height:1.6;
+  color:var(--text-3);
+}
+
+.exp-meta{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-top:auto;
+  padding-top:14px;
+  border-top:1px solid var(--border);
+}
+.exp-tag{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px;
+  color:var(--text-3);
+  letter-spacing:0.02em;
+}
+
+.exp-arrow{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  background:var(--bg-2);
+  border:1px solid var(--border-2);
+  color:var(--text-2);
+  flex-shrink:0;
+  transition:background .25s, color .25s, border-color .25s, transform .35s var(--ease-out-quart);
+}
+.exp-arrow svg{
+  width:12px;
+  height:12px;
+}
+.exp-card:hover .exp-arrow{
+  background:var(--accent);
+  color:var(--bg);
+  border-color:var(--accent);
+  transform:translate(2px,-2px);
+  box-shadow:0 0 16px rgba(124,232,200,0.3);
+}
+
+/* Staggered entrance like bento */
+.exp-grid.staggered .exp-card{
+  opacity:0;
+  transform:translateY(24px);
+  transition:opacity .7s var(--ease-out-quart), transform .7s var(--ease-out-quart),
+             border-color .3s, background .3s;
+}
+.exp-grid.staggered.in .exp-card{opacity:1;transform:none}
+.exp-grid.staggered.in .exp-card:nth-child(1){transition-delay:0ms}
+.exp-grid.staggered.in .exp-card:nth-child(2){transition-delay:80ms}
+.exp-grid.staggered.in .exp-card:nth-child(3){transition-delay:160ms}
+.exp-grid.staggered.in .exp-card:nth-child(4){transition-delay:240ms}
+.exp-grid.staggered.in .exp-card:nth-child(5){transition-delay:320ms}
+.exp-grid.staggered.in .exp-card:nth-child(6){transition-delay:400ms}
+.exp-grid.staggered.in .exp-card:nth-child(7){transition-delay:480ms}
+.exp-grid.staggered.in .exp-card:nth-child(8){transition-delay:560ms}
+
+@media (max-width:1024px){
+  .exp-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:560px){
+  .exp-grid{grid-template-columns:1fr}
+  .exp-card{min-height:auto}
+}
+
+/* Filter chips row */
+.exp-filters{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:28px;
+  padding-bottom:22px;
+  border-bottom:1px solid var(--border);
+}
+.exp-filter{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 14px;
+  background:var(--bg-1);
+  border:1px solid var(--border-2);
+  border-radius:100px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px;
+  letter-spacing:0.08em;
+  color:var(--text-2);
+  cursor:pointer;
+  text-transform:uppercase;
+  transition:background .25s, border-color .25s, color .25s, transform .25s var(--ease-out-quart), box-shadow .3s;
+  white-space:nowrap;
+  font-weight:500;
+}
+.exp-filter:hover{
+  border-color:var(--border-3);
+  color:var(--text);
+  background:var(--bg-2);
+  transform:translateY(-1px);
+}
+.exp-filter.active{
+  background:var(--accent);
+  color:var(--bg);
+  border-color:var(--accent);
+  box-shadow:0 0 20px rgba(124,232,200,0.22);
+}
+.exp-filter.active:hover{
+  background:var(--accent-2);
+  color:var(--bg);
+  transform:translateY(-1px);
+}
+.filter-count{
+  font-size:9.5px;
+  padding:1px 7px;
+  border-radius:8px;
+  background:rgba(255,255,255,0.08);
+  color:var(--text-3);
+  letter-spacing:0.04em;
+  min-width:16px;
+  text-align:center;
+}
+.exp-filter.active .filter-count{
+  background:rgba(10,11,14,0.18);
+  color:var(--bg);
+}
+
+/* Card visibility (filter or load-more state) */
+.exp-card.filter-hidden,
+.exp-card.more-hidden{
+  display:none !important;
+}
+.exp-card.just-appeared{
+  animation:expAppear 0.5s var(--ease-out-quart) both;
+}
+@keyframes expAppear{
+  from{opacity:0; transform:translateY(16px)}
+  to{opacity:1; transform:none}
+}
+
+/* Empty state */
+.exp-empty{
+  text-align:center;
+  padding:56px 20px;
+  color:var(--text-3);
+  font-size:14.5px;
+  font-family:'Geist',sans-serif;
+  border:1px dashed var(--border-2);
+  border-radius:12px;
+  margin-top:4px;
+}
+.exp-empty p{margin:0}
+.exp-empty[hidden]{display:none}
+
+/* Load more */
+.exp-more{
+  display:flex;
+  justify-content:center;
+  margin-top:32px;
+}
+.exp-more[hidden]{display:none}
+.exp-more-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:12px;
+  padding:14px 24px;
+  background:var(--bg-1);
+  border:1px solid var(--border-2);
+  border-radius:100px;
+  color:var(--text);
+  font-family:'Geist',sans-serif;
+  font-size:13.5px;
+  font-weight:500;
+  cursor:pointer;
+  letter-spacing:-0.005em;
+  transition:background .25s, border-color .25s, color .25s, transform .25s var(--ease-out-quart), box-shadow .3s;
+}
+.exp-more-btn:hover{
+  background:var(--accent-bg);
+  border-color:var(--accent-dim);
+  color:var(--accent);
+  transform:translateY(-2px);
+  box-shadow:0 0 24px rgba(124,232,200,0.18);
+}
+.exp-more-remaining{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px;
+  color:var(--text-4);
+  letter-spacing:0.06em;
+}
+.exp-more-btn:hover .exp-more-remaining{
+  color:var(--accent);
+  opacity:0.75;
+}
+
+/* ──────────────────────────────────────────────────────────
    CONNECT
    ────────────────────────────────────────────────────────── */
 .connect{
@@ -1690,6 +2039,126 @@ footer{background:var(--bg);padding:60px 0 40px}
 @media (max-width:400px){.foot-bottom{flex-direction:column;align-items:flex-start;gap:8px}}
 
 /* ──────────────────────────────────────────────────────────
+   EXPLORATION VIEWER — Loads external HTML inside the portfolio shell
+   ────────────────────────────────────────────────────────── */
+#portfolio-main{
+  animation:mainFadeIn 0.35s var(--ease-out-quart);
+}
+@keyframes mainFadeIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+#exp-viewer{
+  display:none;
+  min-height:calc(100vh - 60px);
+  background:var(--bg);
+  flex-direction:column;
+  position:relative;
+}
+#exp-viewer.is-open{
+  display:flex;
+  animation:mainFadeIn 0.35s var(--ease-out-quart);
+}
+.viewer-toolbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:16px clamp(20px,4vw,40px);
+  border-bottom:1px solid var(--border);
+  background:rgba(17,19,25,0.7);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  position:sticky;
+  top:60px;
+  z-index:40;
+}
+.viewer-back{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11.5px;
+  letter-spacing:0.08em;
+  color:var(--text-2);
+  text-transform:uppercase;
+  padding:8px 14px 8px 12px;
+  border:1px solid var(--border-2);
+  border-radius:100px;
+  background:var(--bg-1);
+  transition:color .25s, border-color .25s, background .25s, transform .25s var(--ease-out-quart);
+}
+.viewer-back:hover{
+  color:var(--accent);
+  border-color:var(--accent-dim);
+  background:var(--accent-bg);
+  transform:translateX(-2px);
+}
+.viewer-back svg{
+  width:12px;
+  height:12px;
+  transition:transform .3s var(--ease-out-quart);
+}
+.viewer-back:hover svg{transform:translateX(-3px)}
+.viewer-title{
+  font-family:'Geist',sans-serif;
+  font-size:13.5px;
+  font-weight:500;
+  color:var(--text);
+  letter-spacing:-0.01em;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.viewer-title .vt-crumb{
+  color:var(--text-4);
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+}
+.viewer-title .vt-crumb::after{
+  content:" ›";
+  color:var(--text-5);
+  margin-left:6px;
+}
+#exp-frame{
+  width:100%;
+  border:0;
+  display:block;
+  min-height:calc(100vh - 120px);
+  background:var(--bg);
+}
+.viewer-loading{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  letter-spacing:0.1em;
+  color:var(--text-3);
+  text-transform:uppercase;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  z-index:2;
+}
+.viewer-loading::before{
+  content:"";
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 8px var(--accent);
+  animation:avail-pulse 1.2s infinite;
+}
+@media (max-width:640px){
+  .viewer-toolbar{padding:14px 20px;top:56px}
+  .viewer-title{display:none}
+}
+
+/* ──────────────────────────────────────────────────────────
    GENERIC REVEAL
    ────────────────────────────────────────────────────────── */
 .reveal{
@@ -1738,6 +2207,7 @@ footer{background:var(--bg);padding:60px 0 40px}
       <a href="#stack">Stack</a>
       <a href="#experience">Experience</a>
       <a href="#career">Career</a>
+      <a href="#explorations">Explorations</a>
       <a href="#connect" class="btn">
         Get in touch
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -1745,6 +2215,8 @@ footer{background:var(--bg);padding:60px 0 40px}
     </nav>
   </div>
 </header>
+
+<main id="portfolio-main">
 
 <!-- ── HERO ── -->
 <section class="hero">
@@ -1839,19 +2311,19 @@ footer{background:var(--bg);padding:60px 0 40px}
           </g>
         </svg>
 
-        <p class="hero-lede">
-          Two decades architecting <strong>e-commerce, loyalty &amp; enterprise platforms</strong>.
-          Now building AI that's <strong>emotional, personal, and free</strong> —
-          quietly helping people through their daily struggles.
+        <p class="hero-statement">
+          Two decades of building <em>technology</em>.<br>
+          Now dedicated to understanding <em>humanity</em>.
         </p>
 
-        <div class="hero-roles">
-          <span>Problem Solver</span>
-          <span>Tech Veteran</span>
-          <span>Scaling Specialist</span>
-          <span>AI Explorer</span>
-          <span>Innovation Lead</span>
-        </div>
+        <p class="hero-lede">
+          Building AI that understands <strong>emotions, empathy, memories, behaviors,</strong> and <strong>decisions</strong> — helping people better understand themselves and stay <strong>deeply connected with their loved ones</strong> through technology that <strong>cares as much as it computes</strong>.
+        </p>
+
+        <p class="hero-tagline">
+          <span class="tag-mark">—</span>Designing You, With You.
+        </p>
+
       </div>
 
     </div>
@@ -1872,6 +2344,14 @@ footer{background:var(--bg);padding:60px 0 40px}
           <span class="badge-dot"></span>
           20+ years in technology
         </div>
+      </div>
+
+      <div class="about-roles">
+        <span>Problem Solver</span>
+        <span>Tech Veteran</span>
+        <span>Scaling Specialist</span>
+        <span>AI Explorer</span>
+        <span>Innovation Lead</span>
       </div>
 
       <div class="identity">
@@ -2607,6 +3087,231 @@ footer{background:var(--bg);padding:60px 0 40px}
   </div>
 </section>
 
+<!-- ── EXPLORATIONS ── -->
+<section class="explorations" id="explorations">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <div class="eyebrow">Explorations</div>
+        <h2>Small <em>experiments</em>,<br>big questions.</h2>
+      </div>
+      <p class="head-meta">
+        A growing collection of prototypes, sketches, and field notes — each pursuing one corner of the human-AI question.
+      </p>
+    </div>
+
+    <!-- Filter chips — categories with live counts -->
+    <div class="exp-filters reveal" role="tablist" aria-label="Filter explorations by topic">
+      <button class="exp-filter active" type="button" data-filter="all">
+        All <span class="filter-count">0</span>
+      </button>
+      <button class="exp-filter" type="button" data-filter="emotional-ai">
+        Emotional AI <span class="filter-count">0</span>
+      </button>
+      <button class="exp-filter" type="button" data-filter="metacognition">
+        Metacognition <span class="filter-count">0</span>
+      </button>
+      <button class="exp-filter" type="button" data-filter="digital-you">
+        Digital You <span class="filter-count">0</span>
+      </button>
+      <button class="exp-filter" type="button" data-filter="human-centric">
+        Human-Centric AI <span class="filter-count">0</span>
+      </button>
+      <button class="exp-filter" type="button" data-filter="voice">
+        Voice <span class="filter-count">0</span>
+      </button>
+    </div>
+
+    <!--
+      ─────────────────────────────────────────────────────────
+      ADD YOUR EXPLORATIONS HERE:
+
+      1. ROUTING (open inside portfolio shell)
+         • Put your HTML file in the "explorations/" folder
+         • Card href = "#explorations/FILENAME_WITHOUT_EXTENSION"
+         • URL becomes blog.html#explorations/my-idea — shareable & back-button friendly
+
+      2. CATEGORIZING (make it filterable)
+         • Add data-category="..." on the <a class="exp-card">
+         • Existing categories: emotional-ai · metacognition · digital-you
+                                human-centric · voice
+         • To add a new category:
+           a. Add a chip in .exp-filters:
+              <button class="exp-filter" type="button" data-filter="my-cat">
+                My Category <span class="filter-count">0</span>
+              </button>
+           b. Use data-category="my-cat" on relevant cards.
+              Counts update automatically on page load.
+
+      3. STATUS INDICATOR (colored dot on the card)
+         • .live      mint dot — active project
+         • .research  blue dot — research
+         • .concept   peach dot — early concept
+         • .sketch    hollow dot — idea sketch
+         • .notes     gray dot — writings / essays
+
+      4. PAGINATION
+         • First 6 cards show by default (INITIAL_SHOWN in JS)
+         • "Load more" reveals 6 at a time (LOAD_MORE_BATCH in JS)
+         • Both constants are at the top of the router JS — tune freely
+         • Filter change resets shown count to 6
+      ─────────────────────────────────────────────────────────
+    -->
+
+    <div class="exp-grid staggered" id="expGrid">
+
+      <a href="#explorations/emotion-wheel" class="exp-card" data-category="emotional-ai" data-spotlight>
+        <div class="exp-num">
+          <span>EXPLORATION · 01</span>
+          <span class="exp-status live">Live</span>
+        </div>
+        <h3 class="exp-title">The Emotional · <em>Wheel</em></h3>
+        <p class="exp-subtitle">A proven tool to identify how you feel — the first step in regulating your emotions. Used by psychologists, therapists, and anyone building emotional intelligence..</p>
+        <div class="exp-meta">
+          <span class="exp-tag">React · Python · GPT-4</span>
+          <span class="exp-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </span>
+        </div>
+      </a>
+
+      <a href="#explorations/voice-cloning-hinglish" class="exp-card" data-category="voice" data-spotlight>
+        <div class="exp-num">
+          <span>EXPLORATION · 02</span>
+          <span class="exp-status live">Live</span>
+        </div>
+        <h3 class="exp-title">Voice Cloning · <em>Hinglish</em></h3>
+        <p class="exp-subtitle">A guide to cloning voices in Hindi-English — preserving cadence, breath, emotion, and the ethical frame around it. Preserving your authentic cadence — the pauses, the breath, the Hinglish rhythm — is what makes a clone feel like you, not just a generic voice. A practical, open-source-first guide.</p>
+        <div class="exp-meta">
+          <span class="exp-tag">ElevenLabs · Prosody · Ethics</span>
+          <span class="exp-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </span>
+        </div>
+      </a>
+
+      <a href="#explorations/superintelligence" class="exp-card" data-category="metacognition" data-spotlight>
+        <div class="exp-num">
+          <span>EXPLORATION · 03</span>
+          <span class="exp-status research">Research</span>
+        </div>
+        <h3 class="exp-title">Beyond the <em>Algorithm</em></h3> 
+        <p class="exp-subtitle">What happens when intelligence becomes aware of itself?</p>
+        <div class="exp-meta">
+          <span class="exp-tag">LLMs · Eval</span>
+          <span class="exp-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </span>
+        </div>
+      </a>
+
+      <a href="#explorations/bharat-digital-twin-full" class="exp-card" data-category="digital-you" data-spotlight>
+        <div class="exp-num">
+          <span>EXPLORATION · 04</span>
+          <span class="exp-status concept">Concept</span>
+        </div>
+        <h3 class="exp-title">Digital <em>You</em></h3>
+        <p class="exp-subtitle">One personalised digital companion for every citizen of India — multilingual, profession-adaptive, age-inclusive, built on open networks and India Stack..</p>
+        <div class="exp-meta">
+          <span class="exp-tag">Voice · Memory · Behavior</span>
+          <span class="exp-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </span>
+        </div>
+      </a>
+
+      <a href="#explorations/one_authentic_you_5_llm" class="exp-card" data-category="human-centric" data-spotlight>
+        <div class="exp-num">
+          <span>EXPLORATION · 05</span>
+          <span class="exp-status notes">Notes</span>
+        </div>
+        <h3 class="exp-title">Companion <em>Studies</em></h3>
+        <p class="exp-subtitle">Field notes on AI as long-term company — what loneliness asks for, and what software can actually offer.</p>
+        <div class="exp-meta">
+          <span class="exp-tag">Essays · Reflections</span>
+          <span class="exp-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </span>
+        </div>
+      </a>
+
+      <a href="#explorations/true-human-llm" class="exp-card" data-category="digital-you" data-spotlight>
+        <div class="exp-num">
+          <span>EXPLORATION · 06</span>
+          <span class="exp-status sketch">Sketch</span>
+        </div>
+        <h3 class="exp-title">Five Dimensions(5 LLMs) <em>In-depth</em></h3>
+        <p class="exp-subtitle">Personal, Relationship, Behavioral, Emotional & Historical is fine-tuned on a separate dimension of you. Here's exactly what each one knows, and how it speaks..</p>
+        <div class="exp-meta">
+          <span class="exp-tag">Vectors · RAG · pgvector</span>
+          <span class="exp-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </span>
+        </div>
+      </a>
+
+      <a href="#explorations/prompt-engineering-guide" class="exp-card" data-category="emotional-ai" data-spotlight>
+        <div class="exp-num">
+          <span>EXPLORATION · 07</span>
+          <span class="exp-status concept">Concept</span>
+        </div>
+        <h3 class="exp-title">Talk to AI Like a <em>Pro</em></h3>
+        <p class="exp-subtitle">10 techniques that unlock Claude's full potential.</p>
+        <div class="exp-meta">
+          <span class="exp-tag">Sentiment · UX</span>
+          <span class="exp-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </span>
+        </div>
+      </a>
+
+      <a href="#explorations/hindi-hinglish-voice-training" class="exp-card" data-category="metacognition" data-spotlight>
+        <div class="exp-num">
+          <span>EXPLORATION · 08</span>
+          <span class="exp-status sketch">Sketch</span>
+        </div>
+        <h3 class="exp-title">Hindi / Hinglish Voice Cloning <em>Training Guide & Playground</em></h3>
+        <p class="exp-subtitle">Step-by-step process to create a perfect Indian-language voice model — covering data collection, phoneme mapping, training pipeline, and production deployment.</p>
+        <div class="exp-meta">
+          <span class="exp-tag">Demo · Small LLMs</span>
+          <span class="exp-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </span>
+        </div>
+      </a>
+
+      <a href="#explorations/emotional-ai-love" class="exp-card" data-category="human-centric" data-spotlight>
+        <div class="exp-num">
+          <span>EXPLORATION · 09</span>
+          <span class="exp-status notes">Notes</span>
+        </div>
+        <h3 class="exp-title">Every <em>Color</em> of Love</h3>
+        <p class="exp-subtitle">where technology meets the deepest human feeling.</p>
+        <div class="exp-meta">
+          <span class="exp-tag">Ethics · Field notes</span>
+          <span class="exp-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
+          </span>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- Empty state — shown when a filter matches zero cards -->
+    <div class="exp-empty" id="expEmpty" hidden>
+      <p>No explorations in this category yet — check back soon.</p>
+    </div>
+
+    <!-- Load more — reveals next batch, hides itself when nothing's left -->
+    <div class="exp-more" id="expMore" hidden>
+      <button class="exp-more-btn" id="expMoreBtn" type="button">
+        <span>Load more</span>
+        <span class="exp-more-remaining" id="expMoreRemaining">— 3 more</span>
+      </button>
+    </div>
+  </div>
+</section>
+
 <!-- ── CONNECT ── -->
 <section class="connect" id="connect">
   <div class="connect-bg">
@@ -2641,6 +3346,24 @@ footer{background:var(--bg);padding:60px 0 40px}
   </div>
 </section>
 
+</main>
+
+<!-- ── EXPLORATION VIEWER (hidden by default via CSS, populated via hash routing) ── -->
+<div id="exp-viewer">
+  <div class="viewer-toolbar">
+    <a href="#" class="viewer-back" id="viewer-back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+      Back to portfolio
+    </a>
+    <div class="viewer-title">
+      <span class="vt-crumb">Explorations</span>
+      <span id="viewer-title-text">Loading…</span>
+    </div>
+  </div>
+  <div class="viewer-loading" id="viewer-loading">Loading exploration…</div>
+  <iframe id="exp-frame" src="about:blank" title="Exploration content"></iframe>
+</div>
+
 <!-- ── FOOTER ── -->
 <footer>
   <div class="wrap">
@@ -2666,6 +3389,7 @@ footer{background:var(--bg);padding:60px 0 40px}
         <a href="#stack">Tech stack</a>
         <a href="#experience">Experience</a>
         <a href="#career">Career</a>
+        <a href="#explorations">Explorations</a>
         <a href="#education">Education</a>
       </div>
       <div class="foot-col">
@@ -2781,8 +3505,8 @@ footer{background:var(--bg);padding:60px 0 40px}
       const phrases = [
         'advisory engagements',
         'collaborations',
-        'speaking'
-        // 'consulting'
+        'speaking',
+        'consulting'
       ];
       const rotEl = document.querySelector('.avail-rotate');
       let i = 0;
@@ -2797,6 +3521,260 @@ footer{background:var(--bg);padding:60px 0 40px}
         }, 3500);
       }
     }
+
+    /* ───────── Exploration Router (hash-based) ─────────
+       Loads external HTML files inside the portfolio shell
+       so the topbar and footer stay visible.
+       URL pattern:  blog.html#explorations/FILENAME
+       Loads:        explorations/FILENAME.html
+    */
+    const portfolioMain = document.getElementById('portfolio-main');
+    const expViewer = document.getElementById('exp-viewer');
+    const expFrame = document.getElementById('exp-frame');
+    const expTitleEl = document.getElementById('viewer-title-text');
+    const expLoading = document.getElementById('viewer-loading');
+
+    // Track whether we're loading a real exploration vs about:blank
+    let loadingRealExp = false;
+
+    function formatExpTitle(slug) {
+      return slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    }
+
+    function openExploration(slug) {
+      if (!expViewer || !expFrame) return;
+      // Sanitize: only allow safe filename characters
+      if (!/^[a-z0-9-]+$/i.test(slug)) return;
+
+      expTitleEl.textContent = formatExpTitle(slug);
+      expLoading.style.display = 'flex';
+      expFrame.style.opacity = '0';
+      expFrame.style.transition = 'opacity 0.3s';
+
+      // Swap views
+      portfolioMain.style.display = 'none';
+      expViewer.classList.add('is-open');
+
+      // Load the file
+      loadingRealExp = true;
+      expFrame.src = 'explorations/' + slug + '.html';
+
+      // Reset scroll to top so user sees the exploration from the start
+      window.scrollTo(0, 0);
+
+      // Safety fallback: if load event never fires cleanly, still reveal iframe
+      setTimeout(() => {
+        if (expLoading && expLoading.style.display !== 'none') {
+          expLoading.style.display = 'none';
+          expFrame.style.opacity = '1';
+        }
+      }, 3000);
+    }
+
+    function closeExploration() {
+      if (!expViewer || !portfolioMain) return;
+      expViewer.classList.remove('is-open');
+      portfolioMain.style.display = '';
+      loadingRealExp = false;
+      expFrame.src = 'about:blank';
+
+      // If the hash is a normal section anchor (e.g. #about), scroll to it
+      const hash = window.location.hash;
+      if (hash && hash.length > 1 && !hash.startsWith('#explorations/')) {
+        const target = document.querySelector(hash);
+        if (target) {
+          requestAnimationFrame(() => {
+            target.scrollIntoView({behavior: 'auto', block: 'start'});
+          });
+        }
+      }
+    }
+
+    function handleExpRoute() {
+      const hash = window.location.hash;
+      if (hash.startsWith('#explorations/')) {
+        openExploration(hash.substring(14));
+      } else {
+        closeExploration();
+      }
+    }
+
+    // Auto-size iframe to its content (same-origin only) and reveal it
+    if (expFrame) {
+      expFrame.addEventListener('load', () => {
+        // Ignore the about:blank load (fires on initial page load and on close)
+        if (!loadingRealExp) return;
+
+        try {
+          const doc = expFrame.contentDocument;
+          if (doc && doc.body) {
+            const updateHeight = () => {
+              const h = Math.max(
+                doc.body.scrollHeight,
+                doc.documentElement.scrollHeight
+              );
+              expFrame.style.height = h + 'px';
+            };
+            updateHeight();
+
+            if (window.ResizeObserver) {
+              const ro = new ResizeObserver(updateHeight);
+              ro.observe(doc.body);
+            }
+            // Also resize after images finish loading
+            doc.querySelectorAll('img').forEach(img => {
+              if (!img.complete) img.addEventListener('load', updateHeight);
+            });
+          } else {
+            // Same-origin but no body (e.g., 404) — use viewport-height fallback
+            expFrame.style.height = 'calc(100vh - 120px)';
+          }
+        } catch (e) {
+          // Cross-origin fallback (some browsers block file:// iframe access)
+          expFrame.style.height = 'calc(100vh - 120px)';
+        } finally {
+          expLoading.style.display = 'none';
+          expFrame.style.opacity = '1';
+        }
+      });
+    }
+
+    // Wire back link to clear the hash
+    const backLink = document.getElementById('viewer-back');
+    if (backLink) {
+      backLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        history.pushState('', document.title, window.location.pathname + window.location.search);
+        closeExploration();
+      });
+    }
+
+    // Router hooks
+    window.addEventListener('hashchange', handleExpRoute);
+    handleExpRoute(); // Initial route on load
+
+    /* ───────── Exploration Filters & Pagination ─────────
+       Tunable knobs — increase these to show more/fewer per batch.
+    */
+    const INITIAL_SHOWN = 6;
+    const LOAD_MORE_BATCH = 6;
+
+    const expGrid = document.getElementById('expGrid');
+    const expEmpty = document.getElementById('expEmpty');
+    const expMore = document.getElementById('expMore');
+    const expMoreBtn = document.getElementById('expMoreBtn');
+    const expMoreRemaining = document.getElementById('expMoreRemaining');
+    const filterBtns = document.querySelectorAll('.exp-filter');
+    const expCards = expGrid ? Array.from(expGrid.querySelectorAll('.exp-card')) : [];
+
+    let currentExpFilter = 'all';
+    let expShownCount = INITIAL_SHOWN;
+
+    function getFilteredExpCards() {
+      if (currentExpFilter === 'all') return expCards;
+      return expCards.filter(c => c.dataset.category === currentExpFilter);
+    }
+
+    function updateExpFilterCounts() {
+      const counts = { all: expCards.length };
+      expCards.forEach(c => {
+        const cat = c.dataset.category;
+        if (cat) counts[cat] = (counts[cat] || 0) + 1;
+      });
+      filterBtns.forEach(btn => {
+        const filter = btn.dataset.filter;
+        const countEl = btn.querySelector('.filter-count');
+        if (countEl) countEl.textContent = counts[filter] || 0;
+      });
+    }
+
+    function renderExpGrid(animate) {
+      if (!expGrid) return;
+      const filtered = getFilteredExpCards();
+
+      // Hide all cards first
+      expCards.forEach(c => {
+        c.classList.add('filter-hidden');
+        c.classList.remove('just-appeared');
+        c.style.animationDelay = '';
+      });
+
+      // Show up to shownCount from the filtered set
+      const visible = filtered.slice(0, expShownCount);
+      visible.forEach((c, i) => {
+        c.classList.remove('filter-hidden');
+        if (animate) {
+          c.style.animationDelay = (i * 60) + 'ms';
+          // Reflow trick to restart animation
+          void c.offsetWidth;
+          c.classList.add('just-appeared');
+        }
+      });
+
+      // Load more button state
+      const remaining = filtered.length - expShownCount;
+      if (expMore) {
+        if (remaining > 0) {
+          expMore.hidden = false;
+          if (expMoreRemaining) expMoreRemaining.textContent = '— ' + remaining + ' more';
+        } else {
+          expMore.hidden = true;
+        }
+      }
+
+      // Empty state
+      if (expEmpty) {
+        expEmpty.hidden = filtered.length > 0;
+      }
+    }
+
+    // Wire filter chips
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const filter = btn.dataset.filter;
+        if (filter === currentExpFilter) return;
+
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        currentExpFilter = filter;
+        expShownCount = INITIAL_SHOWN;
+        renderExpGrid(true);
+      });
+    });
+
+    // Wire Load more
+    if (expMoreBtn) {
+      expMoreBtn.addEventListener('click', () => {
+        const filtered = getFilteredExpCards();
+        const prevShown = expShownCount;
+        expShownCount = Math.min(expShownCount + LOAD_MORE_BATCH, filtered.length);
+
+        // Animate the newly-revealed cards
+        const newlyRevealed = filtered.slice(prevShown, expShownCount);
+        newlyRevealed.forEach((c, i) => {
+          c.classList.remove('filter-hidden');
+          c.style.animationDelay = (i * 60) + 'ms';
+          void c.offsetWidth;
+          c.classList.add('just-appeared');
+        });
+
+        // Update button label / hide when exhausted
+        const remaining = filtered.length - expShownCount;
+        if (remaining > 0 && expMoreRemaining) {
+          expMoreRemaining.textContent = '— ' + remaining + ' more';
+        } else if (expMore) {
+          expMore.hidden = true;
+        }
+      });
+    }
+
+    // Initial render
+    if (expGrid && expCards.length > 0) {
+      updateExpFilterCounts();
+      renderExpGrid(false);
+    }
+
   })();
 </script>
 

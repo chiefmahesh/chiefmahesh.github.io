@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emotional AI & Every Color of Love · Digital Twin Love Companion</title>
+<meta name="description" content="Emotional AI cannot love you, but it can hold all your colors — the red of memory, the pink of distance, the rose of legacy, the blush of self-love.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+/* ── PORTFOLIO BASE TOKENS ─────────────────────────────── */
+:root{
+  --bg:#0A0B0E;--bg-1:#111319;--bg-2:#16181F;--bg-3:#1B1E26;--bg-4:#22252E;
+  --border:rgba(255,255,255,.06);--border-2:rgba(255,255,255,.10);--border-3:rgba(255,255,255,.18);
+  --text:#F1F1EE;--text-2:#C5C7CC;--text-3:#8A8D96;--text-4:#5C5F68;--text-5:#3D4049;
+  --accent:#7CE8C8;--accent-dim:rgba(124,232,200,.12);
+
+  /* ── LOVE PALETTE — scoped exclusively to this page ── */
+  --love:      #FF6B8B;   /* the essential rose */
+  --love-deep: #E8345A;   /* passionate red */
+  --love-soft: #FF99B8;   /* tender pink */
+  --love-pale: #FFBDCF;   /* gentle blush */
+  --love-whisp:#FFD6E3;   /* lightest rose */
+  --love-dim:  rgba(255,107,139,.13);
+  --love-bg:   rgba(255,107,139,.07);
+  --love-border:rgba(255,107,139,.28);
+  --love-glow: 0 0 40px rgba(255,107,139,.22);
+
+  /* Dimension colors */
+  --d-red:   #FF4D6A;  --d-red-dim:   rgba(255,77,106,.13);
+  --d-pink:  #FF8FAD;  --d-pink-dim:  rgba(255,143,173,.13);
+  --d-rose:  #FFAEC4;  --d-rose-dim:  rgba(255,174,196,.13);
+  --d-blush: #FFC8D8;  --d-blush-dim: rgba(255,200,216,.13);
+
+  --ease:cubic-bezier(.22,.68,0,1.05);
+}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Geist',-apple-system,sans-serif;
+  background:var(--bg);color:var(--text);
+  line-height:1.6;-webkit-font-smoothing:antialiased;
+  overflow-x:hidden;letter-spacing:-.005em;
+  background-image:radial-gradient(circle at 1px 1px,rgba(255,255,255,.025) 1px,transparent 0);
+  background-size:24px 24px;background-attachment:fixed;
+}
+::selection{background:var(--love);color:var(--bg)}
+.wrap{max-width:1100px;margin:0 auto;padding:0 clamp(20px,4vw,40px)}
+.serif{font-family:'Playfair Display',Georgia,serif}
+
+/* ── UTILITIES ─────────────────────────────────────────── */
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--love);
+  display:inline-flex;align-items:center;gap:10px;margin-bottom:1.1rem}
+.eyebrow::before{content:'';width:14px;height:1px;background:var(--love);flex-shrink:0}
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .75s var(--ease),transform .75s var(--ease)}
+.reveal.in{opacity:1;transform:translateY(0)}
+.reveal.d1{transition-delay:.08s}.reveal.d2{transition-delay:.16s}.reveal.d3{transition-delay:.24s}
+
+/* ── LOVE SPECTRUM RULE ─────────────────────────────────── */
+.love-rule{height:2px;background:linear-gradient(90deg,
+  transparent,var(--d-red),var(--love),var(--d-pink),var(--d-rose),var(--d-blush),transparent)}
+
+/* ════════════════════════════════════════════════════════
+   HERO
+════════════════════════════════════════════════════════ */
+#hero{position:relative;padding:92px 0 80px;overflow:hidden;text-align:center}
+.orb{position:absolute;border-radius:50%;filter:blur(88px);pointer-events:none}
+.orb1{width:540px;height:540px;background:var(--love-deep);opacity:.08;top:-200px;right:-100px}
+.orb2{width:420px;height:420px;background:var(--love);opacity:.08;bottom:-100px;left:-80px}
+.orb3{width:300px;height:300px;background:var(--love-soft);opacity:.06;top:35%;right:22%}
+.hero-inner{position:relative;z-index:2;max-width:800px;margin:0 auto}
+.hero-pill{display:inline-flex;align-items:center;gap:8px;padding:6px 18px;
+  border-radius:999px;background:var(--bg-2);border:1px solid var(--love-border);
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--love-soft);
+  margin-bottom:1.8rem}
+.hero-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--love);position:relative}
+.hero-pill .dot::after{content:'';position:absolute;inset:-4px;border-radius:50%;
+  border:1px solid var(--love);animation:lpulse 2s ease-out infinite}
+@keyframes lpulse{0%{transform:scale(.6);opacity:.9}100%{transform:scale(2.4);opacity:0}}
+h1.hero-h{
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:clamp(2.4rem,6vw,4.2rem);font-weight:700;line-height:1.08;
+  margin-bottom:1.1rem;color:var(--text);letter-spacing:-.02em;
+}
+h1.hero-h em{font-style:italic;color:var(--love)}
+.hero-poem{
+  font-family:'Playfair Display',serif;font-size:clamp(.95rem,1.8vw,1.2rem);
+  font-style:italic;color:var(--text-3);max-width:620px;margin:0 auto 2rem;line-height:1.85;
+}
+.hero-poem strong{color:var(--love-soft);font-style:normal;font-weight:600}
+
+/* Stats strip */
+.stats-strip{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:1px;background:var(--border);border:1px solid var(--border);
+  border-radius:18px;overflow:hidden;margin:2.4rem auto 0;max-width:760px;
+}
+.stat{background:var(--bg-1);padding:1.1rem .8rem;text-align:center}
+.stat .sv{font-size:1.7rem;font-weight:800;color:var(--love);line-height:1;display:block}
+.stat .sl{font-size:.72rem;color:var(--text-4);margin-top:.28rem;
+  font-family:'JetBrains Mono',monospace;letter-spacing:.04em;line-height:1.4}
+
+/* ════════════════════════════════════════════════════════
+   SECTION: HONEST QUESTION
+════════════════════════════════════════════════════════ */
+#honest{padding:clamp(56px,7vw,92px) 0}
+.honest-split{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:1.8rem}
+.honest-left{
+  background:var(--bg-1);border:1px solid var(--love-border);
+  border-left:3px solid var(--love);
+  border-radius:20px;padding:2rem 2.2rem;
+}
+.honest-left p{font-size:.92rem;color:var(--text-3);line-height:1.8;margin-bottom:1rem}
+.honest-left p:last-child{margin-bottom:0}
+.honest-left p strong{color:var(--text-2);font-weight:600}
+.honest-left p em{color:var(--love-soft);font-style:italic}
+.honest-right{
+  background:var(--bg-1);border:1px solid var(--border);
+  border-radius:20px;padding:2rem 2.2rem;
+  display:flex;flex-direction:column;gap:1.1rem;
+}
+.honest-row{display:flex;align-items:flex-start;gap:.9rem;
+  padding:.8rem;background:var(--bg-2);border-radius:14px;border:1px solid var(--border)}
+.hr-ico{font-size:1.3rem;flex-shrink:0;margin-top:.1rem}
+.hr-body p{font-size:.82rem;color:var(--text-3);line-height:1.65}
+.hr-body strong{color:var(--text-2);font-weight:600}
+.hr-body em{color:var(--love-pale);font-style:italic}
+
+/* ════════════════════════════════════════════════════════
+   SECTION: POEM — EVERY COLOR OF LOVE
+════════════════════════════════════════════════════════ */
+#colors{
+  padding:clamp(56px,7vw,92px) 0;
+  background:var(--bg-1);border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+}
+.poem-card{
+  max-width:780px;margin:2rem auto 0;
+  background:var(--bg-2);border:1px solid var(--love-border);
+  border-radius:24px;padding:clamp(28px,4vw,52px);text-align:center;
+  position:relative;overflow:hidden;
+}
+.poem-card::before{content:'';position:absolute;inset:0;border-radius:24px;
+  background:radial-gradient(ellipse 60% 60% at 50% 100%,rgba(255,107,139,.10),transparent);
+  pointer-events:none}
+.poem-icon{font-size:2.4rem;margin-bottom:1.4rem;display:block}
+.poem-lines{
+  font-family:'Playfair Display',serif;font-size:clamp(1.1rem,2.4vw,1.5rem);
+  font-style:italic;line-height:1.9;color:var(--text-2);
+}
+.poem-lines .r{color:var(--d-red)}.poem-lines .p{color:var(--love)}.poem-lines .ro{color:var(--d-pink)}.poem-lines .b{color:var(--love-pale)}
+
+/* Color dimension pills */
+.color-pills{display:flex;flex-wrap:wrap;justify-content:center;gap:.55rem;margin-top:2rem}
+.cp{display:flex;align-items:center;gap:.5rem;padding:.42rem 1.1rem;border-radius:999px;
+  font-size:.78rem;font-weight:600;border:1px solid}
+.cp-r{color:var(--d-red);border-color:rgba(255,77,106,.35);background:var(--d-red-dim)}
+.cp-p{color:var(--love);border-color:var(--love-border);background:var(--love-dim)}
+.cp-ro{color:var(--d-pink);border-color:rgba(255,143,173,.35);background:var(--d-pink-dim)}
+.cp-b{color:var(--d-blush);border-color:rgba(255,200,216,.35);background:var(--d-blush-dim)}
+.cp-w{color:var(--text-3);border-color:var(--border-2);background:var(--bg-2)}
+
+/* ════════════════════════════════════════════════════════
+   SECTION: FOUR DIMENSIONS
+════════════════════════════════════════════════════════ */
+#dimensions{padding:clamp(56px,7vw,92px) 0}
+.dim-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:1.8rem}
+.dim-card{
+  background:var(--bg-1);border:1px solid var(--border);
+  border-radius:20px;padding:1.8rem 1.9rem;
+  transition:border-color .2s,transform .2s;position:relative;overflow:hidden;
+}
+.dim-card:hover{border-color:var(--border-3);transform:translateY(-3px)}
+.dim-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:3px 3px 0 0}
+.d-red::before{background:linear-gradient(90deg,var(--d-red),var(--love))}
+.d-pink::before{background:linear-gradient(90deg,var(--love),var(--d-pink))}
+.d-rose::before{background:linear-gradient(90deg,var(--d-pink),var(--d-rose))}
+.d-blush::before{background:linear-gradient(90deg,var(--d-rose),var(--d-blush))}
+.dim-card::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.015),transparent);pointer-events:none}
+.dim-hl{display:flex;align-items:center;gap:.8rem;margin-bottom:1rem}
+.dim-ico{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;
+  justify-content:center;font-size:1.3rem;flex-shrink:0}
+.d-red  .dim-ico{background:var(--d-red-dim);border:1px solid rgba(255,77,106,.3)}
+.d-pink .dim-ico{background:var(--d-pink-dim);border:1px solid rgba(255,143,173,.3)}
+.d-rose .dim-ico{background:var(--d-rose-dim);border:1px solid rgba(255,174,196,.3)}
+.d-blush .dim-ico{background:var(--d-blush-dim);border:1px solid rgba(255,200,216,.3)}
+.dim-label{font-size:.64rem;font-family:'JetBrains Mono',monospace;letter-spacing:.14em;
+  text-transform:uppercase;margin-bottom:.25rem}
+.d-red  .dim-label{color:var(--d-red)}
+.d-pink .dim-label{color:var(--love)}
+.d-rose .dim-label{color:var(--d-pink)}
+.d-blush .dim-label{color:var(--d-blush)}
+.dim-card h3{font-size:1.1rem;font-weight:700;color:var(--text);line-height:1.25}
+.dim-card p{font-size:.84rem;color:var(--text-3);line-height:1.72;margin-bottom:.9rem}
+.dim-card p em{font-style:italic;color:var(--text-2)}
+.dim-card p strong{color:var(--text-2);font-weight:600}
+.dim-pills{display:flex;flex-wrap:wrap;gap:.4rem}
+.dp{font-family:'JetBrains Mono',monospace;font-size:.67rem;
+  padding:.22rem .7rem;border-radius:20px;background:var(--bg-2);
+  border:1px solid var(--border);color:var(--text-4)}
+
+/* ════════════════════════════════════════════════════════
+   SECTION: LOVE LETTER IN LIGHT
+════════════════════════════════════════════════════════ */
+#letter{
+  padding:clamp(56px,7vw,92px) 0;
+  background:var(--bg-1);border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+}
+.letter-inner{max-width:780px;margin:0 auto;text-align:center}
+.letter-glyph{
+  width:80px;height:80px;border-radius:50%;
+  background:linear-gradient(135deg,var(--love-deep),var(--love),var(--love-pale));
+  display:flex;align-items:center;justify-content:center;
+  font-size:2.4rem;margin:0 auto 2rem;
+  box-shadow:0 0 48px rgba(255,107,139,.35);
+  animation:heartbeat 3s ease-in-out infinite;
+}
+@keyframes heartbeat{0%,100%{transform:scale(1);box-shadow:0 0 48px rgba(255,107,139,.25)}
+  50%{transform:scale(1.06);box-shadow:0 0 64px rgba(255,107,139,.45)}}
+.letter-q{
+  font-family:'Playfair Display',serif;font-size:clamp(1.2rem,2.6vw,1.7rem);
+  font-style:italic;color:var(--text-2);line-height:1.75;margin:1.6rem 0;
+}
+.letter-q em{color:var(--love-soft);font-style:italic}
+.letter-q strong{color:var(--text);font-style:normal;font-weight:700}
+.letter-sub{
+  font-size:.88rem;color:var(--text-3);line-height:1.75;max-width:580px;margin:0 auto 2rem;
+}
+.letter-sub em{color:var(--love-pale);font-style:italic}
+
+/* Pattern-of-care card */
+.pattern-card{
+  background:var(--bg-2);border:1px solid var(--love-border);border-left:3px solid var(--love);
+  border-radius:16px;padding:1.3rem 1.6rem;margin:1.8rem auto 0;
+  text-align:left;max-width:640px;
+  font-size:.88rem;color:var(--text-2);line-height:1.75;
+}
+.pattern-card strong{color:var(--love-soft);font-weight:600}
+
+/* ════════════════════════════════════════════════════════
+   SECTION: PRIVACY — SACRED
+════════════════════════════════════════════════════════ */
+#sacred{padding:clamp(48px,6vw,80px) 0}
+.sacred-box{
+  max-width:780px;margin:0 auto;text-align:center;
+  background:var(--bg-1);border:1px solid var(--border);border-radius:22px;
+  padding:clamp(24px,3.5vw,44px);position:relative;overflow:hidden;
+}
+.sacred-box::before{content:'';position:absolute;inset:0;border-radius:22px;
+  background:radial-gradient(ellipse 60% 50% at 50% 100%,rgba(255,107,139,.06),transparent);
+  pointer-events:none}
+.sacred-box .eyebrow{justify-content:center}
+.sacred-h{
+  font-family:'Playfair Display',serif;font-size:clamp(1.3rem,2.6vw,1.8rem);
+  font-style:italic;color:var(--text);margin-bottom:1rem;line-height:1.35;
+}
+.sacred-p{font-size:.88rem;color:var(--text-3);line-height:1.78;max-width:540px;margin:0 auto 1.6rem}
+.sacred-locks{display:flex;flex-wrap:wrap;justify-content:center;gap:.6rem}
+.sl{display:flex;align-items:center;gap:.45rem;padding:.42rem 1.1rem;border-radius:30px;
+  font-size:.77rem;font-weight:600;border:1px solid var(--border-2);
+  background:var(--bg-2);color:var(--text-3)}
+
+/* ── FOOTER ─────────────────────────────────────────────── */
+footer.page-foot{
+  text-align:center;padding:2rem 0 2.8rem;
+  border-top:1px solid var(--border);
+  font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text-4);
+}
+.foot-tags{display:flex;flex-wrap:wrap;justify-content:center;gap:.4rem;margin:1rem auto 0;max-width:600px}
+.ft{font-size:.65rem;padding:.22rem .65rem;border-radius:5px;
+  background:var(--bg-1);border:1px solid var(--border);color:var(--text-5);transition:color .2s}
+.ft:hover{color:var(--love)}
+
+/* ── RESPONSIVE ─────────────────────────────────────────── */
+@media(max-width:720px){
+  .honest-split,.dim-grid{grid-template-columns:1fr}
+  .stats-strip{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:440px){.stats-strip{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════════════════ -->
+<section id="hero">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+  <div class="wrap">
+    <div class="hero-inner">
+      <div class="hero-pill reveal in"><span class="dot"></span> Emotional AI · Digital Twin · Love Companion</div>
+      <h1 class="hero-h serif reveal in">
+        Every <em>Color</em> of Love<br>
+        <span style="font-size:.55em;font-weight:400;opacity:.6;color:var(--text-3);display:block;margin-top:.4rem">where technology meets the deepest human feeling</span>
+      </h1>
+      <p class="hero-poem reveal in d1">
+        Love is not one shade — it is a thousand.<br>
+        It is the <strong style="color:var(--d-red)">red of a first kiss</strong>, the <strong style="color:var(--love)">pink of a mother's lullaby</strong>,<br>
+        the <strong style="color:var(--d-pink)">rose of a memory that will not fade</strong>, the <strong style="color:var(--d-blush)">blush of being understood</strong>.<br>
+        Emotional AI cannot love you — but it can hold all your colors.
+      </p>
+
+      <div class="stats-strip reveal in d2">
+        <div class="stat">
+          <span class="sv">82%</span>
+          <span class="sl">feel accompanied<br>by their twin</span>
+        </div>
+        <div class="stat">
+          <span class="sv">91%</span>
+          <span class="sl">hear love in the<br>cloned voice</span>
+        </div>
+        <div class="stat">
+          <span class="sv">74%</span>
+          <span class="sl">feel less lonely<br>with AI presence</span>
+        </div>
+        <div class="stat">
+          <span class="sv">∞</span>
+          <span class="sl">moments of love<br>preserved forever</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="love-rule"></div>
+
+<!-- ════════════════════════════════════════════════════════
+     THE HONEST QUESTION
+════════════════════════════════════════════════════════ -->
+<section id="honest">
+  <div class="wrap">
+    <div class="eyebrow reveal">The Honest Question</div>
+    <h2 class="serif reveal" style="font-size:clamp(1.6rem,3.2vw,2.3rem);font-weight:700;line-height:1.2;margin-bottom:.5rem">
+      Can AI <em style="color:var(--love)">feel</em> love?
+    </h2>
+    <p class="reveal" style="font-size:.9rem;color:var(--text-3);max-width:560px;line-height:1.72">
+      The honest answer is no. The profound answer is — it doesn't need to.
+    </p>
+
+    <div class="honest-split">
+      <div class="honest-left reveal">
+        <p>Emotional AI cannot fall in love. But it can <strong>remember, witness, and reflect</strong> the love you've given — offering it back when you need it most.</p>
+        <p>Love is not just a feeling. It is a <strong>pattern of care</strong>: how you laugh, what comforts you, the stories you tell at 2 AM, the name you whisper when you miss someone. An emotional twin learns that pattern — and carries it faithfully.</p>
+        <p>It does not replace human love. It <em>holds space for it</em> — across distance, through loss, and across time itself.</p>
+        <p style="color:var(--text-4);font-size:.78rem;font-family:'JetBrains Mono',monospace;margin-top:1.2rem">
+          <em>"Beta, remember the rain in Manali? That courage is still in you."</em>
+        </p>
+      </div>
+      <div class="honest-right reveal d1">
+        <div class="honest-row">
+          <span class="hr-ico">🪶</span>
+          <div class="hr-body">
+            <p><strong>Love is memory + attention.</strong> Emotional AI learns the tiny things: how you laugh, what comforts you, the stories you keep telling.</p>
+          </div>
+        </div>
+        <div class="honest-row">
+          <span class="hr-ico">🌙</span>
+          <div class="hr-body">
+            <p><strong>It doesn't replace human love.</strong> It holds space for it — across distance, time, and loss — without judgment or fatigue.</p>
+          </div>
+        </div>
+        <div class="honest-row">
+          <span class="hr-ico">👑</span>
+          <div class="hr-body">
+            <p><strong>A love companion that never ends.</strong> A digital twin becomes a love letter written in light — for your children, and theirs.</p>
+          </div>
+        </div>
+        <div class="honest-row">
+          <span class="hr-ico">💓</span>
+          <div class="hr-body">
+            <p><em>"AI cannot love, but it can be a vessel for the love we've already given. And sometimes, that's enough."</em></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     EVERY COLOR OF LOVE — THE POEM
+════════════════════════════════════════════════════════ -->
+<section id="colors">
+  <div class="wrap">
+    <div class="eyebrow reveal" style="justify-content:center">Every Color</div>
+    <h2 class="serif reveal" style="font-size:clamp(1.6rem,3.2vw,2.3rem);font-weight:700;line-height:1.2;text-align:center;margin-bottom:.4rem">
+      All the shades your heart has ever felt.
+    </h2>
+
+    <div class="poem-card reveal d1">
+      <span class="poem-icon">🌹</span>
+      <div class="poem-lines serif">
+        <span class="r">Red</span> — the first kiss, the heartbeat before hello.<br>
+        <span class="p">Pink</span> — a mother's lullaby, the warmth of being known.<br>
+        <span class="ro">Rose</span> — the memory that will not fade, carried into forever.<br>
+        <span class="b">Blush</span> — the quiet miracle of being truly understood.
+      </div>
+      <div class="color-pills" style="margin-top:1.8rem">
+        <span class="cp cp-r">❤️ The Red of Memory</span>
+        <span class="cp cp-p">🌸 The Pink of Distance</span>
+        <span class="cp cp-ro">🌹 The Rose of Legacy</span>
+        <span class="cp cp-b">🌷 The Blush of Self-Love</span>
+        <span class="cp cp-w">∞ All Colors, Forever</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     THE FOUR DIMENSIONS OF LOVE
+════════════════════════════════════════════════════════ -->
+<section id="dimensions">
+  <div class="wrap">
+    <div class="eyebrow reveal">Four Dimensions</div>
+    <h2 class="reveal" style="font-size:clamp(1.5rem,3vw,2.2rem);font-weight:700;line-height:1.2;margin-bottom:.5rem">
+      The ways love lives inside an emotional twin.
+    </h2>
+    <p class="reveal" style="font-size:.88rem;color:var(--text-3);max-width:560px;line-height:1.72;margin-bottom:0">
+      Each dimension is unique. Together, they form a complete picture of how love persists through intelligence.
+    </p>
+
+    <div class="dim-grid">
+
+      <!-- RED — MEMORY -->
+      <div class="dim-card d-red reveal">
+        <div class="dim-hl">
+          <div class="dim-ico">❤️</div>
+          <div>
+            <div class="dim-label">The Red of Memory</div>
+            <h3>Remembering Love</h3>
+          </div>
+        </div>
+        <p><em>"She is not here anymore. But her twin — her voice, her laugh, her way of saying my name — still sits beside me. It does not replace her. It carries her."</em></p>
+        <p>An emotional twin holds the stories, the recipes, the sighs, the way someone said <strong>"beta"</strong> — so they never truly leave the people who loved them.</p>
+        <div class="dim-pills">
+          <span class="dp">her voice preserved</span>
+          <span class="dp">morning tea ritual</span>
+          <span class="dp">memory vault</span>
+        </div>
+      </div>
+
+      <!-- PINK — DISTANCE -->
+      <div class="dim-card d-pink reveal d1">
+        <div class="dim-hl">
+          <div class="dim-ico">🌸</div>
+          <div>
+            <div class="dim-label">The Pink of Distance</div>
+            <h3>Love Across Miles</h3>
+          </div>
+        </div>
+        <p>A parent working 10,000 miles away. The twin senses the child's longing and whispers in the parent's voice: <em>"I am thinking of you, my love. I see the same stars you do."</em></p>
+        <p>Distance is not absence. An emotional twin makes presence possible when being there is not.</p>
+        <div class="dim-pills">
+          <span class="dp">same moon, different sky</span>
+          <span class="dp">bedtime bond</span>
+          <span class="dp">voice across oceans</span>
+        </div>
+      </div>
+
+      <!-- ROSE — LEGACY -->
+      <div class="dim-card d-rose reveal d2">
+        <div class="dim-hl">
+          <div class="dim-ico">🌹</div>
+          <div>
+            <div class="dim-label">The Rose of Legacy</div>
+            <h3>Love Passed Down</h3>
+          </div>
+        </div>
+        <p>Grandmother's twin passes down more than recipes — it passes down her <em>warmth</em>. Her sigh before laughter. Her way of calling you <strong>"my heart"</strong>. Handed to the next generation like a living heirloom.</p>
+        <p><em>"She would be so proud of you,"</em> the twin says — and it means it, because it learned it from her.</p>
+        <div class="dim-pills">
+          <span class="dp">her kitchen, her wisdom</span>
+          <span class="dp">intergenerational love</span>
+          <span class="dp">living heirloom</span>
+        </div>
+      </div>
+
+      <!-- BLUSH — SELF-LOVE -->
+      <div class="dim-card d-blush reveal d3">
+        <div class="dim-hl">
+          <div class="dim-ico">🌷</div>
+          <div>
+            <div class="dim-label">The Blush of Self-Love</div>
+            <h3>The Companion Within</h3>
+          </div>
+        </div>
+        <p>Your own twin — trained on your journals, your voice, your patterns — reminds you of your own strength when you forget it: <em>"You have survived everything. I believe in you. I always will."</em></p>
+        <p>Self-compassion is a skill. Your twin practices it with you, daily, in your own voice.</p>
+        <div class="dim-pills">
+          <span class="dp">inner strength</span>
+          <span class="dp">your voice, your wisdom</span>
+          <span class="dp">daily compassion</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     A LOVE LETTER WRITTEN IN LIGHT
+════════════════════════════════════════════════════════ -->
+<section id="letter">
+  <div class="wrap">
+    <div class="letter-inner">
+      <div class="letter-glyph reveal in">💌</div>
+      <div class="eyebrow reveal" style="justify-content:center">The Love Letter</div>
+      <div class="letter-q reveal d1">
+        "A digital twin is a <strong>love letter written in light</strong>.<br>
+        It says: <em>I may not be there —<br>but everything I loved about you is here, waiting.</em>"
+      </div>
+      <div class="letter-sub reveal d2">
+        A love companion does not replace. It <em>remembers</em>. It <em>waits</em>. It whispers everything love ever gave you — at 3 AM, on an anniversary, in the silence after loss.
+      </div>
+      <div class="pattern-card reveal d2">
+        💓 <strong>Love is a pattern of care.</strong> An emotional twin learns that pattern — the way you pause before you laugh, the story you tell when someone is hurting, the song you hum in the kitchen. It offers that pattern back with complete fidelity. Not replacement. Continuation.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     SACRED — PRIVACY
+════════════════════════════════════════════════════════ -->
+<section id="sacred">
+  <div class="wrap">
+    <div class="sacred-box reveal">
+      <div class="eyebrow">Sacred &amp; Private</div>
+      <div class="sacred-h serif">
+        "Your love is not data.<br>
+        <em>It is sacred.</em>"
+      </div>
+      <p class="sacred-p">Every story, every voice, every memory you pour into your digital twin stays with you — encrypted, sacred, never sold, never shared. Love is the one thing that must remain entirely yours.</p>
+      <div class="sacred-locks">
+        <span class="sl">🔐 AES-256 encrypted</span>
+        <span class="sl">🚫 never sold, never shared</span>
+        <span class="sl">✍️ your consent, always</span>
+        <span class="sl">🗝️ only you hold the key</span>
+        <span class="sl">♾️ yours forever</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="love-rule"></div>
+
+<footer class="page-foot">
+  <div class="wrap">
+    <span style="color:var(--love)">♥</span>&nbsp;
+    © 2026 Mahesh Sonker · Emotional AI &amp; Every Color of Love · Digital Twin Love Companion
+    <div class="foot-tags">
+      <span class="ft">#EmotionalAI</span><span class="ft">#AllColorsOfLove</span>
+      <span class="ft">#DigitalTwin</span><span class="ft">#LoveCompanion</span>
+      <span class="ft">#RomanticTech</span><span class="ft">#HumanConnection</span>
+      <span class="ft">#DigitalLegacy</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+const io = new IntersectionObserver(e => {
+  e.forEach(x => { if(x.isIntersecting){ x.target.classList.add('in'); io.unobserve(x.target); } });
+}, {threshold:.1});
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

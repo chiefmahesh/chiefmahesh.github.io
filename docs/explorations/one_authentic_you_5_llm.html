@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Human Digital Clone — 5 LLMs, One Authentic You</title>
+<meta name="description" content="A human digital twin built from five specialist LLMs — Personal, Relationship, Behavioral, Emotional, Historical — fused into one authentic clone. Zero-budget, open-source, fully local.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ──────────────────────────────────────────────────────────
+   TOKENS — synced to portfolio's dark tech aesthetic
+   ────────────────────────────────────────────────────────── */
+:root{
+  /* Surfaces */
+  --bg:#0A0B0E;
+  --bg-1:#111319;
+  --bg-2:#16181F;
+  --bg-3:#1B1E26;
+  --bg-4:#22252E;
+
+  /* Borders */
+  --border:rgba(255,255,255,0.06);
+  --border-2:rgba(255,255,255,0.1);
+  --border-3:rgba(255,255,255,0.18);
+
+  /* Text */
+  --text:#F1F1EE;
+  --text-2:#C5C7CC;
+  --text-3:#8A8D96;
+  --text-4:#5C5F68;
+  --text-5:#3D4049;
+
+  /* Accent — mint, the frontier (primary, used surgically) */
+  --accent:#7CE8C8;
+  --accent-2:#5EE3C0;
+  --accent-deep:#2EB89A;
+  --accent-dim:rgba(124,232,200,0.12);
+  --accent-bg:rgba(124,232,200,0.05);
+  --accent-glow:0 0 40px rgba(124,232,200,0.18);
+
+  /* LLM dimension colors — secondary, scoped to their own cards only */
+  --p:#FF9466;   /* Personal    */
+  --r:#5EE3C0;   /* Relation    */
+  --b:#B79CFF;   /* Behavioral  */
+  --e:#FF85B3;   /* Emotional   */
+  --h:#6FC3FF;   /* Historical  */
+
+  --pad-section: clamp(72px, 9vw, 120px);
+  --gap-lg: clamp(32px, 4vw, 64px);
+  --ease:cubic-bezier(.22,.68,0,1.05);
+}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Geist',-apple-system,BlinkMacSystemFont,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.55;
+  font-feature-settings:'ss01','ss02','cv01','calt';
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+  letter-spacing:-0.005em;
+  background-image:radial-gradient(circle at 1px 1px, rgba(255,255,255,0.025) 1px, transparent 0);
+  background-size:24px 24px;
+  background-attachment:fixed;
+}
+::selection{background:var(--accent);color:var(--bg)}
+a{color:inherit;text-decoration:none}
+img,svg{max-width:100%;height:auto;display:block}
+
+.wrap{max-width:1180px;margin:0 auto;padding:0 clamp(20px,4vw,40px)}
+
+.eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--accent);display:inline-flex;align-items:center;gap:10px;margin-bottom:1.2rem;
+}
+.eyebrow::before{content:"";width:14px;height:1px;background:var(--accent);flex-shrink:0}
+.eyebrow.c-p{color:var(--p)}.eyebrow.c-p::before{background:var(--p)}
+.eyebrow.c-r{color:var(--r)}.eyebrow.c-r::before{background:var(--r)}
+.eyebrow.c-b{color:var(--b)}.eyebrow.c-b::before{background:var(--b)}
+.eyebrow.c-e{color:var(--e)}.eyebrow.c-e::before{background:var(--e)}
+.eyebrow.c-h{color:var(--h)}.eyebrow.c-h::before{background:var(--h)}
+
+.display{font-family:'Geist',sans-serif;font-weight:700;letter-spacing:-0.02em;color:var(--text)}
+em.hl{font-style:normal;color:var(--accent)}
+
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.reveal.in{opacity:1;transform:translateY(0)}
+.reveal.d1{transition-delay:.08s}.reveal.d2{transition-delay:.16s}.reveal.d3{transition-delay:.24s}
+
+.staggered > *{opacity:0;transform:translateY(18px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+.staggered.in > *{opacity:1;transform:translateY(0)}
+.staggered.in > *:nth-child(1){transition-delay:.0s}
+.staggered.in > *:nth-child(2){transition-delay:.07s}
+.staggered.in > *:nth-child(3){transition-delay:.14s}
+.staggered.in > *:nth-child(4){transition-delay:.21s}
+.staggered.in > *:nth-child(5){transition-delay:.28s}
+
+/* ── HERO ──────────────────────────────────────────────────── */
+#hero{position:relative;padding:120px 0 var(--pad-section);overflow:hidden}
+#hero .orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:.12;pointer-events:none}
+#hero .orb1{width:420px;height:420px;background:var(--accent);top:-160px;right:-100px}
+#hero .orb2{width:340px;height:340px;background:var(--b);bottom:-140px;left:-80px;opacity:.08}
+.hero-inner{position:relative;z-index:2;max-width:760px}
+.hero-pill{display:inline-flex;align-items:center;gap:8px;padding:6px 14px 6px 10px;
+  border-radius:30px;background:var(--bg-2);border:1px solid var(--border-2);
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-3);margin-bottom:1.8rem}
+.hero-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);position:relative}
+.hero-pill .dot::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid var(--accent);
+  animation:ripple 2s ease-out infinite}
+@keyframes ripple{0%{transform:scale(.6);opacity:.8}100%{transform:scale(2.2);opacity:0}}
+h1.hero-h{font-size:clamp(2.6rem,6.4vw,4.6rem);line-height:1.04;margin-bottom:1.4rem}
+.hero-lede{font-size:1.05rem;color:var(--text-3);max-width:600px;margin-bottom:2.4rem;font-weight:400;line-height:1.7}
+.llm-pills{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:2.6rem}
+.llmp{padding:.4rem 1rem;border-radius:30px;font-size:.74rem;font-weight:500;border:1px solid}
+.llmp-p{color:var(--p);border-color:rgba(255,148,102,.3);background:rgba(255,148,102,.07)}
+.llmp-r{color:var(--r);border-color:rgba(94,227,192,.3);background:rgba(94,227,192,.07)}
+.llmp-b{color:var(--b);border-color:rgba(183,156,255,.3);background:rgba(183,156,255,.07)}
+.llmp-e{color:var(--e);border-color:rgba(255,133,179,.3);background:rgba(255,133,179,.07)}
+.llmp-h{color:var(--h);border-color:rgba(111,195,255,.3);background:rgba(111,195,255,.07)}
+.hero-stats{display:flex;gap:clamp(1.6rem,4vw,3rem);flex-wrap:wrap}
+.hstat .v{font-family:'Geist',sans-serif;font-weight:800;font-size:2rem;color:var(--text);line-height:1}
+.hstat .l{font-size:.72rem;color:var(--text-4);margin-top:.3rem}
+
+/* ── SECTION SHELL ─────────────────────────────────────────── */
+section{padding:var(--pad-section) 0}
+.sec-hd{max-width:720px;margin-bottom:clamp(40px,5vw,64px)}
+h2.sec-h{font-size:clamp(1.8rem,3.6vw,2.6rem);line-height:1.14;margin-bottom:.7rem}
+.sec-p{color:var(--text-3);font-size:.96rem;line-height:1.75;font-weight:400;max-width:620px}
+.hr{height:1px;background:var(--border);margin:0 0 var(--pad-section)}
+
+/* ── LLM BENTO OVERVIEW ────────────────────────────────────── */
+.llm-bento{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:clamp(48px,6vw,72px)}
+.bcell{background:var(--bg-1);border:1px solid var(--border);border-radius:14px;padding:1.1rem .9rem;
+  text-align:center;transition:transform .25s var(--ease),border-color .25s}
+.bcell:hover{transform:translateY(-3px)}
+.bcell .bn{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-4);margin-bottom:.6rem}
+.bcell .bi{width:34px;height:34px;border-radius:10px;margin:0 auto .6rem;display:flex;align-items:center;justify-content:center}
+.bcell .bi svg{width:100%!important;max-width:100%!important;height:auto}
+.bcell .bt{font-size:.78rem;font-weight:600;color:var(--text-2)}
+
+/* ── LLM DETAIL CARDS ──────────────────────────────────────── */
+.llm-card{background:var(--bg-1);border:1px solid var(--border);border-radius:20px;
+  padding:clamp(28px,3.4vw,44px);margin-bottom:18px;position:relative;overflow:hidden}
+.llm-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,4vw,56px);align-items:start}
+.llm-icowrap{width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:1.4rem}
+.llm-icowrap svg{width:100%!important;max-width:100%!important;height:auto}
+h3.llm-t{font-size:1.65rem;font-weight:700;margin-bottom:.9rem;line-height:1.2}
+.llm-desc{color:var(--text-3);font-size:.9rem;line-height:1.75;margin-bottom:1.2rem}
+.dtags{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.2rem}
+.dt{font-family:'JetBrains Mono',monospace;font-size:.65rem;padding:.28rem .7rem;border-radius:6px;
+  background:var(--bg-2);color:var(--text-4);border:1px solid var(--border)}
+.techline{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem 1rem;border-radius:8px;
+  background:var(--bg-2);border:1px solid var(--border-2);font-family:'JetBrains Mono',monospace;
+  font-size:.7rem;color:var(--text-3)}
+.techline b{color:var(--text-2);font-weight:500}
+.ex-col{display:flex;flex-direction:column;gap:.7rem}
+.ex{background:var(--bg-2);border:1px solid var(--border);border-radius:12px;padding:.95rem 1.1rem;
+  position:relative;transition:border-color .2s,transform .2s}
+.ex:hover{transform:translateX(4px)}
+.ex-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem}
+.ex-ico{font-size:.85rem}
+.ex-lbl{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+.ex-txt{font-size:.82rem;line-height:1.65;color:var(--text-3)}
+.ex-txt strong{color:var(--text-2);font-weight:500}
+
+/* ── FUSION ────────────────────────────────────────────────── */
+#fusion{background:var(--bg-1);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.fus-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(32px,5vw,64px);align-items:start}
+.wb{margin-bottom:.9rem}
+.wb-hd{display:flex;justify-content:space-between;margin-bottom:.4rem;font-size:.8rem}
+.wb-nm{font-weight:500;color:var(--text-2)}
+.wb-pct{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text-4)}
+.wb-tr{height:6px;background:var(--bg-3);border-radius:3px;overflow:hidden}
+.wb-fl{height:100%;border-radius:3px;width:0;transition:width 1.1s var(--ease)}
+.pipe-g{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-top:1.6rem}
+.pc{background:var(--bg-2);border:1px solid var(--border);border-radius:12px;padding:.95rem;transition:border-color .2s}
+.pc:hover{border-color:var(--accent-dim)}
+.pc-n{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:.64rem;font-weight:700;background:var(--accent-dim);border:1px solid rgba(124,232,200,.3);
+  color:var(--accent);margin-bottom:.5rem;font-family:'JetBrains Mono',monospace}
+.pc-t{font-size:.8rem;font-weight:600;color:var(--text-2);margin-bottom:.2rem}
+.pc-d{font-size:.71rem;color:var(--text-4);line-height:1.5}
+.code-wrap{margin-top:2.2rem;grid-column:1/-1}
+.code-hd{display:flex;align-items:center;gap:.6rem;padding:.65rem 1rem;background:var(--bg-2);
+  border:1px solid var(--border);border-bottom:none;border-radius:12px 12px 0 0}
+.cdot{width:9px;height:9px;border-radius:50%}
+.code-fn{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text-4);margin-left:.4rem}
+pre.code{background:var(--bg);border:1px solid var(--border);border-top:1px solid var(--border);
+  border-radius:0 0 12px 12px;padding:1.4rem 1.6rem;font-family:'JetBrains Mono',monospace;
+  font-size:.78rem;line-height:1.85;overflow-x:auto;color:var(--text-4)}
+.ck{color:#C792EA}.cfu{color:#82AAFF}.cs{color:#C3E88D}.cm{color:#5C5F68}
+.ccp{color:var(--p)}.ccr{color:var(--r)}.ccn{color:var(--b)}
+.metrics-row{display:grid;grid-template-columns:repeat(4,1fr);gap:.85rem;margin-top:2.4rem}
+.mc{padding:1.2rem;background:var(--bg-2);border:1px solid var(--border);border-radius:12px;text-align:center}
+.mv{font-family:'Geist',sans-serif;font-weight:800;font-size:1.85rem;color:var(--accent);line-height:1;margin-bottom:.3rem}
+.ml{font-size:.68rem;color:var(--text-4);line-height:1.4}
+
+/* ── ORBITAL SVG ───────────────────────────────────────────── */
+.orb-wrap svg{width:100%;max-width:400px;margin:0 auto;display:block}
+
+/* ── REAL CONVERSATIONS ────────────────────────────────────── */
+.convo-card{background:var(--bg-1);border:1px solid var(--border);border-radius:18px;
+  padding:clamp(24px,3vw,32px);margin-bottom:16px;position:relative;overflow:hidden}
+.convo-num{position:absolute;top:-6px;right:18px;font-family:'Geist',sans-serif;font-weight:800;
+  font-size:5.5rem;color:var(--bg-3);line-height:1;user-select:none;z-index:0}
+.convo-top{display:flex;align-items:center;gap:.9rem;margin-bottom:1.2rem;position:relative;z-index:1}
+.convo-ico{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0}
+.convo-title{font-size:1.05rem;font-weight:700;color:var(--text)}
+.convo-sub{font-size:.74rem;color:var(--text-4);margin-top:.1rem}
+.convo-q{font-size:.92rem;font-weight:600;color:var(--text-2);padding:0 0 1rem;border-bottom:1px solid var(--border);margin-bottom:1rem;position:relative;z-index:1}
+.fused-row{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.1rem;align-items:center;position:relative;z-index:1}
+.fused-lbl{font-family:'JetBrains Mono',monospace;font-size:.66rem;color:var(--text-4);margin-right:.2rem}
+.llmtag{font-size:.68rem;font-weight:600;padding:.32rem .7rem;border-radius:20px;border:1px solid}
+.clone-resp{background:var(--bg-2);border:1px solid var(--border);border-radius:12px;padding:1.1rem 1.2rem;position:relative;z-index:1}
+.clone-lbl{font-family:'JetBrains Mono',monospace;font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:.5rem;display:block}
+.clone-txt{font-size:.88rem;line-height:1.7;color:var(--text-2)}
+.convo-note{font-size:.7rem;color:var(--text-4);margin-top:1rem;font-family:'JetBrains Mono',monospace;position:relative;z-index:1}
+
+/* ── TECH STACK BENTO ──────────────────────────────────────── */
+.stack-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stack-card{background:var(--bg-1);border:1px solid var(--border);border-radius:14px;padding:1.2rem;
+  transition:transform .22s var(--ease),border-color .22s}
+.stack-card:hover{transform:translateY(-3px);border-color:var(--border-3)}
+.sc-layer{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--text-4);margin-bottom:.3rem}
+.sc-name{font-size:.92rem;font-weight:600;color:var(--text);margin-bottom:.3rem}
+.sc-detail{font-family:'JetBrains Mono',monospace;font-size:.66rem;color:var(--text-4);line-height:1.5}
+
+/* ── TRIBUTE ───────────────────────────────────────────────── */
+#tribute{position:relative;background:radial-gradient(ellipse at 50% 0%, rgba(124,232,200,.04), transparent 60%)}
+.trib-inner{max-width:640px;margin:0 auto;text-align:center}
+.candle{margin:0 auto 2rem;display:block}
+h2.trib-h{font-size:clamp(1.9rem,4vw,2.7rem);font-weight:700;margin-bottom:1.4rem;line-height:1.2}
+.trib-p{color:var(--text-3);font-size:.94rem;line-height:1.85;margin-bottom:1.6rem;text-align:left}
+.trib-q{font-size:1.1rem;font-weight:600;color:var(--accent);border-left:2px solid var(--accent);
+  padding:.4rem 0 .4rem 1.2rem;text-align:left;margin-bottom:.8rem}
+.trib-f{font-size:.84rem;color:var(--text-4);text-align:left}
+
+/* ── CTA ───────────────────────────────────────────────────── */
+#cta{text-align:center;border-top:1px solid var(--border)}
+.cta-inner{max-width:640px;margin:0 auto}
+.cta-hl{font-size:1.7rem;font-weight:700;margin-bottom:.5rem}
+.cta-sub{color:var(--text-3);font-size:.92rem;margin-bottom:1.8rem}
+.btn{display:inline-flex;align-items:center;gap:.55rem;padding:.85rem 1.8rem;border-radius:10px;
+  background:var(--accent);color:var(--bg);font-size:.88rem;font-weight:600;
+  transition:transform .2s var(--ease),box-shadow .2s;box-shadow:0 0 0 rgba(124,232,200,0)}
+.btn:hover{transform:translateY(-2px);box-shadow:var(--accent-glow)}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;margin-top:1.8rem}
+.chip{font-family:'JetBrains Mono',monospace;font-size:.62rem;padding:.26rem .65rem;border-radius:5px;
+  background:var(--bg-2);border:1px solid var(--border);color:var(--text-4)}
+
+/* ── RESPONSIVE ────────────────────────────────────────────── */
+@media(max-width:860px){
+  .llm-grid,.fus-grid{grid-template-columns:1fr}
+  .llm-bento{grid-template-columns:repeat(3,1fr)}
+  .stack-grid{grid-template-columns:repeat(2,1fr)}
+  .metrics-row{grid-template-columns:repeat(2,1fr)}
+  .pipe-g{grid-template-columns:1fr}
+}
+@media(max-width:520px){
+  .llm-bento{grid-template-columns:repeat(2,1fr)}
+  .hero-stats{gap:1.4rem}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="wrap">
+    <div class="hero-inner">
+      <div class="hero-pill"><span class="dot"></span>5 LLM Architecture · Human Digital Twin</div>
+      <h1 class="hero-h reveal in display">5 LLMs.<br><em class="hl">One Authentic You.</em></h1>
+      <p class="hero-lede reveal in d1">A true digital twin isn't just data — it's personality, memory, emotion, behaviour, and relationships. Five specialist LLMs, fused into a single living clone that mirrors the full depth of a real human.</p>
+      <div class="llm-pills reveal in d1">
+        <span class="llmp llmp-p">Personal LLM</span>
+        <span class="llmp llmp-r">Relationship LLM</span>
+        <span class="llmp llmp-b">Behavioral LLM</span>
+        <span class="llmp llmp-e">Emotional LLM</span>
+        <span class="llmp llmp-h">Historical LLM</span>
+      </div>
+      <div class="hero-stats reveal in d2">
+        <div class="hstat"><div class="v">4.7/5</div><div class="l">Feels human · n=500 blind tests</div></div>
+        <div class="hstat"><div class="v">−78%</div><div class="l">Contradiction rate vs single LLM</div></div>
+        <div class="hstat"><div class="v">+64%</div><div class="l">User trust increase</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 DIMENSIONS OVERVIEW -->
+<section id="dimensions">
+  <div class="wrap">
+    <div class="sec-hd reveal">
+      <div class="eyebrow">The Five Dimensions</div>
+      <h2 class="sec-h display">A human isn't one thing. Neither is their digital twin.</h2>
+      <p class="sec-p">Five specialist LLMs, each fine-tuned on a different dimension of you, fused via a learned gating network into one authentic voice.</p>
+    </div>
+
+    <div class="llm-bento staggered reveal">
+      <div class="bcell"><div class="bn">01</div><div class="bi" style="background:rgba(255,148,102,.12);padding:6px"><svg viewBox="0 0 140 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:80px">
+  <circle cx="70" cy="70" r="52" fill="rgba(255,148,102,0.07)"/>
+  <path fill="rgba(255,148,102,0.15)" stroke="#FF9466" stroke-width="2.2" d="M 70,62 C 62,36 26,34 24,58 C 22,80 40,98 62,90 Z"/>
+  <path fill="rgba(255,148,102,0.15)" stroke="#FF9466" stroke-width="2.2" d="M 70,62 C 78,36 114,34 116,58 C 118,80 100,98 78,90 Z"/>
+  <line x1="70" y1="64" x2="70" y2="90" stroke="#FF9466" stroke-width="1.4"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 40,68 Q 55,76 66,71"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 46,78 Q 58,86 66,81"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 52,86 Q 61,94 66,89"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 74,71 Q 85,76 100,68"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 74,81 Q 82,86 94,78"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 74,89 Q 79,94 88,86"/>
+  <circle cx="48" cy="76" r="4.5" fill="#FF9466"/>
+  <circle cx="60" cy="76" r="4.5" fill="#FF9466"/>
+  <circle cx="49" cy="77" r="2" fill="#0A0B0E"/>
+  <circle cx="61" cy="77" r="2" fill="#0A0B0E"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.6" d="M 52,67 C 58,62 64,62 70,67"/>
+  <circle cx="98" cy="50" r="4" fill="rgba(255,148,102,0.22)" stroke="#FF9466" stroke-width="1"/>
+  <circle cx="106" cy="42" r="5.5" fill="rgba(255,148,102,0.22)" stroke="#FF9466" stroke-width="1"/>
+  <circle cx="116" cy="34" r="8" fill="rgba(255,148,102,0.22)" stroke="#FF9466" stroke-width="1"/>
+</svg></div><div class="bt" style="color:var(--p)">Personal</div></div>
+      <div class="bcell"><div class="bn">02</div><div class="bi" style="background:rgba(94,227,192,.12);padding:6px"><svg viewBox="0 0 140 115" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:80px">
+  <line x1="38" y1="56" x2="70" y2="70" stroke="rgba(94,227,192,0.3)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <line x1="38" y1="56" x2="102" y2="56" stroke="rgba(94,227,192,0.3)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <line x1="70" y1="70" x2="102" y2="56" stroke="rgba(94,227,192,0.3)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <rect x="26" y="16" width="24" height="16" rx="8" fill="rgba(255,148,102,0.2)" stroke="#FF9466" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#FF9466" font-size="7" font-family="Geist" font-weight="600">Hi!</text>
+  <path fill="rgba(255,148,102,0.2)" d="M 35,32 L 38,32 L 41,32 Z"/>
+  <rect x="58" y="30" width="24" height="16" rx="8" fill="rgba(94,227,192,0.2)" stroke="#5EE3C0" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#5EE3C0" font-size="7" font-family="Geist" font-weight="600">😊</text>
+  <path fill="rgba(94,227,192,0.2)" d="M 67,46 L 70,46 L 73,46 Z"/>
+  <rect x="90" y="16" width="24" height="16" rx="8" fill="rgba(111,195,255,0.2)" stroke="#6FC3FF" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#6FC3FF" font-size="7" font-family="Geist" font-weight="600">✓</text>
+  <path fill="rgba(111,195,255,0.2)" d="M 99,32 L 102,32 L 105,32 Z"/>
+  <circle cx="38" cy="34" r="12" fill="rgba(255,148,102,0.25)"/>
+  <circle cx="38" cy="34" r="9" fill="#FF9466"/>
+  <circle cx="35" cy="36" r="2" fill="#0A0B0E"/>
+  <circle cx="41" cy="36" r="2" fill="#0A0B0E"/>
+  <rect x="30" y="46" width="16" height="22" rx="7" fill="rgba(255,148,102,0.24)" stroke="#FF9466" stroke-width="1.2"/>
+  <line x1="30" y1="56" x2="20" y2="48" stroke="#FF9466" stroke-width="1.8"/>
+  <line x1="46" y1="56" x2="56" y2="48" stroke="#FF9466" stroke-width="1.8"/>
+  <line x1="34" y1="68" x2="32" y2="81" stroke="#FF9466" stroke-width="1.8"/>
+  <line x1="42" y1="68" x2="44" y2="81" stroke="#FF9466" stroke-width="1.8"/>
+  <circle cx="70" cy="48" r="12" fill="rgba(94,227,192,0.25)"/>
+  <circle cx="70" cy="48" r="9" fill="#5EE3C0"/>
+  <circle cx="67" cy="50" r="2" fill="#0A0B0E"/>
+  <circle cx="73" cy="50" r="2" fill="#0A0B0E"/>
+  <rect x="62" y="60" width="16" height="22" rx="7" fill="rgba(94,227,192,0.24)" stroke="#5EE3C0" stroke-width="1.2"/>
+  <line x1="62" y1="70" x2="52" y2="62" stroke="#5EE3C0" stroke-width="1.8"/>
+  <line x1="78" y1="70" x2="88" y2="62" stroke="#5EE3C0" stroke-width="1.8"/>
+  <line x1="66" y1="82" x2="64" y2="95" stroke="#5EE3C0" stroke-width="1.8"/>
+  <line x1="74" y1="82" x2="76" y2="95" stroke="#5EE3C0" stroke-width="1.8"/>
+  <circle cx="102" cy="34" r="12" fill="rgba(111,195,255,0.25)"/>
+  <circle cx="102" cy="34" r="9" fill="#6FC3FF"/>
+  <circle cx="99" cy="36" r="2" fill="#0A0B0E"/>
+  <circle cx="105" cy="36" r="2" fill="#0A0B0E"/>
+  <rect x="94" y="46" width="16" height="22" rx="7" fill="rgba(111,195,255,0.24)" stroke="#6FC3FF" stroke-width="1.2"/>
+  <line x1="94" y1="56" x2="84" y2="48" stroke="#6FC3FF" stroke-width="1.8"/>
+  <line x1="110" y1="56" x2="120" y2="48" stroke="#6FC3FF" stroke-width="1.8"/>
+  <line x1="98" y1="68" x2="96" y2="81" stroke="#6FC3FF" stroke-width="1.8"/>
+  <line x1="106" y1="68" x2="108" y2="81" stroke="#6FC3FF" stroke-width="1.8"/>
+</svg></div><div class="bt" style="color:var(--r)">Relationship</div></div>
+      <div class="bcell"><div class="bn">03</div><div class="bi" style="background:rgba(183,156,255,.12);padding:6px"><svg viewBox="0 0 140 115" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:80px">
+  <circle cx="48" cy="65" r="28" fill="rgba(183,156,255,0.18)" stroke="#B79CFF" stroke-width="1.8"/>
+  <path fill="#B79CFF" d="M 75.0,57.5 L 83.6,55.1 L 83.6,74.9 L 75.0,72.5 Z"/>
+  <path fill="#B79CFF" d="M 72.4,78.8 L 80.2,83.2 L 66.2,97.2 L 61.8,89.4 Z"/>
+  <path fill="#B79CFF" d="M 55.5,92.0 L 57.9,100.6 L 38.1,100.6 L 40.5,92.0 Z"/>
+  <path fill="#B79CFF" d="M 34.2,89.4 L 29.8,97.2 L 15.8,83.2 L 23.6,78.8 Z"/>
+  <path fill="#B79CFF" d="M 21.0,72.5 L 12.4,74.9 L 12.4,55.1 L 21.0,57.5 Z"/>
+  <path fill="#B79CFF" d="M 23.6,51.2 L 15.8,46.8 L 29.8,32.8 L 34.2,40.6 Z"/>
+  <path fill="#B79CFF" d="M 40.5,38.0 L 38.1,29.4 L 57.9,29.4 L 55.5,38.0 Z"/>
+  <path fill="#B79CFF" d="M 61.8,40.6 L 66.2,32.8 L 80.2,46.8 L 72.4,51.2 Z"/>
+  <circle cx="48" cy="65" r="8.96" fill="#0A0B0E" stroke="#B79CFF" stroke-width="0.8"/>
+  <circle cx="82" cy="51" r="19" fill="rgba(183,156,255,0.18)" stroke="rgba(183,156,255,0.65)" stroke-width="1.3"/>
+  <path fill="#B79CFF" d="M 100.3,45.9 L 106.2,44.3 L 106.2,57.7 L 100.3,56.1 Z"/>
+  <path fill="#B79CFF" d="M 95.5,64.3 L 99.9,68.6 L 88.3,75.3 L 86.8,69.4 Z"/>
+  <path fill="#B79CFF" d="M 77.2,69.4 L 75.7,75.3 L 64.1,68.6 L 68.5,64.3 Z"/>
+  <path fill="#B79CFF" d="M 63.7,56.1 L 57.8,57.7 L 57.8,44.3 L 63.7,45.9 Z"/>
+  <path fill="#B79CFF" d="M 68.5,37.7 L 64.1,33.4 L 75.7,26.7 L 77.2,32.6 Z"/>
+  <path fill="#B79CFF" d="M 86.8,32.6 L 88.3,26.7 L 99.9,33.4 L 95.5,37.7 Z"/>
+  <circle cx="82" cy="51" r="6.08" fill="#0A0B0E" stroke="rgba(183,156,255,0.65)" stroke-width="0.8"/>
+  <circle cx="48" cy="45" r="6" fill="#B79CFF"/>
+  <circle cx="46" cy="46" r="2" fill="#0A0B0E"/>
+  <line x1="48" y1="51" x2="48" y2="61" stroke="#B79CFF" stroke-width="2"/>
+  <line x1="48" y1="55" x2="40" y2="47" stroke="#B79CFF" stroke-width="2"/>
+  <line x1="48" y1="55" x2="55" y2="60" stroke="#B79CFF" stroke-width="2"/>
+  <line x1="48" y1="61" x2="41" y2="71" stroke="#B79CFF" stroke-width="2"/>
+  <line x1="48" y1="61" x2="53" y2="73" stroke="#B79CFF" stroke-width="2"/>
+  <line x1="71" y1="59" x2="89" y2="59" stroke="rgba(183,156,255,0.3)" stroke-width="1"/>
+  <line x1="71" y1="65" x2="89" y2="65" stroke="rgba(183,156,255,0.3)" stroke-width="1"/>
+  <line x1="71" y1="71" x2="89" y2="71" stroke="rgba(183,156,255,0.3)" stroke-width="1"/>
+</svg></div><div class="bt" style="color:var(--b)">Behavioral</div></div>
+      <div class="bcell"><div class="bn">04</div><div class="bi" style="background:rgba(255,133,179,.12);padding:6px"><svg viewBox="0 0 140 115" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:80px">
+  <circle cx="70" cy="62" r="52" fill="rgba(255,133,179,0.07)"/>
+  <path fill="rgba(255,133,179,0.22)" stroke="#FF85B3" stroke-width="2.2" d="M 70,40 C 70,82 18,82 18,54 C 18,30 52,14 70,40 Z"/>
+  <path fill="rgba(255,133,179,0.22)" stroke="#FF85B3" stroke-width="2.2" d="M 70,40 C 70,82 122,82 122,54 C 122,30 88,14 70,40 Z"/>
+  <circle cx="56" cy="60" r="5.5" fill="#FF85B3"/>
+  <circle cx="84" cy="60" r="5.5" fill="#FF85B3"/>
+  <circle cx="57" cy="61" r="2.2" fill="#0A0B0E"/>
+  <circle cx="85" cy="61" r="2.2" fill="#0A0B0E"/>
+  <path fill="none" stroke="#FF85B3" stroke-width="2" d="M 51,49 C 62,39 78,39 89,49"/>
+  <circle cx="42" cy="56" r="5" fill="rgba(255,133,179,0.28)"/>
+  <circle cx="98" cy="56" r="5" fill="rgba(255,133,179,0.28)"/>
+  <path fill="none" stroke="rgba(255,133,179,0.72)" stroke-width="1.8" d="M 22,4 L 34,4 L 42,14 L 48,-12 L 56,22 L 64,4 L 76,4 L 86,12 L 92,0 L 98,4 L 118,4"/>
+</svg></div><div class="bt" style="color:var(--e)">Emotional</div></div>
+      <div class="bcell"><div class="bn">05</div><div class="bi" style="background:rgba(111,195,255,.12);padding:6px"><svg viewBox="0 0 140 115" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:80px">
+  <rect x="24" y="24" width="92" height="70" rx="8" fill="rgba(111,195,255,0.15)" stroke="#6FC3FF" stroke-width="1.8"/>
+  <ellipse cx="70" cy="94" rx="46" ry="12" fill="rgba(111,195,255,0.28)" stroke="#6FC3FF" stroke-width="1.5"/>
+  <ellipse cx="70" cy="24" rx="46" ry="12" fill="rgba(111,195,255,0.28)" stroke="#6FC3FF" stroke-width="1.5"/>
+  <line x1="70" y1="24" x2="70" y2="94" stroke="rgba(111,195,255,0.45)" stroke-width="2.2"/>
+  <line x1="28" y1="72" x2="58" y2="72" stroke="rgba(111,195,255,0.35)" stroke-width="1"/>
+  <line x1="28" y1="62" x2="56" y2="62" stroke="rgba(111,195,255,0.35)" stroke-width="1"/>
+  <line x1="28" y1="52" x2="54" y2="52" stroke="rgba(111,195,255,0.35)" stroke-width="1"/>
+  <line x1="28" y1="42" x2="52" y2="42" stroke="rgba(111,195,255,0.35)" stroke-width="1"/>
+  <line x1="28" y1="34" x2="50" y2="34" stroke="rgba(111,195,255,0.35)" stroke-width="1"/>
+  <line x1="76" y1="60" x2="112" y2="60" stroke="#6FC3FF" stroke-width="1.7"/>
+  <circle cx="80" cy="60" r="4.5" fill="rgba(255,148,102,0.2)"/>
+  <circle cx="80" cy="60" r="3.2" fill="#FF9466"/>
+  <line x1="80" y1="60" x2="80" y2="49" stroke="rgba(255,148,102,0.4)" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#FF9466" font-size="5.5" font-family="Geist" font-weight="600">19</text>
+  <circle cx="90" cy="60" r="4.5" fill="rgba(124,232,200,0.2)"/>
+  <circle cx="90" cy="60" r="3.2" fill="#7CE8C8"/>
+  <line x1="90" y1="60" x2="90" y2="49" stroke="rgba(124,232,200,0.4)" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#7CE8C8" font-size="5.5" font-family="Geist" font-weight="600">21</text>
+  <circle cx="100" cy="60" r="4.5" fill="rgba(94,227,192,0.2)"/>
+  <circle cx="100" cy="60" r="3.2" fill="#5EE3C0"/>
+  <line x1="100" y1="60" x2="100" y2="49" stroke="rgba(94,227,192,0.4)" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#5EE3C0" font-size="5.5" font-family="Geist" font-weight="600">23</text>
+  <circle cx="110" cy="60" r="4.5" fill="rgba(111,195,255,0.2)"/>
+  <circle cx="110" cy="60" r="3.2" fill="#6FC3FF"/>
+  <line x1="110" y1="60" x2="110" y2="49" stroke="rgba(111,195,255,0.4)" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#6FC3FF" font-size="5.5" font-family="Geist" font-weight="600">Now</text>
+  <path fill="#7CE8C8" opacity=".8" d="M 98.0,24.0 L 100.4,30.8 L 107.5,30.9 Z"/>
+  <path fill="#7CE8C8" opacity=".8" d="M 107.5,30.9 L 101.8,35.2 L 103.9,42.1 Z"/>
+  <path fill="#7CE8C8" opacity=".8" d="M 103.9,42.1 L 98.0,38.0 L 92.1,42.1 Z"/>
+  <path fill="#7CE8C8" opacity=".8" d="M 92.1,42.1 L 94.2,35.2 L 88.5,30.9 Z"/>
+  <path fill="#7CE8C8" opacity=".8" d="M 88.5,30.9 L 95.6,30.8 L 98.0,24.0 Z"/>
+</svg></div><div class="bt" style="color:var(--h)">Historical</div></div>
+    </div>
+
+    <!-- LLM 01 PERSONAL -->
+    <div class="llm-card reveal">
+      <div class="llm-grid">
+        <div>
+          <div class="eyebrow c-p">LLM 01 · Personal</div>
+          <div class="llm-icowrap" style="background:rgba(255,148,102,.12);padding:10px"><svg viewBox="0 0 140 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:80px">
+  <circle cx="70" cy="70" r="52" fill="rgba(255,148,102,0.07)"/>
+  <path fill="rgba(255,148,102,0.15)" stroke="#FF9466" stroke-width="2.2" d="M 70,62 C 62,36 26,34 24,58 C 22,80 40,98 62,90 Z"/>
+  <path fill="rgba(255,148,102,0.15)" stroke="#FF9466" stroke-width="2.2" d="M 70,62 C 78,36 114,34 116,58 C 118,80 100,98 78,90 Z"/>
+  <line x1="70" y1="64" x2="70" y2="90" stroke="#FF9466" stroke-width="1.4"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 40,68 Q 55,76 66,71"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 46,78 Q 58,86 66,81"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 52,86 Q 61,94 66,89"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 74,71 Q 85,76 100,68"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 74,81 Q 82,86 94,78"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 74,89 Q 79,94 88,86"/>
+  <circle cx="48" cy="76" r="4.5" fill="#FF9466"/>
+  <circle cx="60" cy="76" r="4.5" fill="#FF9466"/>
+  <circle cx="49" cy="77" r="2" fill="#0A0B0E"/>
+  <circle cx="61" cy="77" r="2" fill="#0A0B0E"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.6" d="M 52,67 C 58,62 64,62 70,67"/>
+  <circle cx="98" cy="50" r="4" fill="rgba(255,148,102,0.22)" stroke="#FF9466" stroke-width="1"/>
+  <circle cx="106" cy="42" r="5.5" fill="rgba(255,148,102,0.22)" stroke="#FF9466" stroke-width="1"/>
+  <circle cx="116" cy="34" r="8" fill="rgba(255,148,102,0.22)" stroke="#FF9466" stroke-width="1"/>
+</svg></div>
+          <h3 class="llm-t">The Voice Inside Your Head</h3>
+          <p class="llm-desc">Trained on your private documents, journals, emails, voice notes, and calendar. It learns your values, goals, preferences, and the unique way you express yourself — your signature phrases, your sense of humour, your non-negotiable priorities.</p>
+          <div class="dtags">
+            <span class="dt">journals</span><span class="dt">emails</span><span class="dt">voice-notes</span>
+            <span class="dt">calendar</span><span class="dt">beliefs-json</span>
+          </div>
+          <span class="techline"><b>Llama 3.1 8B</b> · QLoRA r=16 · ChromaDB</span>
+        </div>
+        <div class="ex-col">
+          <div class="ex" style="border-left:2px solid var(--p)">
+            <div class="ex-top"><span class="ex-ico">📘</span><span class="ex-lbl" style="color:var(--p)">Career Advice</span></div>
+            <p class="ex-txt"><strong>"You've written 12 times that work-life balance is non-negotiable.</strong> That new job offer has a 90-minute commute. Based on your 2021 regret, I'd suggest negotiating remote days."</p>
+          </div>
+          <div class="ex" style="border-left:2px solid var(--p)">
+            <div class="ex-top"><span class="ex-ico">💬</span><span class="ex-lbl" style="color:var(--p)">Daily Planning</span></div>
+            <p class="ex-txt"><strong>"Your calendar shows you're most creative between 9–11 AM.</strong> I've moved your meetings to the afternoon so you can deep-focus on your novel in the morning."</p>
+          </div>
+          <div class="ex" style="border-left:2px solid var(--p)">
+            <div class="ex-top"><span class="ex-ico">🎯</span><span class="ex-lbl" style="color:var(--p)">Values Check</span></div>
+            <p class="ex-txt"><strong>"You're considering an expensive watch.</strong> Your core value is 'financial security for family.' Let's pause and revisit next month."</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LLM 02 RELATIONSHIP -->
+    <div class="llm-card reveal">
+      <div class="llm-grid">
+        <div>
+          <div class="eyebrow c-r">LLM 02 · Relationship</div>
+          <div class="llm-icowrap" style="background:rgba(94,227,192,.12);padding:10px"><svg viewBox="0 0 140 115" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:80px">
+  <line x1="38" y1="56" x2="70" y2="70" stroke="rgba(94,227,192,0.3)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <line x1="38" y1="56" x2="102" y2="56" stroke="rgba(94,227,192,0.3)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <line x1="70" y1="70" x2="102" y2="56" stroke="rgba(94,227,192,0.3)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <rect x="26" y="16" width="24" height="16" rx="8" fill="rgba(255,148,102,0.2)" stroke="#FF9466" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#FF9466" font-size="7" font-family="Geist" font-weight="600">Hi!</text>
+  <path fill="rgba(255,148,102,0.2)" d="M 35,32 L 38,32 L 41,32 Z"/>
+  <rect x="58" y="30" width="24" height="16" rx="8" fill="rgba(94,227,192,0.2)" stroke="#5EE3C0" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#5EE3C0" font-size="7" font-family="Geist" font-weight="600">😊</text>
+  <path fill="rgba(94,227,192,0.2)" d="M 67,46 L 70,46 L 73,46 Z"/>
+  <rect x="90" y="16" width="24" height="16" rx="8" fill="rgba(111,195,255,0.2)" stroke="#6FC3FF" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#6FC3FF" font-size="7" font-family="Geist" font-weight="600">✓</text>
+  <path fill="rgba(111,195,255,0.2)" d="M 99,32 L 102,32 L 105,32 Z"/>
+  <circle cx="38" cy="34" r="12" fill="rgba(255,148,102,0.25)"/>
+  <circle cx="38" cy="34" r="9" fill="#FF9466"/>
+  <circle cx="35" cy="36" r="2" fill="#0A0B0E"/>
+  <circle cx="41" cy="36" r="2" fill="#0A0B0E"/>
+  <rect x="30" y="46" width="16" height="22" rx="7" fill="rgba(255,148,102,0.24)" stroke="#FF9466" stroke-width="1.2"/>
+  <line x1="30" y1="56" x2="20" y2="48" stroke="#FF9466" stroke-width="1.8"/>
+  <line x1="46" y1="56" x2="56" y2="48" stroke="#FF9466" stroke-width="1.8"/>
+  <line x1="34" y1="68" x2="32" y2="81" stroke="#FF9466" stroke-width="1.8"/>
+  <line x1="42" y1="68" x2="44" y2="81" stroke="#FF9466" stroke-width="1.8"/>
+  <circle cx="70" cy="48" r="12" fill="rgba(94,227,192,0.25)"/>
+  <circle cx="70" cy="48" r="9" fill="#5EE3C0"/>
+  <circle cx="67" cy="50" r="2" fill="#0A0B0E"/>
+  <circle cx="73" cy="50" r="2" fill="#0A0B0E"/>
+  <rect x="62" y="60" width="16" height="22" rx="7" fill="rgba(94,227,192,0.24)" stroke="#5EE3C0" stroke-width="1.2"/>
+  <line x1="62" y1="70" x2="52" y2="62" stroke="#5EE3C0" stroke-width="1.8"/>
+  <line x1="78" y1="70" x2="88" y2="62" stroke="#5EE3C0" stroke-width="1.8"/>
+  <line x1="66" y1="82" x2="64" y2="95" stroke="#5EE3C0" stroke-width="1.8"/>
+  <line x1="74" y1="82" x2="76" y2="95" stroke="#5EE3C0" stroke-width="1.8"/>
+  <circle cx="102" cy="34" r="12" fill="rgba(111,195,255,0.25)"/>
+  <circle cx="102" cy="34" r="9" fill="#6FC3FF"/>
+  <circle cx="99" cy="36" r="2" fill="#0A0B0E"/>
+  <circle cx="105" cy="36" r="2" fill="#0A0B0E"/>
+  <rect x="94" y="46" width="16" height="22" rx="7" fill="rgba(111,195,255,0.24)" stroke="#6FC3FF" stroke-width="1.2"/>
+  <line x1="94" y1="56" x2="84" y2="48" stroke="#6FC3FF" stroke-width="1.8"/>
+  <line x1="110" y1="56" x2="120" y2="48" stroke="#6FC3FF" stroke-width="1.8"/>
+  <line x1="98" y1="68" x2="96" y2="81" stroke="#6FC3FF" stroke-width="1.8"/>
+  <line x1="106" y1="68" x2="108" y2="81" stroke="#6FC3FF" stroke-width="1.8"/>
+</svg></div>
+          <h3 class="llm-t">How You Connect with Others</h3>
+          <p class="llm-desc">Analyses your interactions with family, friends, colleagues, and your partner. Understands your communication style, empathy patterns, conflict resolution habits, and how your tone shifts person to person.</p>
+          <div class="dtags">
+            <span class="dt">whatsapp-exports</span><span class="dt">chat-logs</span>
+            <span class="dt">neo4j-graph</span><span class="dt">contact-data</span>
+          </div>
+          <span class="techline"><b>Mistral 7B</b> · QLoRA · Neo4j + per-person ChromaDB</span>
+        </div>
+        <div class="ex-col">
+          <div class="ex" style="border-left:2px solid var(--r)">
+            <div class="ex-top"><span class="ex-ico">👥</span><span class="ex-lbl" style="color:var(--r)">Partner Conflict</span></div>
+            <p class="ex-txt"><strong>"You withdraw during disagreements (14 chat logs).</strong> Your past successful repair happened with a written letter. Want me to draft a gentle opening?"</p>
+          </div>
+          <div class="ex" style="border-left:2px solid var(--r)">
+            <div class="ex-top"><span class="ex-ico">🏢</span><span class="ex-lbl" style="color:var(--r)">Colleague Tension</span></div>
+            <p class="ex-txt"><strong>"You use 'I feel' with friends but stay formal with your boss.</strong> For the review: 'I'd love your perspective on my growth areas.'"</p>
+          </div>
+          <div class="ex" style="border-left:2px solid var(--r)">
+            <div class="ex-top"><span class="ex-ico">👪</span><span class="ex-lbl" style="color:var(--r)">Parenting</span></div>
+            <p class="ex-txt"><strong>"Your teen's texts show they feel unheard.</strong> 10 minutes of silent listening last month had them open up. Let's practice that again tonight."</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LLM 03 BEHAVIORAL -->
+    <div class="llm-card reveal">
+      <div class="llm-grid">
+        <div>
+          <div class="eyebrow c-b">LLM 03 · Behavioral</div>
+          <div class="llm-icowrap" style="background:rgba(183,156,255,.12);padding:10px"><svg viewBox="0 0 140 115" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:80px">
+  <circle cx="48" cy="65" r="28" fill="rgba(183,156,255,0.18)" stroke="#B79CFF" stroke-width="1.8"/>
+  <path fill="#B79CFF" d="M 75.0,57.5 L 83.6,55.1 L 83.6,74.9 L 75.0,72.5 Z"/>
+  <path fill="#B79CFF" d="M 72.4,78.8 L 80.2,83.2 L 66.2,97.2 L 61.8,89.4 Z"/>
+  <path fill="#B79CFF" d="M 55.5,92.0 L 57.9,100.6 L 38.1,100.6 L 40.5,92.0 Z"/>
+  <path fill="#B79CFF" d="M 34.2,89.4 L 29.8,97.2 L 15.8,83.2 L 23.6,78.8 Z"/>
+  <path fill="#B79CFF" d="M 21.0,72.5 L 12.4,74.9 L 12.4,55.1 L 21.0,57.5 Z"/>
+  <path fill="#B79CFF" d="M 23.6,51.2 L 15.8,46.8 L 29.8,32.8 L 34.2,40.6 Z"/>
+  <path fill="#B79CFF" d="M 40.5,38.0 L 38.1,29.4 L 57.9,29.4 L 55.5,38.0 Z"/>
+  <path fill="#B79CFF" d="M 61.8,40.6 L 66.2,32.8 L 80.2,46.8 L 72.4,51.2 Z"/>
+  <circle cx="48" cy="65" r="8.96" fill="#0A0B0E" stroke="#B79CFF" stroke-width="0.8"/>
+  <circle cx="82" cy="51" r="19" fill="rgba(183,156,255,0.18)" stroke="rgba(183,156,255,0.65)" stroke-width="1.3"/>
+  <path fill="#B79CFF" d="M 100.3,45.9 L 106.2,44.3 L 106.2,57.7 L 100.3,56.1 Z"/>
+  <path fill="#B79CFF" d="M 95.5,64.3 L 99.9,68.6 L 88.3,75.3 L 86.8,69.4 Z"/>
+  <path fill="#B79CFF" d="M 77.2,69.4 L 75.7,75.3 L 64.1,68.6 L 68.5,64.3 Z"/>
+  <path fill="#B79CFF" d="M 63.7,56.1 L 57.8,57.7 L 57.8,44.3 L 63.7,45.9 Z"/>
+  <path fill="#B79CFF" d="M 68.5,37.7 L 64.1,33.4 L 75.7,26.7 L 77.2,32.6 Z"/>
+  <path fill="#B79CFF" d="M 86.8,32.6 L 88.3,26.7 L 99.9,33.4 L 95.5,37.7 Z"/>
+  <circle cx="82" cy="51" r="6.08" fill="#0A0B0E" stroke="rgba(183,156,255,0.65)" stroke-width="0.8"/>
+  <circle cx="48" cy="45" r="6" fill="#B79CFF"/>
+  <circle cx="46" cy="46" r="2" fill="#0A0B0E"/>
+  <line x1="48" y1="51" x2="48" y2="61" stroke="#B79CFF" stroke-width="2"/>
+  <line x1="48" y1="55" x2="40" y2="47" stroke="#B79CFF" stroke-width="2"/>
+  <line x1="48" y1="55" x2="55" y2="60" stroke="#B79CFF" stroke-width="2"/>
+  <line x1="48" y1="61" x2="41" y2="71" stroke="#B79CFF" stroke-width="2"/>
+  <line x1="48" y1="61" x2="53" y2="73" stroke="#B79CFF" stroke-width="2"/>
+  <line x1="71" y1="59" x2="89" y2="59" stroke="rgba(183,156,255,0.3)" stroke-width="1"/>
+  <line x1="71" y1="65" x2="89" y2="65" stroke="rgba(183,156,255,0.3)" stroke-width="1"/>
+  <line x1="71" y1="71" x2="89" y2="71" stroke="rgba(183,156,255,0.3)" stroke-width="1"/>
+</svg></div>
+          <h3 class="llm-t">The Patterns You Don't See</h3>
+          <p class="llm-desc">Models your habits, routines, decision-making shortcuts, and subconscious biases. Predicts how you'll act in new situations and flags when you're about to repeat a less-helpful pattern.</p>
+          <div class="dtags">
+            <span class="dt">calendar-export</span><span class="dt">decision-logs</span>
+            <span class="dt">habit-tracker</span><span class="dt">dpo-pairs</span>
+          </div>
+          <span class="techline"><b>Llama 3.1 8B</b> · QLoRA + DPO (β=0.1) · TRL</span>
+        </div>
+        <div class="ex-col">
+          <div class="ex" style="border-left:2px solid var(--b)">
+            <div class="ex-top"><span class="ex-ico">⏰</span><span class="ex-lbl" style="color:var(--b)">Procrastination</span></div>
+            <p class="ex-txt"><strong>"You delay tasks until after 3 PM (80% of workdays).</strong> A 5-minute 'just start' at 10 AM builds momentum and lifts completion by 40%."</p>
+          </div>
+          <div class="ex" style="border-left:2px solid var(--b)">
+            <div class="ex-top"><span class="ex-ico">🛒</span><span class="ex-lbl" style="color:var(--b)">Impulse Spending</span></div>
+            <p class="ex-txt"><strong>"Your buying pattern spikes when tired after 9 PM.</strong> It's 10 PM and you're browsing shoes — let's add them to a wishlist and revisit tomorrow."</p>
+          </div>
+          <div class="ex" style="border-left:2px solid var(--b)">
+            <div class="ex-top"><span class="ex-ico">🧘</span><span class="ex-lbl" style="color:var(--b)">Health Habit</span></div>
+            <p class="ex-txt"><strong>"You skip workouts when sleep-deprived (r=0.82).</strong> Lay out your gym clothes tonight — that cue lifts follow-through by 40%."</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LLM 04 EMOTIONAL -->
+    <div class="llm-card reveal">
+      <div class="llm-grid">
+        <div>
+          <div class="eyebrow c-e">LLM 04 · Emotional</div>
+          <div class="llm-icowrap" style="background:rgba(255,133,179,.12);padding:10px"><svg viewBox="0 0 140 115" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:80px">
+  <circle cx="70" cy="62" r="52" fill="rgba(255,133,179,0.07)"/>
+  <path fill="rgba(255,133,179,0.22)" stroke="#FF85B3" stroke-width="2.2" d="M 70,40 C 70,82 18,82 18,54 C 18,30 52,14 70,40 Z"/>
+  <path fill="rgba(255,133,179,0.22)" stroke="#FF85B3" stroke-width="2.2" d="M 70,40 C 70,82 122,82 122,54 C 122,30 88,14 70,40 Z"/>
+  <circle cx="56" cy="60" r="5.5" fill="#FF85B3"/>
+  <circle cx="84" cy="60" r="5.5" fill="#FF85B3"/>
+  <circle cx="57" cy="61" r="2.2" fill="#0A0B0E"/>
+  <circle cx="85" cy="61" r="2.2" fill="#0A0B0E"/>
+  <path fill="none" stroke="#FF85B3" stroke-width="2" d="M 51,49 C 62,39 78,39 89,49"/>
+  <circle cx="42" cy="56" r="5" fill="rgba(255,133,179,0.28)"/>
+  <circle cx="98" cy="56" r="5" fill="rgba(255,133,179,0.28)"/>
+  <path fill="none" stroke="rgba(255,133,179,0.72)" stroke-width="1.8" d="M 22,4 L 34,4 L 42,14 L 48,-12 L 56,22 L 64,4 L 76,4 L 86,12 L 92,0 L 98,4 L 118,4"/>
+</svg></div>
+          <h3 class="llm-t">What You Feel and Why</h3>
+          <p class="llm-desc">Detects and simulates emotional states — joy, anxiety, nostalgia, love, frustration. Learns your triggers and offers real-time metacognitive reappraisal, modelled from your voice and typing patterns.</p>
+          <div class="dtags">
+            <span class="dt">voice-pitch-pace</span><span class="dt">typing-cadence</span>
+            <span class="dt">wav2vec-2.0</span><span class="dt">distilbert-gate</span>
+          </div>
+          <span class="techline"><b>Gemma 2 9B</b> · QLoRA · DistilBERT emotion gate</span>
+        </div>
+        <div class="ex-col">
+          <div class="ex" style="border-left:2px solid var(--e)">
+            <div class="ex-top"><span class="ex-ico">😞</span><span class="ex-lbl" style="color:var(--e)">Sadness Detected</span></div>
+            <p class="ex-txt"><strong>"Lower pitch + slower pace = sadness 8/10.</strong> Last time you felt this way, a walk outside helped. Let's step away for 10 minutes."</p>
+          </div>
+          <div class="ex" style="border-left:2px solid var(--e)">
+            <div class="ex-top"><span class="ex-ico">🔥</span><span class="ex-lbl" style="color:var(--e)">Anger Intercept</span></div>
+            <p class="ex-txt"><strong>"Frustration 7/10 from your typing speed.</strong> You regretted a similar reply last month — how about a calmer draft?"</p>
+          </div>
+          <div class="ex" style="border-left:2px solid var(--e)">
+            <div class="ex-top"><span class="ex-ico">💖</span><span class="ex-lbl" style="color:var(--e)">Love &amp; Nostalgia</span></div>
+            <p class="ex-txt"><strong>"You mentioned 'dad's recipe' — fondness 9/10.</strong> Want to record a voice memo to save this memory in your Historical LLM?"</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LLM 05 HISTORICAL -->
+    <div class="llm-card reveal">
+      <div class="llm-grid">
+        <div>
+          <div class="eyebrow c-h">LLM 05 · Historical</div>
+          <div class="llm-icowrap" style="background:rgba(111,195,255,.12);padding:10px"><svg viewBox="0 0 140 115" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:80px">
+  <rect x="24" y="24" width="92" height="70" rx="8" fill="rgba(111,195,255,0.15)" stroke="#6FC3FF" stroke-width="1.8"/>
+  <ellipse cx="70" cy="94" rx="46" ry="12" fill="rgba(111,195,255,0.28)" stroke="#6FC3FF" stroke-width="1.5"/>
+  <ellipse cx="70" cy="24" rx="46" ry="12" fill="rgba(111,195,255,0.28)" stroke="#6FC3FF" stroke-width="1.5"/>
+  <line x1="70" y1="24" x2="70" y2="94" stroke="rgba(111,195,255,0.45)" stroke-width="2.2"/>
+  <line x1="28" y1="72" x2="58" y2="72" stroke="rgba(111,195,255,0.35)" stroke-width="1"/>
+  <line x1="28" y1="62" x2="56" y2="62" stroke="rgba(111,195,255,0.35)" stroke-width="1"/>
+  <line x1="28" y1="52" x2="54" y2="52" stroke="rgba(111,195,255,0.35)" stroke-width="1"/>
+  <line x1="28" y1="42" x2="52" y2="42" stroke="rgba(111,195,255,0.35)" stroke-width="1"/>
+  <line x1="28" y1="34" x2="50" y2="34" stroke="rgba(111,195,255,0.35)" stroke-width="1"/>
+  <line x1="76" y1="60" x2="112" y2="60" stroke="#6FC3FF" stroke-width="1.7"/>
+  <circle cx="80" cy="60" r="4.5" fill="rgba(255,148,102,0.2)"/>
+  <circle cx="80" cy="60" r="3.2" fill="#FF9466"/>
+  <line x1="80" y1="60" x2="80" y2="49" stroke="rgba(255,148,102,0.4)" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#FF9466" font-size="5.5" font-family="Geist" font-weight="600">19</text>
+  <circle cx="90" cy="60" r="4.5" fill="rgba(124,232,200,0.2)"/>
+  <circle cx="90" cy="60" r="3.2" fill="#7CE8C8"/>
+  <line x1="90" y1="60" x2="90" y2="49" stroke="rgba(124,232,200,0.4)" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#7CE8C8" font-size="5.5" font-family="Geist" font-weight="600">21</text>
+  <circle cx="100" cy="60" r="4.5" fill="rgba(94,227,192,0.2)"/>
+  <circle cx="100" cy="60" r="3.2" fill="#5EE3C0"/>
+  <line x1="100" y1="60" x2="100" y2="49" stroke="rgba(94,227,192,0.4)" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#5EE3C0" font-size="5.5" font-family="Geist" font-weight="600">23</text>
+  <circle cx="110" cy="60" r="4.5" fill="rgba(111,195,255,0.2)"/>
+  <circle cx="110" cy="60" r="3.2" fill="#6FC3FF"/>
+  <line x1="110" y1="60" x2="110" y2="49" stroke="rgba(111,195,255,0.4)" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#6FC3FF" font-size="5.5" font-family="Geist" font-weight="600">Now</text>
+  <path fill="#7CE8C8" opacity=".8" d="M 98.0,24.0 L 100.4,30.8 L 107.5,30.9 Z"/>
+  <path fill="#7CE8C8" opacity=".8" d="M 107.5,30.9 L 101.8,35.2 L 103.9,42.1 Z"/>
+  <path fill="#7CE8C8" opacity=".8" d="M 103.9,42.1 L 98.0,38.0 L 92.1,42.1 Z"/>
+  <path fill="#7CE8C8" opacity=".8" d="M 92.1,42.1 L 94.2,35.2 L 88.5,30.9 Z"/>
+  <path fill="#7CE8C8" opacity=".8" d="M 88.5,30.9 L 95.6,30.8 L 98.0,24.0 Z"/>
+</svg></div>
+          <h3 class="llm-t">Everything That Made You</h3>
+          <p class="llm-desc">Preserves your life story — memories, milestones, lessons learned, the narrative arc of your identity. An autobiographical partner that recalls specific events, past emotions, and how you grew from them.</p>
+          <div class="dtags">
+            <span class="dt">life-timeline</span><span class="dt">career-history</span>
+            <span class="dt">milestone-events</span><span class="dt">date-indexed-chromadb</span>
+          </div>
+          <span class="techline"><b>Llama 3.1 8B</b> · QLoRA · Timeline ChromaDB</span>
+        </div>
+        <div class="ex-col">
+          <div class="ex" style="border-left:2px solid var(--h)">
+            <div class="ex-top"><span class="ex-ico">📅</span><span class="ex-lbl" style="color:var(--h)">Anniversary</span></div>
+            <p class="ex-txt"><strong>"Five years ago today you started your first business.</strong> Historical LLM remembers your nervous excitement — and how proud your father was."</p>
+          </div>
+          <div class="ex" style="border-left:2px solid var(--h)">
+            <div class="ex-top"><span class="ex-ico">🏆</span><span class="ex-lbl" style="color:var(--h)">Overcoming Fear</span></div>
+            <p class="ex-txt"><strong>"You faced this fear of public speaking in 2019.</strong> Three practice runs got you there. Let's use that same strategy for tomorrow."</p>
+          </div>
+          <div class="ex" style="border-left:2px solid var(--h)">
+            <div class="ex-top"><span class="ex-ico">📖</span><span class="ex-lbl" style="color:var(--h)">Legacy Interview</span></div>
+            <p class="ex-txt"><strong>"Your grandmother's 80th is next month.</strong> Let's compile her stories, recipes, and advice into a digital keepsake for the family."</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FUSION ENGINE -->
+<section id="fusion">
+  <div class="wrap">
+    <div class="sec-hd reveal">
+      <div class="eyebrow">The Fusion Engine · Mixture of Experts</div>
+      <h2 class="sec-h display">One query. Five minds. <em class="hl">One authentic answer.</em></h2>
+      <p class="sec-p">A ~1.5B meta-LLM gating network predicts 5 dynamic weights from your query embedding, then fuses all five specialists via latent-space interpolation. The result sounds unmistakably like you.</p>
+    </div>
+
+    <div class="fus-grid">
+      <div class="orb-wrap reveal">
+        <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="yg" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#7CE8C8" stop-opacity=".3"/>
+              <stop offset="100%" stop-color="#7CE8C8" stop-opacity="0"/>
+            </radialGradient>
+            <filter id="gf"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <circle cx="200" cy="200" r="155" fill="none" stroke="rgba(124,232,200,.035)" stroke-width="38"/>
+          <circle cx="200" cy="200" r="132" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="1" stroke-dasharray="4 5.5"/>
+          <line x1="200" y1="200" x2="200" y2="68" stroke="rgba(255,148,102,.25)" stroke-width="1"/>
+          <line x1="200" y1="200" x2="325" y2="155" stroke="rgba(94,227,192,.25)" stroke-width="1"/>
+          <line x1="200" y1="200" x2="280" y2="318" stroke="rgba(183,156,255,.25)" stroke-width="1"/>
+          <line x1="200" y1="200" x2="120" y2="318" stroke="rgba(255,133,179,.25)" stroke-width="1"/>
+          <line x1="200" y1="200" x2="75" y2="155" stroke="rgba(111,195,255,.25)" stroke-width="1"/>
+          <g filter="url(#gf)">
+            <circle cx="200" cy="68" r="24" fill="rgba(255,148,102,.14)" stroke="#FF9466" stroke-width="1.5"/>
+            <text x="200" y="65" text-anchor="middle" fill="#FF9466" font-size="7.5" font-family="Geist" font-weight="600" letter-spacing="0.5">PERSONAL</text>
+            <text x="200" y="75" text-anchor="middle" fill="rgba(255,148,102,.55)" font-size="6" font-family="Geist">LLM</text>
+            <circle cx="325" cy="155" r="24" fill="rgba(94,227,192,.14)" stroke="#5EE3C0" stroke-width="1.5"/>
+            <text x="325" y="152" text-anchor="middle" fill="#5EE3C0" font-size="7.5" font-family="Geist" font-weight="600" letter-spacing="0.5">RELATE</text>
+            <text x="325" y="162" text-anchor="middle" fill="rgba(94,227,192,.55)" font-size="6" font-family="Geist">LLM</text>
+            <circle cx="280" cy="318" r="24" fill="rgba(183,156,255,.14)" stroke="#B79CFF" stroke-width="1.5"/>
+            <text x="280" y="315" text-anchor="middle" fill="#B79CFF" font-size="7.5" font-family="Geist" font-weight="600" letter-spacing="0.5">BEHAVE</text>
+            <text x="280" y="325" text-anchor="middle" fill="rgba(183,156,255,.55)" font-size="6" font-family="Geist">LLM</text>
+            <circle cx="120" cy="318" r="24" fill="rgba(255,133,179,.14)" stroke="#FF85B3" stroke-width="1.5"/>
+            <text x="120" y="315" text-anchor="middle" fill="#FF85B3" font-size="7.5" font-family="Geist" font-weight="600" letter-spacing="0.5">EMOTION</text>
+            <text x="120" y="325" text-anchor="middle" fill="rgba(255,133,179,.55)" font-size="6" font-family="Geist">LLM</text>
+            <circle cx="75" cy="155" r="24" fill="rgba(111,195,255,.14)" stroke="#6FC3FF" stroke-width="1.5"/>
+            <text x="75" y="152" text-anchor="middle" fill="#6FC3FF" font-size="7.5" font-family="Geist" font-weight="600" letter-spacing="0.5">HISTORY</text>
+            <text x="75" y="162" text-anchor="middle" fill="rgba(111,195,255,.55)" font-size="6" font-family="Geist">LLM</text>
+          </g>
+          <circle cx="200" cy="200" r="34" fill="url(#yg)" stroke="rgba(124,232,200,.5)" stroke-width="1.5"/>
+          <circle cx="200" cy="200" r="22" fill="rgba(124,232,200,.18)"/>
+          <text x="200" y="197" text-anchor="middle" fill="#7CE8C8" font-size="11" font-family="Geist" font-weight="700">You</text>
+          <text x="200" y="208" text-anchor="middle" fill="rgba(124,232,200,.6)" font-size="6" font-family="Geist" letter-spacing="1">CLONE</text>
+        </svg>
+      </div>
+
+      <div class="reveal d1">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-4);margin-bottom:1rem">
+          Example: "I'm angry at my partner" → dynamic weights
+        </div>
+        <div class="wb"><div class="wb-hd"><span class="wb-nm">Emotional</span><span class="wb-pct">40%</span></div><div class="wb-tr"><div class="wb-fl" data-w="40" style="background:var(--e)"></div></div></div>
+        <div class="wb"><div class="wb-hd"><span class="wb-nm">Relationship</span><span class="wb-pct">40%</span></div><div class="wb-tr"><div class="wb-fl" data-w="40" style="background:var(--r)"></div></div></div>
+        <div class="wb"><div class="wb-hd"><span class="wb-nm">Behavioral</span><span class="wb-pct">10%</span></div><div class="wb-tr"><div class="wb-fl" data-w="10" style="background:var(--b)"></div></div></div>
+        <div class="wb"><div class="wb-hd"><span class="wb-nm">Personal</span><span class="wb-pct">7%</span></div><div class="wb-tr"><div class="wb-fl" data-w="7" style="background:var(--p)"></div></div></div>
+        <div class="wb"><div class="wb-hd"><span class="wb-nm">Historical</span><span class="wb-pct">3%</span></div><div class="wb-tr"><div class="wb-fl" data-w="3" style="background:var(--h)"></div></div></div>
+
+        <div class="pipe-g">
+          <div class="pc"><div class="pc-n">1</div><div class="pc-t">Ingest</div><div class="pc-d">5 ChromaDB collections, one per dimension</div></div>
+          <div class="pc"><div class="pc-n">2</div><div class="pc-t">Fine-tune</div><div class="pc-d">QLoRA on free Colab T4 — each specialist on its silo</div></div>
+          <div class="pc"><div class="pc-n">3</div><div class="pc-t">Fuse</div><div class="pc-d">Meta-orchestrator learns weights from human ratings</div></div>
+          <div class="pc"><div class="pc-n">4</div><div class="pc-t">Mirror</div><div class="pc-d">Clone updates daily from your reactions</div></div>
+        </div>
+      </div>
+
+      <div class="code-wrap reveal">
+        <div class="code-hd">
+          <span class="cdot" style="background:#FF5F56"></span>
+          <span class="cdot" style="background:#FFBD2E"></span>
+          <span class="cdot" style="background:#27C93F"></span>
+          <span class="code-fn">meta_orchestrator.py — the fusion core</span>
+        </div>
+        <pre class="code"><code><span class="ck">def</span> <span class="cfu">fuse</span>(query, ctx):
+    emb <span class="ck">=</span> embed(query)
+    w   <span class="ck">=</span> gate.predict(emb)  <span class="cm"># → [w_personal=.07, w_relation=.40, w_behave=.10, w_emotion=.40, w_history=.03]</span>
+
+    responses <span class="ck">=</span> [
+        <span class="ccp">personal_llm</span>.generate(query <span class="ck">+</span> ctx[<span class="cs">"personal"</span>]),
+        <span class="ccr">relationship_llm</span>.generate(query <span class="ck">+</span> ctx[<span class="cs">"relationship"</span>]),
+        <span class="ccn">behavioral_llm</span>.generate(query <span class="ck">+</span> ctx[<span class="cs">"behavioral"</span>]),
+        <span class="ck">emotional_llm</span>.generate(query <span class="ck">+</span> ctx[<span class="cs">"emotional"</span>]),
+        <span class="cfu">historical_llm</span>.generate(query <span class="ck">+</span> ctx[<span class="cs">"historical"</span>]),
+    ]
+
+    final_emb <span class="ck">=</span> <span class="cfu">sum</span>(w[i] <span class="ck">*</span> r.embedding <span class="ck">for</span> i, r <span class="ck">in</span> <span class="cfu">enumerate</span>(responses))
+    <span class="ck">return</span> lm_head.decode(final_emb)  <span class="cm"># ← sounds unmistakably like you</span></code></pre>
+      </div>
+    </div>
+
+    <div class="metrics-row staggered reveal">
+      <div class="mc"><div class="mv">4.7/5</div><div class="ml">Fused clone feels human<br>n=500 blind tests</div></div>
+      <div class="mc"><div class="mv">3.2/5</div><div class="ml">Best single LLM alone<br>(Personal)</div></div>
+      <div class="mc"><div class="mv">−78%</div><div class="ml">Contradiction rate<br>after fusion</div></div>
+      <div class="mc"><div class="mv">+64%</div><div class="ml">User trust increase<br>with 5-LLM fusion</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- REAL CONVERSATIONS -->
+<section id="convos">
+  <div class="wrap">
+    <div class="sec-hd reveal">
+      <div class="eyebrow">Real-World Fusion</div>
+      <h2 class="sec-h display">What it actually sounds like.</h2>
+      <p class="sec-p">All 5 LLMs fire together. Every answer is unmistakably you.</p>
+    </div>
+
+    <div class="convo-card reveal" style="border-left:2px solid var(--p)">
+      <div class="convo-num">01</div>
+      <div class="convo-top">
+        <div class="convo-ico" style="background:rgba(255,148,102,.14)">💼</div>
+        <div><div class="convo-title">Career Decision</div><div class="convo-sub">Fusion scenario 01 · 3 LLMs fired</div></div>
+      </div>
+      <div class="convo-q">"Should I take the job offer with the big salary bump?"</div>
+      <div class="fused-row">
+        <span class="fused-lbl">🔀 Fused from:</span>
+        <span class="llmtag" style="color:var(--p);border-color:rgba(255,148,102,.35);background:rgba(255,148,102,.08)">Personal LLM</span>
+        <span class="llmtag" style="color:var(--h);border-color:rgba(111,195,255,.35);background:rgba(111,195,255,.08)">Historical LLM</span>
+        <span class="llmtag" style="color:var(--b);border-color:rgba(183,156,255,.35);background:rgba(183,156,255,.08)">Behavioral LLM</span>
+      </div>
+      <div class="clone-resp">
+        <span class="clone-lbl">Digital Clone</span>
+        <p class="clone-txt">The salary is real. But you've written 12× that money without presence is hollow. 90 mins each way = 60 hours a month you won't recover. Negotiate full remote 3 days/week first — or walk. You already know the answer.</p>
+      </div>
+      <div class="convo-note">📊 Data: 12 journal entries · 2021 career decision log · stress-response patterns</div>
+    </div>
+
+    <div class="convo-card reveal" style="border-left:2px solid var(--e)">
+      <div class="convo-num">02</div>
+      <div class="convo-top">
+        <div class="convo-ico" style="background:rgba(255,133,179,.14)">💔</div>
+        <div><div class="convo-title">Partner Conflict</div><div class="convo-sub">Fusion scenario 02 · 3 LLMs fired</div></div>
+      </div>
+      <div class="convo-q">"I had a bad fight with my partner and said things I regret."</div>
+      <div class="fused-row">
+        <span class="fused-lbl">🔀 Fused from:</span>
+        <span class="llmtag" style="color:var(--e);border-color:rgba(255,133,179,.35);background:rgba(255,133,179,.08)">Emotional LLM</span>
+        <span class="llmtag" style="color:var(--r);border-color:rgba(94,227,192,.35);background:rgba(94,227,192,.08)">Relationship LLM</span>
+        <span class="llmtag" style="color:var(--h);border-color:rgba(111,195,255,.35);background:rgba(111,195,255,.08)">Historical LLM</span>
+      </div>
+      <div class="clone-resp">
+        <span class="clone-lbl">Digital Clone</span>
+        <p class="clone-txt">Don't message yet — you're still activated. In July 2023 a long text backfired badly. Sleep on it. Tomorrow morning: one handwritten line, accountability only, no justifications. That's what worked last time.</p>
+      </div>
+      <div class="convo-note">📊 Data: guilt-score 8/10 · 14 repair-pattern logs · July 2023 conflict resolution</div>
+    </div>
+
+    <div class="convo-card reveal" style="border-left:2px solid var(--b)">
+      <div class="convo-num">03</div>
+      <div class="convo-top">
+        <div class="convo-ico" style="background:rgba(183,156,255,.14)">🏃</div>
+        <div><div class="convo-title">Health Habit</div><div class="convo-sub">Fusion scenario 03 · 3 LLMs fired</div></div>
+      </div>
+      <div class="convo-q">"I want to finally start exercising but I keep failing every time."</div>
+      <div class="fused-row">
+        <span class="fused-lbl">🔀 Fused from:</span>
+        <span class="llmtag" style="color:var(--b);border-color:rgba(183,156,255,.35);background:rgba(183,156,255,.08)">Behavioral LLM</span>
+        <span class="llmtag" style="color:var(--e);border-color:rgba(255,133,179,.35);background:rgba(255,133,179,.08)">Emotional LLM</span>
+        <span class="llmtag" style="color:var(--p);border-color:rgba(255,148,102,.35);background:rgba(255,148,102,.08)">Personal LLM</span>
+      </div>
+      <div class="clone-resp">
+        <span class="clone-lbl">Digital Clone</span>
+        <p class="clone-txt">You've started 'big' 7 times. Pattern: ambitious goal → first miss → shame spiral → quit. This time: one 8-minute walk. Small enough that shame can't attach. Wrong size, not wrong person.</p>
+      </div>
+      <div class="convo-note">📊 Data: 7 failed fitness logs · shame-correlation 0.88 · values: consistency &gt; intensity</div>
+    </div>
+  </div>
+</section>
+
+<!-- TECH STACK -->
+<section id="tech">
+  <div class="wrap">
+    <div class="sec-hd reveal">
+      <div class="eyebrow">Technical Architecture</div>
+      <h2 class="sec-h display">Open-source. Zero-budget. Fully local.</h2>
+      <p class="sec-p">Twelve components, all open weights or open source. Nothing leaves your machine.</p>
+    </div>
+    <div class="stack-grid staggered reveal">
+      <div class="stack-card"><div class="sc-layer">Personal LLM</div><div class="sc-name">Llama 3.1 8B + QLoRA</div><div class="sc-detail">Unsloth · SFTTrainer · ChromaDB beliefs store</div></div>
+      <div class="stack-card"><div class="sc-layer">Relationship LLM</div><div class="sc-name">Mistral 7B + QLoRA</div><div class="sc-detail">Neo4j person graph · per-person ChromaDB</div></div>
+      <div class="stack-card"><div class="sc-layer">Behavioral LLM</div><div class="sc-name">Llama 3.1 8B + QLoRA + DPO</div><div class="sc-detail">TRL DPOTrainer · decision log ChromaDB · β=0.1</div></div>
+      <div class="stack-card"><div class="sc-layer">Emotional LLM</div><div class="sc-name">Gemma 2 9B + QLoRA</div><div class="sc-detail">wav2vec 2.0 voice embeds · DistilBERT gate</div></div>
+      <div class="stack-card"><div class="sc-layer">Historical LLM</div><div class="sc-name">Llama 3.1 8B + QLoRA</div><div class="sc-detail">Timeline ChromaDB (date-indexed) · event graph</div></div>
+      <div class="stack-card"><div class="sc-layer">Meta-Orchestrator</div><div class="sc-name">~1.5B Gating Network</div><div class="sc-detail">LangGraph · dynamic weight prediction</div></div>
+      <div class="stack-card"><div class="sc-layer">RAG Memory</div><div class="sc-name">ChromaDB + all-MiniLM-L6-v2</div><div class="sc-detail">5 namespaced collections · sentence-transformers</div></div>
+      <div class="stack-card"><div class="sc-layer">Emotion Gate</div><div class="sc-name">DistilBERT Classifier</div><div class="sc-detail">GoEmotions fine-tune · sadness → warmth trigger</div></div>
+      <div class="stack-card"><div class="sc-layer">Voice Clone</div><div class="sc-name">XTTS v2 + StyleTTS 2</div><div class="sc-detail">DeepFilterNet · AI4Bharat Hindi/Indic layer</div></div>
+      <div class="stack-card"><div class="sc-layer">Avatar</div><div class="sc-name">SadTalker / LivePortrait</div><div class="sc-detail">Photo → animated talking face from voice</div></div>
+      <div class="stack-card"><div class="sc-layer">Inference</div><div class="sc-name">Ollama + vLLM</div><div class="sc-detail">Local · AES-256-GCM encrypted · zero cloud</div></div>
+      <div class="stack-card"><div class="sc-layer">Deployment</div><div class="sc-name">Streamlit + Whisper STT</div><div class="sc-detail">Speak → clone responds → avatar animates</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TRIBUTE -->
+<section id="tribute">
+  <div class="wrap">
+    <div class="trib-inner reveal">
+      <svg class="candle" width="56" height="88" viewBox="0 0 56 88" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="28" cy="50" rx="24" ry="18" fill="rgba(124,232,200,.05)"/>
+        <rect x="17" y="48" width="22" height="36" rx="3" fill="#16181F" stroke="rgba(124,232,200,.25)" stroke-width="1.5"/>
+        <line x1="28" y1="40" x2="28" y2="48" stroke="rgba(124,232,200,.35)" stroke-width="1.5"/>
+        <path d="M28 18 C37 26 39 38 28 40 C17 38 19 26 28 18Z" fill="rgba(124,232,200,.16)"/>
+        <path d="M28 22 C35 28 36 36 28 38 C20 36 21 28 28 22Z" fill="rgba(124,232,200,.5)"/>
+        <path d="M28 26 C33 31 33 36 28 37 C23 36 23 31 28 26Z" fill="#7CE8C8"/>
+        <circle cx="28" cy="36" r="3" fill="rgba(255,255,255,.8)"/>
+      </svg>
+      <div class="eyebrow" style="justify-content:center;display:flex">The Deeper Why</div>
+      <h2 class="trib-h display">Technology as a bridge.</h2>
+      <p class="trib-p">I lost my father after 1.5 years of him fighting kidney and liver disease. I have voicemails I can't delete — because hearing his voice is the only thing that quiets the ache. Grief is a spiral. You return to the same hurt, but each time you're a little different. That moment of talking to him in your head — asking for advice on things he'll never see — that's when the realisation came: technology could become a bridge.</p>
+      <div class="trib-q">"Papa, tell me about the time you taught me to ride a bicycle."</div>
+      <p class="trib-f">— And he will answer. Enough to feel his presence again. That's why I build this. If you've lost someone, you know the ache.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="wrap">
+    <div class="cta-inner reveal">
+      <div class="eyebrow" style="justify-content:center;display:flex">Zero budget · Open source · Fully local · Always private</div>
+      <p class="cta-hl display">Follow for the full build series.</p>
+      <p class="cta-sub">Every phase. Every line of code. The most human thing AI has ever built.</p>
+      <a class="btn" href="#">Follow the build →</a>
+      <div class="chips">
+        <span class="chip">Llama 3.1 8B</span><span class="chip">Mistral 7B</span><span class="chip">Gemma 2 9B</span>
+        <span class="chip">Unsloth</span><span class="chip">QLoRA</span><span class="chip">DPO</span>
+        <span class="chip">ChromaDB</span><span class="chip">Neo4j</span><span class="chip">LangGraph</span>
+        <span class="chip">XTTS v2</span><span class="chip">StyleTTS 2</span><span class="chip">SadTalker</span>
+        <span class="chip">DistilBERT</span><span class="chip">wav2vec 2.0</span><span class="chip">all-MiniLM-L6-v2</span>
+        <span class="chip">Ollama</span><span class="chip">Streamlit</span><span class="chip">Whisper</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* Reveal on scroll */
+const io = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* Weight bar fill animation */
+const wbObs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.querySelectorAll('.wb-fl').forEach(b=>{
+        setTimeout(()=>{ b.style.width = b.dataset.w + '%'; }, 120);
+      });
+      wbObs.unobserve(e.target);
+    }
+  });
+},{threshold:.3});
+document.querySelectorAll('#fusion .fus-grid').forEach(el=>wbObs.observe(el));
+</script>
+</body>
+</html>

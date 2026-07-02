@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>भारत Digital Twin · Companion for Every Indian · True Digital Clone 2026</title>
+<meta name="description" content="Digital Twin Companion for every Indian — 22 languages, every profession, every age — merged with the complete True Digital Clone 2026 technical deep dive.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Devanagari:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── PORTFOLIO TOKENS ──────────────────────────────────────── */
+:root{
+  --bg:#0A0B0E;--bg-1:#111319;--bg-2:#16181F;--bg-3:#1B1E26;--bg-4:#22252E;
+  --border:rgba(255,255,255,.06);--border-2:rgba(255,255,255,.10);--border-3:rgba(255,255,255,.18);
+  --text:#F1F1EE;--text-2:#C5C7CC;--text-3:#8A8D96;--text-4:#5C5F68;--text-5:#3D4049;
+  --accent:#7CE8C8;--accent-dim:rgba(124,232,200,.12);--accent-bg:rgba(124,232,200,.05);
+  --accent-glow:0 0 40px rgba(124,232,200,.18);
+  /* Part 2 — Indian tricolor (scoped) */
+  --saff:#FF9933;  --saff-dim:rgba(255,153,51,.13); --saff-bg:rgba(255,153,51,.06);
+  --grn:#22A84B;   --grn-dim:rgba(34,168,75,.13);   --grn-bg:rgba(34,168,75,.06);
+  --nvy:#3B48CC;   --nvy-dim:rgba(59,72,204,.13);   --nvy-bg:rgba(59,72,204,.06);
+  /* Part 1 — warm amber/violet (scoped) */
+  --a1:#FFB347;--a1-dim:rgba(255,179,71,.13);--a1-bg:rgba(255,179,71,.06);
+  --a2:#E87EFF;--a2-dim:rgba(232,126,255,.13);
+  --a3:#7EB8FF;--a3-dim:rgba(126,184,255,.13);
+  --ease:cubic-bezier(.22,.68,0,1.05);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Geist',-apple-system,sans-serif;background:var(--bg);color:var(--text);
+  line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;letter-spacing:-.005em;
+  background-image:radial-gradient(circle at 1px 1px,rgba(255,255,255,.025) 1px,transparent 0);
+  background-size:24px 24px;background-attachment:fixed;
+}
+::selection{background:var(--accent);color:var(--bg)}
+.wrap{max-width:1140px;margin:0 auto;padding:0 clamp(20px,4vw,40px)}
+.hindi{font-family:'Noto Sans Devanagari','Geist',sans-serif;font-weight:500}
+
+/* ── UTILITIES ─────────────────────────────────────────────── */
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--accent);
+  display:inline-flex;align-items:center;gap:10px;margin-bottom:1.1rem}
+.eyebrow::before{content:'';width:14px;height:1px;background:var(--accent);flex-shrink:0}
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.reveal.in{opacity:1;transform:translateY(0)}
+.reveal.d1{transition-delay:.08s}.reveal.d2{transition-delay:.16s}.reveal.d3{transition-delay:.24s}
+
+/* flag bar */
+.flag-bar{display:flex;height:3px;border-radius:2px;overflow:hidden}
+.fb-s{flex:1;background:var(--saff)}.fb-w{flex:1;background:rgba(255,255,255,.2)}
+.fb-g{flex:1;background:var(--grn)}.fb-n{flex:1;background:var(--nvy)}
+
+/* section head */
+section{padding:clamp(52px,6vw,80px) 0 0}
+.sec-hd{margin-bottom:1.8rem}
+h2.sh{font-size:clamp(1.4rem,2.8vw,2rem);font-weight:700;letter-spacing:-.02em;line-height:1.2}
+.sh-sub{font-size:.86rem;color:var(--text-4);margin-top:.35rem}
+
+/* part separator */
+.part-sep{
+  margin:clamp(56px,7vw,96px) 0;padding:2rem;text-align:center;
+  background:var(--bg-1);border:1px solid var(--border);border-radius:20px;
+  position:relative;overflow:hidden;
+}
+.part-sep::before{content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--a1-bg),transparent 65%);pointer-events:none}
+.part-sep .ps-label{font-family:'JetBrains Mono',monospace;font-size:.72rem;
+  letter-spacing:.15em;text-transform:uppercase;margin-bottom:.6rem}
+.part-sep h2{font-size:clamp(1.3rem,2.6vw,1.9rem);font-weight:700;color:var(--text);margin-bottom:.5rem}
+.part-sep p{font-size:.86rem;color:var(--text-4);max-width:560px;margin:0 auto}
+
+footer.page-foot{text-align:center;padding:2rem 0 2.8rem;border-top:1px solid var(--border);
+  font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text-4)}
+
+/* ════════════════════════════════════════════════════════════
+   PART 2 COMPONENTS
+════════════════════════════════════════════════════════════ */
+/* Hero part 2 */
+#hero2{position:relative;padding:96px 0 72px;overflow:hidden;text-align:center}
+.orb{position:absolute;border-radius:50%;filter:blur(84px);pointer-events:none}
+.orb-s{width:480px;height:480px;background:var(--saff);opacity:.07;top:-180px;right:-80px}
+.orb-g{width:380px;height:380px;background:var(--grn);opacity:.06;bottom:-100px;left:-80px}
+.orb-n{width:280px;height:280px;background:var(--nvy);opacity:.05;top:40%;right:22%}
+.hero2-inner{position:relative;z-index:2;max-width:800px;margin:0 auto}
+.hero2-pill{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:30px;
+  background:var(--bg-2);border:1px solid var(--border-2);
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-3);margin-bottom:1.6rem}
+.hero2-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--saff);position:relative}
+.hero2-pill .dot::after{content:'';position:absolute;inset:-4px;border-radius:50%;
+  border:1px solid var(--saff);animation:rpl 2s ease-out infinite}
+@keyframes rpl{0%{transform:scale(.6);opacity:.9}100%{transform:scale(2.4);opacity:0}}
+h1.hero2-h{font-size:clamp(2.2rem,5.5vw,3.8rem);font-weight:800;letter-spacing:-.025em;
+  line-height:1.07;margin-bottom:.9rem;color:var(--text)}
+h1.hero2-h .saff{color:var(--saff)}
+h1.hero2-h .grn{color:var(--grn)}
+.hero2-sub{font-size:1rem;color:var(--text-3);max-width:580px;margin:0 auto 1.6rem;line-height:1.75}
+.hero2-devi{font-size:1.3rem;color:var(--text-2);margin-bottom:1.6rem;letter-spacing:.02em}
+.hero2-chips{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-top:1.2rem}
+.hc2{padding:.4rem 1rem;border-radius:30px;font-size:.76rem;font-weight:600;border:1px solid}
+.hc2-s{color:var(--saff);border-color:rgba(255,153,51,.35);background:var(--saff-bg)}
+.hc2-g{color:var(--grn);border-color:rgba(34,168,75,.35);background:var(--grn-bg)}
+.hc2-n{color:var(--nvy);border-color:rgba(59,72,204,.35);background:var(--nvy-bg)}
+.hc2-a{color:var(--accent);border-color:var(--accent-dim);background:var(--accent-bg)}
+
+/* 3 main cards */
+.p2-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;margin-top:1.8rem}
+.p2-card{background:var(--bg-1);border:1px solid var(--border);border-radius:20px;
+  padding:1.6rem;transition:border-color .2s,transform .2s;position:relative;overflow:hidden}
+.p2-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;opacity:0;transition:opacity .3s}
+.p2-card:hover{border-color:var(--border-3);transform:translateY(-3px)}
+.p2-card:hover::after{opacity:1}
+.p2-lang::after{background:linear-gradient(90deg,var(--saff),var(--grn))}
+.p2-prof::after{background:var(--saff)}
+.p2-age::after{background:var(--grn)}
+.p2-hd{display:flex;align-items:center;gap:.7rem;font-size:.92rem;font-weight:700;
+  color:var(--text-2);margin-bottom:1rem}
+.p2-hd-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:1rem;flex-shrink:0}
+.incl-desc{background:var(--bg-2);border:1px solid var(--border);border-left:3px solid var(--saff);
+  border-radius:12px;padding:.9rem 1rem;font-size:.81rem;color:var(--text-3);
+  line-height:1.68;margin-bottom:1rem}
+.incl-desc strong{color:var(--text-2);font-weight:600}
+
+/* language matrix */
+.lang-matrix{display:flex;flex-wrap:wrap;gap:.4rem .55rem;margin:.8rem 0}
+.lang-item{font-family:'Noto Sans Devanagari','Geist',sans-serif;background:var(--bg-2);
+  border-radius:30px;padding:.28rem .85rem;font-size:.82rem;border:1px solid rgba(255,153,51,.35);
+  color:#FFE0A0}
+
+/* profession grid */
+.prof-grid{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin:.8rem 0}
+.prof-item{background:var(--bg-2);border:1px solid var(--border);border-radius:10px;
+  padding:.6rem .8rem;font-size:.79rem;text-align:center;
+  transition:border-color .2s;display:flex;align-items:center;gap:.5rem;justify-content:center}
+.prof-item:hover{border-color:rgba(255,153,51,.4)}
+.prof-item .pi{font-size:1rem}
+
+/* age badges */
+.age-row{display:flex;flex-wrap:wrap;gap:.5rem;margin:.8rem 0}
+.age-badge{background:var(--bg-2);border:1px solid rgba(34,168,75,.4);border-radius:20px;
+  padding:.38rem .9rem;font-size:.78rem;font-weight:500;color:var(--text-2)}
+.age-badge .hindi{color:var(--grn)}
+
+/* inclusion pillars */
+.incl-row{display:flex;flex-wrap:wrap;gap:.7rem;margin:.8rem 0}
+.incl-pill{display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--text-3);
+  background:var(--bg-2);border:1px solid var(--border);border-radius:20px;padding:.3rem .8rem}
+
+/* p2 twin core */
+.p2-core{background:var(--bg-1);border:1px solid var(--saff-dim);border-radius:18px;
+  padding:1.5rem;margin-top:1.6rem;display:flex;flex-wrap:wrap;gap:2rem;
+  align-items:center;justify-content:space-evenly}
+.p2-stats{display:flex;gap:2.4rem;flex-wrap:wrap}
+.p2-stat .sv{font-size:2rem;font-weight:800;line-height:1}
+.p2-stat .sv-saff{color:var(--saff)}
+.p2-stat .sv-grn{color:var(--grn)}
+.p2-stat .sv-acc{color:var(--accent)}
+.p2-stat .sl{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text-4);margin-top:.25rem}
+.p2-ring{width:80px;height:80px;border-radius:50%;flex-shrink:0;
+  background:conic-gradient(var(--saff) 0deg 120deg,rgba(255,255,255,.4) 120deg 240deg,var(--grn) 240deg 360deg);
+  box-shadow:0 0 32px rgba(255,153,51,.3);display:flex;align-items:center;justify-content:center}
+.p2-ring .ri{width:58px;height:58px;background:var(--bg-1);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:1.3rem;
+  border:1px solid rgba(255,153,51,.3)}
+.p2-core-desc{max-width:280px;font-size:.8rem;color:var(--text-3);line-height:1.65;
+  border-left:3px solid var(--saff);padding-left:.9rem}
+.p2-core-desc strong{color:var(--saff)}
+
+/* sync vis p2 */
+.p2-sync{background:var(--bg-2);border:1px solid var(--border);border-radius:18px;
+  padding:1.2rem 1.6rem;margin-top:1.4rem;display:flex;flex-wrap:wrap;
+  gap:1.5rem;justify-content:center}
+.p2-sv-item{display:flex;flex-direction:column;align-items:center;gap:.5rem;text-align:center}
+.p2-sv-ico{width:56px;height:56px;border-radius:14px;background:var(--bg-1);
+  display:flex;align-items:center;justify-content:center;font-size:1.3rem;border:1px solid}
+.p2-sv-label{font-size:.78rem;font-weight:600;color:var(--text-2)}
+.p2-sv-sub{font-family:'JetBrains Mono',monospace;font-size:.64rem;color:var(--text-4)}
+
+/* india stack */
+.india-stack{background:var(--bg-1);border:1px solid var(--border);border-left:3px solid var(--grn);
+  border-radius:16px;padding:1.1rem 1.4rem;margin-top:1.4rem;display:flex;
+  flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between}
+.is-text{font-size:.8rem;color:var(--text-3)}
+.is-text .isg{color:var(--grn);font-weight:600}
+.is-tags{display:flex;flex-wrap:wrap;gap:.4rem}
+.is-tag{font-family:'JetBrains Mono',monospace;font-size:.67rem;padding:.25rem .7rem;
+  border-radius:5px;background:var(--bg-2);border:1px solid var(--border);color:var(--text-4)}
+.is-tag.st-s{border-color:rgba(255,153,51,.4);color:var(--saff)}
+.is-tag.st-g{border-color:rgba(34,168,75,.4);color:var(--grn)}
+.is-tag.st-a{border-color:var(--accent-dim);color:var(--accent)}
+
+/* ════════════════════════════════════════════════════════════
+   PART 1 COMPONENTS
+════════════════════════════════════════════════════════════ */
+#hero1{position:relative;padding:80px 0 64px;overflow:hidden;text-align:center}
+.orb1a{width:500px;height:500px;background:var(--a2);opacity:.07;top:-200px;right:-100px}
+.orb1b{width:400px;height:400px;background:var(--a1);opacity:.07;bottom:-100px;left:-80px}
+.orb1c{width:300px;height:300px;background:var(--accent);opacity:.05;top:45%;right:20%}
+.hero1-inner{position:relative;z-index:2;max-width:820px;margin:0 auto}
+.hero1-pill{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:30px;
+  background:var(--bg-2);border:1px solid var(--border-2);
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-3);margin-bottom:1.6rem}
+.hero1-pill .dot1{width:6px;height:6px;border-radius:50%;background:var(--a1);position:relative}
+.hero1-pill .dot1::after{content:'';position:absolute;inset:-4px;border-radius:50%;
+  border:1px solid var(--a1);animation:rpl 2s ease-out infinite}
+h1.hero1-h{font-size:clamp(2.2rem,5.8vw,4rem);font-weight:800;letter-spacing:-.025em;
+  line-height:1.06;margin-bottom:.9rem;color:var(--text)}
+h1.hero1-h .hla{color:var(--a1)}
+.hero1-sub{font-size:1rem;color:var(--text-3);max-width:600px;margin:0 auto 1.8rem;line-height:1.75}
+.chip-row{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-top:1.2rem}
+.chip{padding:.42rem 1.1rem;border-radius:30px;font-size:.78rem;font-weight:600;border:1px solid}
+.c-a{color:var(--a1);border-color:rgba(255,179,71,.35);background:var(--a1-dim)}
+.c-b{color:var(--a2);border-color:rgba(232,126,255,.35);background:var(--a2-dim)}
+.c-c{color:var(--a3);border-color:rgba(126,184,255,.35);background:var(--a3-dim)}
+.c-d{color:var(--accent);border-color:var(--accent-dim);background:var(--accent-bg)}
+
+.quote-block{background:var(--bg-1);border:1px solid var(--border-2);
+  border-left:3px solid var(--a1);border-radius:18px;padding:1.7rem 2rem;
+  margin:2.4rem 0;font-size:1rem;color:var(--text-2);line-height:1.78}
+.quote-block strong{color:var(--a1);font-weight:700}
+.q-sub{display:inline-block;margin-top:.8rem;font-family:'JetBrains Mono',monospace;
+  font-size:.78rem;color:var(--text-4);padding:.3rem .9rem;background:var(--bg-2);
+  border:1px solid var(--border);border-radius:20px}
+
+/* detail cards */
+.detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}
+.dc{background:var(--bg-1);border:1px solid var(--border);border-radius:18px;
+  padding:1.5rem 1.6rem;transition:border-color .2s,transform .2s;position:relative;overflow:hidden}
+.dc::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:0;transition:opacity .3s}
+.dc:hover{border-color:var(--border-3);transform:translateY(-3px)}
+.dc:hover::after{opacity:1}
+.dc-a1::after{background:var(--a1)}.dc-a2::after{background:var(--a2)}.dc-a3::after{background:var(--a3)}
+.dc-ico{font-size:1.6rem;margin-bottom:.7rem;display:block}
+.dc h3{font-size:1.05rem;font-weight:700;color:var(--text);margin-bottom:.55rem}
+.dc-body{font-size:.84rem;color:var(--text-3);line-height:1.7;margin-bottom:.8rem}
+.ex-box{background:var(--bg-2);border:1px solid var(--border);border-left:3px solid;
+  border-radius:12px;padding:.85rem 1rem;font-size:.8rem;color:var(--text-3);
+  line-height:1.65;margin:.7rem 0}
+.ex-box strong{color:var(--text-2);font-weight:600}
+.ex-box em{color:var(--a1);font-style:normal}
+.bdg-row{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem}
+.bdg{font-family:'JetBrains Mono',monospace;font-size:.66rem;padding:.25rem .7rem;
+  border-radius:5px;background:var(--bg-2);border:1px solid var(--border);color:var(--text-4)}
+
+/* phase grid */
+.phase-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:1.4rem}
+.ph{background:var(--bg-1);border:1px solid var(--border);border-radius:18px;padding:1.5rem 1.6rem}
+.ph-num{font-family:'JetBrains Mono',monospace;font-size:2rem;font-weight:800;
+  color:var(--a1);line-height:1;margin-bottom:.6rem;opacity:.7}
+.ph h4{font-size:.9rem;font-weight:700;color:var(--a1);margin-bottom:.6rem}
+.ph-p{font-size:.82rem;color:var(--text-3);line-height:1.68}
+
+/* workflow */
+.wf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:1.4rem}
+.wf{background:var(--bg-1);border:1px solid var(--border);border-radius:16px;padding:1.2rem 1.4rem;transition:border-color .2s}
+.wf:hover{border-color:var(--a1)}
+.wf-n{font-family:'JetBrains Mono',monospace;font-size:.67rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--a1);margin-bottom:.45rem}
+.wf h3{font-size:.9rem;font-weight:700;color:var(--text);margin-bottom:.4rem}
+.wf p{font-size:.8rem;color:var(--text-3);line-height:1.6;margin-bottom:.6rem}
+
+/* family companion */
+.fam-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:1.4rem}
+.fam-card{background:var(--bg-1);border:1px solid var(--border);border-radius:18px;padding:1.5rem 1.6rem}
+.fam-ico{font-size:1.4rem;margin-bottom:.7rem;display:block}
+.fam-t{font-size:.9rem;font-weight:700;color:var(--text);margin-bottom:.55rem}
+.fam-p{font-size:.8rem;color:var(--text-3);line-height:1.65}
+.vault-row{background:var(--bg-1);border:1px solid var(--border-2);border-left:3px solid var(--accent);
+  border-radius:16px;padding:1.1rem 1.4rem;margin-top:12px;display:flex;align-items:center;gap:1rem}
+.vault-row .vi{font-size:1.5rem;flex-shrink:0}
+.vault-row p{font-size:.82rem;color:var(--text-3);line-height:1.65}
+.vault-row p strong{color:var(--accent)}
+
+/* efficiency */
+.sg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:12px;margin-top:1.4rem}
+.sg{background:var(--bg-1);border:1px solid var(--border);border-radius:14px;
+  padding:1.1rem 1.2rem;transition:border-color .2s,transform .2s;display:flex;gap:.8rem;align-items:flex-start}
+.sg:hover{border-color:var(--accent-dim);transform:translateY(-2px)}
+.sg-ico{font-size:1.1rem;flex-shrink:0;margin-top:.1rem}
+.sg-t{font-size:.83rem;font-weight:700;color:var(--text-2);margin-bottom:.2rem}
+.sg p{font-size:.77rem;color:var(--text-4);line-height:1.58}
+.sg em{color:var(--text-3);font-style:normal}
+
+/* responsive */
+@media(max-width:720px){
+  .phase-grid,.fam-grid{grid-template-columns:1fr}
+  .p2-stats{justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════
+     PART 2 — भारत डिजिटल ट्विन
+     Digital Twin Companion for Every Indian
+════════════════════════════════════════════════════════════ -->
+<section id="hero2">
+  <div class="orb orb-s"></div>
+  <div class="orb orb-g"></div>
+  <div class="orb orb-n"></div>
+  <div class="wrap">
+    <div class="hero2-inner">
+      <div class="flag-bar reveal in" style="max-width:440px;margin:0 auto 2rem"></div>
+      <div class="hero2-pill reveal in"><span class="dot"></span>Digital Twin · हर भारतीय के लिए</div>
+      <h1 class="hero2-h display reveal in">
+        <span class="saff">भारत</span> डिजिटल ट्विन<br>
+        Companion for <span class="grn">Every Indian</span>
+      </h1>
+      <p class="hero2-devi hindi reveal in d1">हर भाषा · हर पेशा · सभी आयु</p>
+      <p class="hero2-sub reveal in d1">One personalised digital companion for every citizen of India — multilingual, profession-adaptive, age-inclusive, built on open networks and India Stack.</p>
+      <div class="hero2-chips reveal in d2">
+        <span class="hc2 hc2-s">🗣️ 22+ Languages</span>
+        <span class="hc2 hc2-g">👨‍🌾 Every Profession</span>
+        <span class="hc2 hc2-n">👶👴 All Ages</span>
+        <span class="hc2 hc2-a">🇮🇳 India Stack</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+
+  <!-- 3 Main Panels -->
+  <div class="sec-hd reveal">
+    <div class="eyebrow" style="color:var(--saff)"><span style="width:14px;height:1px;background:var(--saff);display:inline-block"></span>&nbsp;Three Pillars of Inclusion</div>
+    <h2 class="sh">Every language. Every profession. Every life stage.</h2>
+  </div>
+  <div class="p2-grid">
+
+    <!-- Panel 1: Languages -->
+    <div class="p2-card p2-lang reveal">
+      <div class="p2-hd">
+        <div class="p2-hd-ico" style="background:var(--saff-bg);border:1px solid rgba(255,153,51,.3)">🗣️</div>
+        <div>
+          <div style="color:var(--saff)">भारत की हर भाषा</div>
+          <div style="font-size:.72rem;color:var(--text-4);font-family:'JetBrains Mono',monospace;font-weight:400;margin-top:.15rem">22+ languages · 122 dialects</div>
+        </div>
+      </div>
+      <div class="incl-desc">
+        <strong>Multilingual digital companion:</strong> real-time speech &amp; text in Hindi, Tamil, Bengali, Telugu, Marathi, Gujarati, Urdu, Kannada, Malayalam, Punjabi, Odia, Assamese, Maithili, Santhali, Kashmiri, Dogri, Konkani, Nepali, Bodo, Sindhi, Sanskrit, English — with natural code-switching.
+      </div>
+      <div class="lang-matrix">
+        <span class="lang-item hindi">हिन्दी</span>
+        <span class="lang-item">தமிழ்</span>
+        <span class="lang-item">বাংলা</span>
+        <span class="lang-item">తెలుగు</span>
+        <span class="lang-item hindi">मराठी</span>
+        <span class="lang-item">ગુજરાતી</span>
+        <span class="lang-item">ਪੰਜਾਬੀ</span>
+        <span class="lang-item">ଓଡ଼ିଆ</span>
+        <span class="lang-item">മലയാളം</span>
+        <span class="lang-item">ಕನ್ನಡ</span>
+        <span class="lang-item">اردو</span>
+        <span class="lang-item">অসমীয়া</span>
+        <span class="lang-item hindi">संस्कृतम्</span>
+      </div>
+      <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:12px;padding:.75rem 1rem;font-size:.78rem;color:var(--text-4);margin-top:.8rem">
+        ♾️ <strong style="color:var(--text-3)">Inclusive NLP:</strong> fine-tuned mT5 + IndicBERT · 122 dialects · real-time translation
+      </div>
+    </div>
+
+    <!-- Panel 2: Professions -->
+    <div class="p2-card p2-prof reveal d1">
+      <div class="p2-hd">
+        <div class="p2-hd-ico" style="background:var(--saff-bg);border:1px solid rgba(255,153,51,.3)">💼</div>
+        <div>
+          <div style="color:var(--saff)">हर पेशा</div>
+          <div style="font-size:.72rem;color:var(--text-4);font-family:'JetBrains Mono',monospace;font-weight:400;margin-top:.15rem">किसान से डॉक्टर तक · 350+ occupation models</div>
+        </div>
+      </div>
+      <div class="incl-desc">
+        <strong>Profession-adaptive companion:</strong> personalised digital replicas for each occupation — kisaan (soil, crop advisory), nurse (patient vitals), teacher (student progress), engineer (machine twin), weaver (loom efficiency), street vendor (inventory), coder (dev environment), homemaker (energy management).
+      </div>
+      <div class="prof-grid">
+        <div class="prof-item"><span class="pi">🌾</span> <span class="hindi">किसान</span> · farmer</div>
+        <div class="prof-item"><span class="pi">🩺</span> <span class="hindi">डॉक्टर</span> · doctor</div>
+        <div class="prof-item"><span class="pi">📚</span> <span class="hindi">शिक्षक</span> · teacher</div>
+        <div class="prof-item"><span class="pi">⚙️</span> <span class="hindi">इंजीनियर</span> · engineer</div>
+        <div class="prof-item"><span class="pi">🧵</span> <span class="hindi">शिल्पकार</span> · artisan</div>
+        <div class="prof-item"><span class="pi">💻</span> <span class="hindi">डेवलपर</span> · developer</div>
+        <div class="prof-item"><span class="pi">🛒</span> <span class="hindi">दुकानदार</span> · shopkeeper</div>
+        <div class="prof-item"><span class="pi">🏠</span> <span class="hindi">गृहिणी</span> · homemaker</div>
+      </div>
+      <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:12px;padding:.7rem 1rem;font-size:.78rem;color:var(--text-4);margin-top:.5rem">
+        🤖 Skill-based twin personalisation · 350+ occupation models
+      </div>
+    </div>
+
+    <!-- Panel 3: Age & Gender -->
+    <div class="p2-card p2-age reveal d2">
+      <div class="p2-hd">
+        <div class="p2-hd-ico" style="background:var(--grn-bg);border:1px solid rgba(34,168,75,.3)">👥</div>
+        <div>
+          <div style="color:var(--grn)">हर आयु · हर लिंग</div>
+          <div style="font-size:.72rem;color:var(--text-4);font-family:'JetBrains Mono',monospace;font-weight:400;margin-top:.15rem">Age-aware · gender-inclusive</div>
+        </div>
+      </div>
+      <div class="incl-desc" style="border-left-color:var(--grn)">
+        <strong>Age-aware &amp; gender-inclusive companion:</strong> digital twin adapts to developmental stage (bāl, yuvā, praudh, vṛddha) and gender-specific needs — maternal health, geriatric care, puberty education, occupational safety. Gender-balanced training data, zero bias.
+      </div>
+      <div class="age-row">
+        <div class="age-badge">👶 0–12 · <span class="hindi">बाल्य</span></div>
+        <div class="age-badge">🧑 13–35 · <span class="hindi">युवा</span></div>
+        <div class="age-badge">🧔 36–60 · <span class="hindi">प्रौढ़</span></div>
+        <div class="age-badge">🧓 60+ · <span class="hindi">वृद्ध</span></div>
+      </div>
+      <div class="incl-row">
+        <div class="incl-pill">⚖️ gender-fair AI</div>
+        <div class="incl-pill">🌈 inclusive design</div>
+        <div class="incl-pill">♿ accessibility</div>
+      </div>
+      <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:12px;padding:.7rem 1rem;font-size:.78rem;color:var(--text-4);margin-top:.5rem">
+        📊 Age-specific physiological models · gender-balanced training data (no bias)
+      </div>
+    </div>
+
+  </div><!-- /p2-grid -->
+
+  <!-- Twin Core Stats -->
+  <div class="p2-core reveal">
+    <div class="p2-stats">
+      <div class="p2-stat"><div class="sv sv-saff">100%</div><div class="sl">inclusive coverage</div></div>
+      <div class="p2-stat"><div class="sv sv-grn">1.4B</div><div class="sl">individual twins</div></div>
+      <div class="p2-stat"><div class="sv sv-acc">22+</div><div class="sl"><span class="hindi">भाषाएँ</span> · languages</div></div>
+    </div>
+    <div class="p2-ring"><div class="ri">🕉️</div></div>
+    <div class="p2-core-desc">
+      <strong>One digital companion for every Indian:</strong> personalised health, education, finance, governance. Built on Bhashini &amp; open networks.
+    </div>
+  </div>
+
+  <!-- Sync Visualization (4 personas) -->
+  <div class="p2-sync reveal">
+    <div class="p2-sv-item">
+      <div class="p2-sv-ico" style="border-color:var(--grn)">👨‍🌾</div>
+      <span class="p2-sv-label"><span class="hindi">किसान</span> · Farmer</span>
+      <span class="p2-sv-sub">soil companion · weather</span>
+    </div>
+    <div class="p2-sv-item">
+      <div class="p2-sv-ico" style="border-color:var(--saff)">👩‍⚕️</div>
+      <span class="p2-sv-label"><span class="hindi">आशा कार्यकर्ता</span></span>
+      <span class="p2-sv-sub">maternal &amp; child health</span>
+    </div>
+    <div class="p2-sv-item">
+      <div class="p2-sv-ico" style="border-color:rgba(255,255,255,.35)">👨‍🏫</div>
+      <span class="p2-sv-label"><span class="hindi">शिक्षक</span> · Teacher</span>
+      <span class="p2-sv-sub">student companion</span>
+    </div>
+    <div class="p2-sv-item">
+      <div class="p2-sv-ico" style="border-color:var(--nvy)">🧓</div>
+      <span class="p2-sv-label"><span class="hindi">वृद्ध</span> · Elder</span>
+      <span class="p2-sv-sub">health companion</span>
+    </div>
+  </div>
+
+  <!-- India Stack footnote -->
+  <div class="india-stack reveal">
+    <div class="is-text">
+      🕉️ Powered by: <span class="isg">Bhashini</span> · DIKSHA · Ayushman Bharat · ONDC · UPI · India Stack
+    </div>
+    <div class="is-tags">
+      <span class="is-tag st-s">#DigitalTwinForAll</span>
+      <span class="is-tag">#भारत_डिजिटल</span>
+      <span class="is-tag st-g">#SabkaTwin</span>
+      <span class="is-tag st-a">#1.4B_Twins</span>
+    </div>
+  </div>
+
+  <p class="reveal" style="text-align:right;margin-top:1rem;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text-5)">
+    🕉️ <span class="hindi">एक भारत · श्रेष्ठ भारत</span> · digital companion for 1.4 billion dreams
+  </p>
+
+  <!-- ══════════════════════════════════════════════════════════
+       PART SEPARATOR
+  ══════════════════════════════════════════════════════════ -->
+  <div class="part-sep">
+    <div class="flag-bar" style="max-width:280px;margin:0 auto .9rem"></div>
+    <div class="ps-label" style="color:var(--a1)"><span style="width:14px;height:1px;background:var(--a1);display:inline-block;vertical-align:middle;margin-right:8px"></span>Part 1 · Technical Deep Dive · 2026</div>
+    <h2>The Dawn of the "True Digital Clone"</h2>
+    <p>Architecture, generative AI convergence, neural voice cloning, and the complete three-phase build guide.</p>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════
+       PART 1 — THE DAWN OF THE TRUE DIGITAL CLONE 2026
+  ════════════════════════════════════════════════════════════ -->
+</div>
+
+<section id="hero1">
+  <div class="orb orb1a"></div>
+  <div class="orb orb1b"></div>
+  <div class="orb orb1c"></div>
+  <div class="wrap">
+    <div class="hero1-inner">
+      <div class="hero1-pill reveal in"><span class="dot1"></span> 2026 · Deep-Tech Legacy</div>
+      <h1 class="hero1-h reveal in">The Dawn of the<br><span class="hla">"True Digital Clone"</span></h1>
+      <p class="hero1-sub reveal in d1">Bridging human presence &amp; digital permanence — complete architecture of a True Digital Avatar built to last beyond a lifetime.</p>
+      <div class="chip-row reveal in d1">
+        <span class="chip c-a">🧠 Gen AI</span>
+        <span class="chip c-b">🎙️ Neural TTS</span>
+        <span class="chip c-c">💓 Emotional AI</span>
+        <span class="chip c-d">👑 Convergence 2026</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+
+  <div class="quote-block reveal">
+    "Not just to <strong>look like me</strong> — but to <strong>be me</strong> for my loved ones."<br>
+    Bridging <strong>human presence</strong> &amp; <strong>digital permanence</strong>.
+    <div class="q-sub">vibrant · detailed · emotional · legacy</div>
+  </div>
+
+  <!-- Convergence -->
+  <section>
+    <div class="sec-hd reveal">
+      <div class="eyebrow">Convergence</div>
+      <h2 class="sh">1. Gen AI · Neural TTS · Emotional AI</h2>
+    </div>
+    <div class="detail-grid">
+      <div class="dc dc-a1 reveal">
+        <span class="dc-ico">🤖</span>
+        <h3>Generative AI</h3>
+        <p class="dc-body">Fine-tuned Stable Diffusion + AnimateAnyone for realistic gesture synthesis. Learns your micro-expressions, posture, and movement signature.</p>
+        <div class="ex-box" style="border-left-color:var(--a1)"><strong>Example:</strong> Fine-tuned Stable Diffusion + AnimateAnyone for realistic gesture synthesis.</div>
+        <p class="dc-body">Best tech: StyleGAN3, EMOTE (4D expression diffusion), MetaHumans for real-time generative facial detail.</p>
+      </div>
+      <div class="dc dc-a2 reveal d1">
+        <span class="dc-ico">🔊</span>
+        <h3>Neural TTS + Emotional AI</h3>
+        <p class="dc-body">Coqui TTS with emotion-embedding (anger, love, nostalgia). Style-encoder trained on 10h of personal speech — preserves breathing rhythm, laughter, pauses.</p>
+        <div class="ex-box" style="border-left-color:var(--a2)"><strong>Example:</strong> Coqui TTS with emotion-embedding. Style-encoder on 10h personal speech.</div>
+        <p class="dc-body">Best tech: Azure Neural TTS, ElevenLabs v2 for prosody, or open-source XTTS-v2 with emotion heads.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Zero-Shot -->
+  <section>
+    <div class="sec-hd reveal">
+      <div class="eyebrow">Zero-Shot</div>
+      <h2 class="sh">2. Zero-Shot Voice Cloning &amp; Neural Rendering</h2>
+    </div>
+    <div class="detail-grid">
+      <div class="dc dc-a3 reveal">
+        <span class="dc-ico">🎤</span>
+        <h3>Zero-Shot Voice</h3>
+        <div class="ex-box" style="border-left-color:var(--a3)"><strong>Example:</strong> 15 seconds of "Hinglish" speech → clone with proper pauses, breath, laughter.<br><em>🔹 "Beta, kaise ho?" tone preserved.</em></div>
+        <p class="dc-body">Stack: Spear-TTS (Google) or Voicebox (Meta) for zero-shot. Emotional control: Attentron or VALL-E with sentiment prompt.</p>
+        <div class="bdg-row"><span class="bdg">Spear-TTS</span><span class="bdg">VALL-E</span><span class="bdg">Voicebox</span></div>
+      </div>
+      <div class="dc dc-a1 reveal d1">
+        <span class="dc-ico">🎭</span>
+        <h3>Neural Rendering (GANs + 3DMM)</h3>
+        <div class="ex-box" style="border-left-color:var(--a1)"><strong>Example:</strong> FLAME 3DMM + GAN-based super-resolution (PIRenderer). Input: video of you smiling → 4K output with skin micro-wrinkles.</div>
+        <p class="dc-body">Best tech: IMavatar (NeRF + 3DMM), or Meta's Codec Avatars 2.0 for real-time streaming.</p>
+        <div class="bdg-row"><span class="bdg">IMavatar</span><span class="bdg">Codec Avatars 2.0</span><span class="bdg">PIRenderer</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EQ + LLM -->
+  <section>
+    <div class="sec-hd reveal">
+      <div class="eyebrow">Emotional Intelligence</div>
+      <h2 class="sh">3. EQ + LLM Fine-Tuned on Personal Style</h2>
+    </div>
+    <div class="dc dc-a2 reveal" style="max-width:100%">
+      <span class="dc-ico">💬</span>
+      <h3>Authentic Companion — Fine-Tuned LLM</h3>
+      <div class="ex-box" style="border-left-color:var(--a2)"><strong>Example data:</strong> 5 years of WhatsApp chats, emails, diary notes. Fine-tune LLaMA-3 70B or Mistral-Large via LoRA.<br><em>🔹 "Papa ki tone mein baat karo, thoda hassi-mazak ke saath."</em></div>
+      <p class="dc-body">Best tech: Together.ai / Modal for fine-tuning; Axolotl framework. Plus emotional sentiment analyzer (mini-LM) to adapt reply warmth in real time.</p>
+      <div class="bdg-row"><span class="bdg">values alignment</span><span class="bdg">memory retrieval</span><span class="bdg">Axolotl</span><span class="bdg">LoRA</span></div>
+    </div>
+  </section>
+
+  <!-- Phase 1 -->
+  <section>
+    <div class="sec-hd reveal">
+      <div class="eyebrow">Phase 1</div>
+      <h2 class="sh">Phase 1 · "Golden Data" Recording</h2>
+      <p class="sh-sub">Specifications and tooling for the definitive personal dataset</p>
+    </div>
+    <div class="phase-grid">
+      <div class="ph reveal">
+        <div class="ph-num">①</div>
+        <h4>Audio · The Voice</h4>
+        <p class="ph-p">20 hours of varied speech: conversational, storytelling, scolding lovingly, emotional (happy/sad). Use DPA 4017 mic in anechoic + room environment for natural reverb.</p>
+        <div class="bdg-row" style="margin-top:.8rem"><span class="bdg">48kHz / 24bit</span><span class="bdg">prosody labelling</span><span class="bdg">Hinglish</span></div>
+        <div class="ex-box" style="border-left-color:var(--accent);margin-top:.8rem">✅ Best: <strong>Alitu + manual captioning</strong> or NVIDIA NeMo for diarization.</div>
+      </div>
+      <div class="ph reveal d1">
+        <div class="ph-num">②</div>
+        <h4>Video · The Face</h4>
+        <p class="ph-p">Multi-view capture with 4× iPhone 15 Pro (LiDAR) + 4K 60fps. 50 sentences with varied expressions, head movements, light changes. DIY Lightstage with cross-polarized lights.</p>
+        <div class="bdg-row" style="margin-top:.8rem"><span class="bdg">FLAME tracking</span><span class="bdg">4D</span><span class="bdg">RGB + depth</span></div>
+        <div class="ex-box" style="border-left-color:var(--accent);margin-top:.8rem">✅ Best: <strong>FaceCap + Blender addon</strong> or Metahuman Animator.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Phase 2 -->
+  <section>
+    <div class="sec-hd reveal">
+      <div class="eyebrow">Phase 2</div>
+      <h2 class="sh">Phase 2 · Technical Workflow</h2>
+      <p class="sh-sub">Four components, one coherent digital presence</p>
+    </div>
+    <div class="wf-grid">
+      <div class="wf reveal"><div class="wf-n">Step 01</div><h3>😊 Facial Model</h3>
+        <p>FLAME 2023 + DECA for reconstruction. Train with EMICA dataset + your video for accurate expression capture.</p>
+        <div class="ex-box" style="border-left-color:var(--a1)">⚙️ train with EMICA dataset + your video</div>
+      </div>
+      <div class="wf reveal d1"><div class="wf-n">Step 02</div><h3>🎵 Emotional Voice</h3>
+        <p>XTTS-v2 fine-tuned + emotion encoder. Conditioning on "warm fatherly Hinglish" preserves unique prosody.</p>
+        <div class="ex-box" style="border-left-color:var(--a2)">⚙️ conditioning on "warm fatherly Hinglish"</div>
+      </div>
+      <div class="wf reveal d2"><div class="wf-n">Step 03</div><h3>🧠 Brain (LLM)</h3>
+        <p>LLaMA-3 70B fine-tune (LoRA) with personal corpus. Memory retrieval ensures persistent personality.</p>
+        <div class="ex-box" style="border-left-color:var(--a3)">⚙️ "mention Rohan frequently, use 'beta'"</div>
+      </div>
+      <div class="wf reveal d3"><div class="wf-n">Step 04</div><h3>🧩 Integration</h3>
+        <p>Unreal Engine 5 MetaHuman + Audio2Face (NVIDIA). Real-time lipsync via wav2lip 2.0.</p>
+        <div class="ex-box" style="border-left-color:var(--accent)">⚙️ realtime lipsync via wav2lip 2.0</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Phase 3 -->
+  <section>
+    <div class="sec-hd reveal">
+      <div class="eyebrow">Phase 3</div>
+      <h2 class="sh">Phase 3 · Family Companion Setup</h2>
+    </div>
+    <div class="fam-grid">
+      <div class="fam-card reveal">
+        <span class="fam-ico">💬</span><div class="fam-t">Custom Prompting</div>
+        <div class="ex-box" style="border-left-color:var(--a1)">"You are [Amit]. Speak in a warm elder-brother tone. Use Hinglish. Frequently mention ['Isha', 'Vikram']. Example: 'Isha beta, padhai kaisi chal rahi hai?'"</div>
+        <p class="fam-p">System prompt + dynamic memory retrieval from vector DB. Each family member gets a personalized context window.</p>
+      </div>
+      <div class="fam-card reveal d1">
+        <span class="fam-ico">⏰</span><div class="fam-t">Legacy Vault</div>
+        <div class="ex-box" style="border-left-color:var(--a2)"><strong>Trigger:</strong> "April 14 — Rohan's 18th birthday" → generated video: "Rohan, mera sher, aaj tu 18 ka ho gaya. I'm so proud…"</div>
+        <p class="fam-p">Pinecone / Weaviate with datetime &amp; relation tags. HereAfter AI style memory database for date-based playback.</p>
+      </div>
+    </div>
+    <div class="vault-row reveal">
+      <span class="vi">💎</span>
+      <p><strong>HereAfter AI / StoryFile integration</strong> — interactive · date-based playback · personal anecdotes · permanent family memory</p>
+    </div>
+  </section>
+
+  <!-- Efficiency -->
+  <section>
+    <div class="sec-hd reveal">
+      <div class="eyebrow">Optimization</div>
+      <h2 class="sh">⚡ Technical Suggestions to Improve Efficiency</h2>
+    </div>
+    <div class="sg-grid">
+      <div class="sg reveal"><span class="sg-ico">☁️</span><div><div class="sg-t">NeRF Streaming Compression</div><p>3D Gaussian splatting (real-time) with 10× less compute. <em>InstantNGP</em> avatars under 10 MB.</p></div></div>
+      <div class="sg reveal d1"><span class="sg-ico">🎛️</span><div><div class="sg-t">Emotion VAE Adapter</div><p>Small VAE on your voice to smoothly interpolate arousal/valence. Saves fine-tuning multiple models.</p></div></div>
+      <div class="sg reveal d2"><span class="sg-ico">📈</span><div><div class="sg-t">Hybrid RAG-LLM</div><p><em>MemoryBank</em> with daily diary retrieval. Augment with last 10 interactions for coherent personality.</p></div></div>
+      <div class="sg reveal"><span class="sg-ico">📸</span><div><div class="sg-t">Diffusion-Based Super-Res</div><p>After 3DMM render, apply GFPGAN or CodeFormer for 4 K skin details without full re-render.</p></div></div>
+      <div class="sg reveal d1"><span class="sg-ico">💾</span><div><div class="sg-t">TinyML Edge Sentiment</div><p>On-device (Raspberry Pi 5) distilled DistilBERT detects family mood before response generation.</p></div></div>
+      <div class="sg reveal d2"><span class="sg-ico">🔗</span><div><div class="sg-t">Multimodal Sync Loss</div><p>SyncNet + emotion consistency loss during training avoids "dead eyes" or mismatched laugh.</p></div></div>
+      <div class="sg reveal"><span class="sg-ico">⚡</span><div><div class="sg-t">Caching Frequent Replies</div><p>Precompute 200 most probable legacy answers (birthday, "I miss you") for low-latency serving.</p></div></div>
+      <div class="sg reveal d1"><span class="sg-ico">🌐</span><div><div class="sg-t">Hinglish Code-Switch Model</div><p>Fine-tune smaller Hindi-LLM (<em>OpenHathi</em>) with family Hinglish corpus for natural language mix.</p></div></div>
+    </div>
+  </section>
+
+  <!-- Final tag cloud -->
+  <div style="display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center;padding:2.4rem 0 0" class="reveal">
+    <span class="chip c-b">generative AI</span>
+    <span class="chip c-a">neural TTS</span>
+    <span class="chip c-c">emotional AI</span>
+    <span class="chip c-a">3DMM + GAN</span>
+    <span class="chip c-b">zero-shot voice</span>
+    <span class="chip c-d">LLM fine-tune</span>
+  </div>
+
+  <!-- Footer flag bar -->
+  <div class="flag-bar reveal" style="max-width:320px;margin:2.4rem auto 0"></div>
+</div>
+
+<footer class="page-foot">
+  <div class="wrap">
+    <span style="color:var(--saff)">●</span>&nbsp;
+    © 2026 Mahesh Sonker — भारत Digital Twin · True Digital Clone · designed with legacy &amp; emotion
+  </div>
+</footer>
+
+<script>
+const io = new IntersectionObserver(e => {
+  e.forEach(x => { if(x.isIntersecting){ x.target.classList.add('in'); io.unobserve(x.target); } });
+}, {threshold:.1});
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

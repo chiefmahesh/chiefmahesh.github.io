@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voice Cloning in Hinglish — True Tone &amp; Prosody Guide</title>
+<meta name="description" content="A step-by-step guide to cloning a voice in Hinglish while preserving authentic cadence, pauses, breath, and emotion — plus the legal and ethical framework for responsible voice cloning.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A0B0E;--bg-1:#111319;--bg-2:#16181F;--bg-3:#1B1E26;--bg-4:#22252E;
+  --border:rgba(255,255,255,0.06);--border-2:rgba(255,255,255,0.1);--border-3:rgba(255,255,255,0.18);
+  --text:#F1F1EE;--text-2:#C5C7CC;--text-3:#8A8D96;--text-4:#5C5F68;--text-5:#3D4049;
+  --accent:#7CE8C8;--accent-2:#5EE3C0;--accent-deep:#2EB89A;
+  --accent-dim:rgba(124,232,200,0.12);--accent-bg:rgba(124,232,200,0.05);
+  --accent-glow:0 0 40px rgba(124,232,200,0.18);
+  --warn:#FF85B3;--warn-dim:rgba(255,133,179,0.12);--warn-bg:rgba(255,133,179,0.05);
+  --gold:#FFC861;--good:#7CE8C8;--bad:#FF8B8B;
+  --ease:cubic-bezier(.22,.68,0,1.05);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Geist',-apple-system,BlinkMacSystemFont,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.55;
+  font-feature-settings:'ss01','ss02','cv01','calt';
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;letter-spacing:-0.005em;
+  background-image:radial-gradient(circle at 1px 1px, rgba(255,255,255,0.025) 1px, transparent 0);
+  background-size:24px 24px;background-attachment:fixed;
+}
+::selection{background:var(--accent);color:var(--bg)}
+a{color:inherit;text-decoration:none}
+img,svg{max-width:100%;height:auto;display:block}
+.wrap{max-width:1100px;margin:0 auto;padding:0 clamp(20px,4vw,40px)}
+
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--accent);display:inline-flex;align-items:center;gap:10px;margin-bottom:1.2rem}
+.eyebrow::before{content:"";width:14px;height:1px;background:var(--accent);flex-shrink:0}
+.display{font-weight:700;letter-spacing:-0.02em;color:var(--text)}
+em.hl{font-style:normal;color:var(--accent)}
+
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .65s var(--ease),transform .65s var(--ease)}
+.reveal.in{opacity:1;transform:translateY(0)}
+
+/* ── HERO ──────────────────────────────────────────────────── */
+#hero{position:relative;padding:96px 0 64px;overflow:hidden;text-align:center}
+#hero .orb{position:absolute;border-radius:50%;filter:blur(70px);opacity:.12;pointer-events:none}
+#hero .orb1{width:380px;height:380px;background:var(--accent);top:-140px;left:50%;transform:translateX(-60%)}
+#hero .orb2{width:300px;height:300px;background:var(--warn);bottom:-120px;right:10%;opacity:.08}
+.hero-inner{position:relative;z-index:2;max-width:760px;margin:0 auto}
+.hero-pill{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:30px;
+  background:var(--bg-2);border:1px solid var(--border-2);font-family:'JetBrains Mono',monospace;
+  font-size:11px;color:var(--text-3);margin-bottom:1.6rem;flex-wrap:wrap;justify-content:center}
+h1.hero-h{font-size:clamp(2.2rem,5.6vw,3.8rem);line-height:1.08;margin-bottom:1rem}
+.hero-lede{font-size:1rem;color:var(--text-3);max-width:600px;margin:0 auto 2rem;font-weight:400;line-height:1.75}
+.hero-badges{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center}
+.hbadge{padding:.38rem .95rem;border-radius:30px;font-size:.74rem;font-weight:500;border:1px solid var(--border-2);
+  background:var(--bg-1);color:var(--text-3)}
+
+/* ── SECTIONS ──────────────────────────────────────────────── */
+section{padding:0 0 clamp(48px,6vw,72px)}
+.sec-hd{max-width:680px;margin-bottom:1.4rem}
+h2.sec-h{font-size:clamp(1.2rem,2.2vw,1.5rem);line-height:1.2}
+
+.intro-box{background:var(--bg-1);border:1px solid var(--border);border-left:3px solid var(--accent);
+  border-radius:16px;padding:1.4rem 1.6rem;margin-bottom:clamp(36px,4.5vw,56px);font-size:.96rem;
+  color:var(--text-2);line-height:1.75}
+.intro-box em{color:var(--accent);font-style:normal;font-weight:600}
+
+/* ── STEP CARDS ────────────────────────────────────────────── */
+.step-card{background:var(--bg-1);border:1px solid var(--border);border-radius:20px;
+  padding:clamp(24px,3vw,34px);margin-bottom:16px;transition:border-color .2s,transform .2s}
+.step-card:hover{border-color:var(--border-3);transform:translateY(-2px)}
+.step-hd{display:flex;align-items:center;gap:1rem;margin-bottom:1.3rem}
+.step-num{width:42px;height:42px;border-radius:12px;background:var(--accent-dim);
+  border:1px solid rgba(124,232,200,.3);color:var(--accent);font-weight:800;font-size:1.2rem;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'JetBrains Mono',monospace}
+.step-hd h3{font-size:1.25rem;font-weight:700;color:var(--text)}
+.step-body p{font-size:.88rem;color:var(--text-3);line-height:1.7;margin-bottom:.9rem}
+.step-body p strong{color:var(--text-2);font-weight:600}
+.step-body p em{color:var(--accent);font-style:normal}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.1rem 0}
+.col-box{background:var(--bg-2);border:1px solid var(--border);border-radius:14px;padding:1.1rem 1.2rem}
+.col-box .cb-hd{display:flex;align-items:center;gap:.5rem;font-size:.84rem;font-weight:600;margin-bottom:.6rem}
+.col-box ul{list-style:none}
+.col-box li{font-size:.8rem;color:var(--text-3);line-height:1.65;padding-left:1.1rem;position:relative;margin-bottom:.3rem}
+.col-box li::before{content:'→';position:absolute;left:0;color:var(--text-5)}
+.col-box.good{border-left:2px solid var(--good)}
+.col-box.bad{border-left:2px solid var(--bad)}
+
+.tech-tag{display:inline-flex;align-items:center;gap:.35rem;background:var(--bg-2);border:1px solid var(--border-2);
+  border-radius:30px;padding:.32rem 1rem;font-size:.74rem;color:var(--text-3);margin:.2rem .35rem .2rem 0;font-weight:500}
+
+.code-wrap{margin:1.1rem 0}
+.code-hd{display:flex;align-items:center;gap:.6rem;padding:.6rem 1rem;background:var(--bg-2);
+  border:1px solid var(--border);border-bottom:none;border-radius:12px 12px 0 0}
+.cdot{width:9px;height:9px;border-radius:50%}
+.code-fn{font-family:'JetBrains Mono',monospace;font-size:.66rem;color:var(--text-4);margin-left:.4rem}
+pre.code{background:var(--bg);border:1px solid var(--border);border-top:1px solid var(--border);
+  border-radius:0 0 12px 12px;padding:1.2rem 1.4rem;font-family:'JetBrains Mono',monospace;
+  font-size:.78rem;line-height:1.85;overflow-x:auto;color:var(--accent-2);white-space:pre-wrap;word-break:break-word}
+.code-inline{font-family:'JetBrains Mono',monospace;font-size:.78rem;background:var(--bg);
+  border:1px solid var(--border);border-radius:8px;padding:.7rem 1rem;color:var(--accent-2);
+  display:block;margin:.5rem 0;overflow-x:auto}
+
+.insight-box{background:var(--bg-2);border:1px solid var(--border);border-left:3px solid var(--gold);
+  border-radius:14px;padding:1rem 1.3rem;margin:1.1rem 0;font-size:.86rem;color:var(--text-2);line-height:1.7}
+.insight-box .ico{color:var(--gold);margin-right:.5rem}
+
+table{width:100%;border-collapse:collapse;background:var(--bg-1);border:1px solid var(--border);
+  border-radius:14px;overflow:hidden;margin:1.1rem 0;font-size:.84rem}
+th,td{padding:.85rem 1.1rem;text-align:left;border-bottom:1px solid var(--border)}
+th{background:var(--bg-2);color:var(--text-2);font-weight:600;font-family:'JetBrains Mono',monospace;
+  font-size:.7rem;letter-spacing:.04em;text-transform:uppercase}
+td{color:var(--text-3)}
+tr:last-child td{border-bottom:none}
+table code{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent-2);
+  background:var(--bg);padding:.15rem .4rem;border-radius:4px}
+
+.step-list{list-style:none;margin:1rem 0}
+.step-list li{font-size:.86rem;color:var(--text-3);line-height:1.7;padding-left:1.5rem;position:relative;margin-bottom:.5rem}
+.step-list li::before{content:'→';position:absolute;left:0;color:var(--accent)}
+.step-list li strong{color:var(--text-2);font-weight:600}
+
+/* ── LEGAL / ETHICAL FRAMEWORK (warn-colored) ─────────────────── */
+.legal-card{margin-top:clamp(40px,5vw,64px);background:var(--bg-1);border:1px solid rgba(255,133,179,.25);
+  border-radius:22px;overflow:hidden}
+.legal-hd{background:var(--warn-bg);padding:1.6rem clamp(20px,3vw,32px);border-bottom:1px solid rgba(255,133,179,.2)}
+.legal-hd h2{font-size:1.4rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem}
+.legal-badge{display:inline-flex;align-items:center;gap:.4rem;background:rgba(255,133,179,.12);
+  border:1px solid rgba(255,133,179,.35);color:var(--warn);padding:.4rem 1.1rem;border-radius:30px;
+  font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.legal-body{padding:clamp(20px,3vw,32px)}
+.principle-strip{background:var(--bg-2);border:1px solid var(--border);border-radius:30px;padding:.85rem 1.4rem;
+  margin-bottom:1.8rem;display:flex;flex-wrap:wrap;gap:.8rem 1.6rem;font-size:.82rem;color:var(--text-3)}
+.principle-strip span{display:flex;align-items:center;gap:.4rem}
+.principle-strip strong{color:var(--warn);font-weight:600}
+
+.legal-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;margin-bottom:1.4rem}
+.legal-subhd{font-size:1rem;font-weight:700;margin-bottom:1rem;color:var(--text);
+  border-left:3px solid var(--warn);padding-left:.9rem}
+.checklist{background:var(--bg-2);border:1px solid var(--border);border-radius:16px;padding:1.2rem 1.4rem;list-style:none}
+.checklist li{display:flex;align-items:flex-start;gap:.6rem;padding:.55rem 0;
+  border-bottom:1px dashed var(--border-2);font-size:.82rem;color:var(--text-2)}
+.checklist li:last-child{border-bottom:none}
+.checklist li .ci{color:var(--warn);flex-shrink:0;margin-top:.1rem}
+
+.pillars{background:var(--bg-2);border:1px solid var(--border);border-radius:16px;padding:1.3rem 1.4rem}
+.pillars .ptag{display:inline-block;background:rgba(255,133,179,.1);color:var(--warn);
+  border:1px solid rgba(255,133,179,.3);padding:.25rem 1rem;border-radius:30px;font-size:.74rem;margin-bottom:1rem}
+.pillar-row{display:flex;gap:.8rem;padding:.75rem 0;border-bottom:1px solid var(--border)}
+.pillar-row:last-child{border-bottom:none}
+.pillar-n{width:34px;height:34px;border-radius:10px;background:var(--warn-dim);border:1px solid rgba(255,133,179,.3);
+  color:var(--warn);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.95rem}
+.pillar-t strong{display:block;font-size:.86rem;color:var(--text);margin-bottom:.15rem}
+.pillar-t span{font-size:.78rem;color:var(--text-4);line-height:1.55}
+
+.legal-foot-note{font-size:.76rem;color:var(--text-4);background:var(--bg-2);border:1px solid var(--border);
+  border-radius:12px;padding:.7rem 1rem;margin-top:1rem;line-height:1.6}
+
+.status-strip{margin:1.4rem 0;background:var(--bg-2);border:1px solid var(--border);border-radius:30px;
+  padding:.8rem 1.2rem;display:flex;flex-wrap:wrap;gap:.9rem;justify-content:space-around;font-size:.76rem;color:var(--text-3)}
+.status-strip span{display:flex;align-items:center;gap:.4rem}
+.status-strip .ci{color:var(--warn)}
+
+.warning-strip{background:var(--warn-bg);border:1px solid rgba(255,133,179,.35);border-radius:30px;
+  padding:.9rem 1.4rem;margin:1.4rem 0;text-align:center;font-weight:600;color:var(--text);font-size:.88rem}
+
+.footer-note{margin-top:1.4rem;padding-top:1.1rem;border-top:1px dashed var(--border-2);
+  text-align:center;font-size:.72rem;color:var(--text-4);line-height:1.7}
+
+.signature{text-align:center;font-size:.74rem;color:var(--text-4);border-top:1px solid var(--border);
+  padding-top:1.8rem;margin-top:2.4rem;font-weight:400;font-family:'JetBrains Mono',monospace}
+
+footer.page-foot{text-align:center;padding:2rem 0 3rem;font-family:'JetBrains Mono',monospace;
+  font-size:.7rem;color:var(--text-4)}
+
+/* ── RESPONSIVE ────────────────────────────────────────────── */
+@media(max-width:760px){
+  .two-col,.legal-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="wrap">
+    <div class="hero-inner reveal in">
+      <div class="hero-pill">🎯 true tone &nbsp;·&nbsp; 🥁 rhythm &nbsp;·&nbsp; ⏸️ pauses &nbsp;·&nbsp; 🎼 prosody &nbsp;·&nbsp; 🗣️ हिन्दी/اردو mix</div>
+      <h1 class="hero-h display">Voice Cloning in <em class="hl">Hinglish</em></h1>
+      <p class="hero-lede">Preserving your authentic cadence — the pauses, the breath, the Hinglish rhythm — is what makes a clone feel like <em style="color:var(--accent);font-style:normal">you</em>, not just a generic voice. A practical, open-source-first guide.</p>
+      <div class="hero-badges">
+        <span class="hbadge">7-step workflow</span>
+        <span class="hbadge">Open-source first</span>
+        <span class="hbadge">Prosody-preserving</span>
+        <span class="hbadge">Ethics built-in</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="intro-box reveal in">
+    "Quality &gt; quantity" is the rule that runs through this entire guide. <em>10–20 minutes</em> of clean, expressive Hinglish speech — recorded with intention — will outperform hours of flat, monotone reading every time.
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="step-card reveal in">
+    <div class="step-hd">
+      <div class="step-num">01</div>
+      <h3>Capture your golden audio</h3>
+    </div>
+    <div class="step-body">
+      <p><strong>Goal:</strong> 10–20 minutes of clean, expressive Hinglish speech that captures your natural tone, pauses, and emotions.</p>
+      <div class="two-col">
+        <div class="col-box good">
+          <div class="cb-hd" style="color:var(--good)">✓ Do's</div>
+          <ul>
+            <li>Quiet room (no echo)</li>
+            <li>Speak naturally, as if explaining to a friend</li>
+            <li>Include variety: happy, thoughtful, serious</li>
+            <li>Leave natural pauses, breaths</li>
+          </ul>
+        </div>
+        <div class="col-box bad">
+          <div class="cb-hd" style="color:var(--bad)">✗ Don'ts</div>
+          <ul>
+            <li>Reading monotonously</li>
+            <li>Background music or noise</li>
+            <li>Clipping (volume too high)</li>
+          </ul>
+        </div>
+      </div>
+      <pre class="code"># recommended: record with Audacity / phone voice memo
+Format: WAV or FLAC, 44.1kHz, 16-bit
+Sample script: "बेटा, कैसे हो? मैं तुम्हें हमेशा याद करता हूँ। [pause 0.8s] आज बहुत खास दिन है।"</pre>
+      <div>
+        <span class="tech-tag">✓ 10–20 min</span>
+        <span class="tech-tag">✓ 44.1kHz</span>
+        <span class="tech-tag">✓ Hinglish</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step-card reveal in">
+    <div class="step-hd">
+      <div class="step-num">02</div>
+      <h3>Transcribe + mark prosody</h3>
+    </div>
+    <div class="step-body">
+      <p><strong>Why:</strong> To teach the AI your unique rhythm — where you pause, which words you emphasise, when your voice softens.</p>
+      <div class="insight-box"><span class="ico">💡</span>Use WhisperX (or any accurate transcriber) to get timestamped text. Then add prosody markers manually.</div>
+      <table>
+        <tr><th>Marker</th><th>Meaning</th><th>Example</th></tr>
+        <tr><td><code>[pause=0.6]</code></td><td>short pause (seconds)</td><td>"बेटा, [pause=0.6] मुझे गर्व है।"</td></tr>
+        <tr><td><code>[emphasis]...[/emphasis]</code></td><td>stressed word</td><td>"तुम [emphasis]हमेशा[/emphasis] याद आओगे।"</td></tr>
+        <tr><td><code>[soft]...[/soft]</code></td><td>gentle, intimate tone</td><td>"[soft]मैं यहाँ हूँ बेटा।[/soft]"</td></tr>
+        <tr><td><code>[breath]</code></td><td>audible inhale</td><td>"[breath] और फिर मैंने सोचा…"</td></tr>
+      </table>
+      <pre class="code"># Example annotated transcript (plain text)
+[soft]बेटा, [pause=0.5] कैसे हो?[/soft] [pause=0.8] मैं तुम्हारी [emphasis]हँसी[/emphasis] सुनना चाहता हूँ। [breath] आज बहुत याद आए।</pre>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step-card reveal in">
+    <div class="step-hd">
+      <div class="step-num">03</div>
+      <h3>Pick the right voice cloning engine</h3>
+    </div>
+    <div class="step-body">
+      <p>For Hinglish with true prosody, these are your best options:</p>
+      <table>
+        <tr><th>Tool</th><th>Prosody control</th><th>Hinglish support</th><th>Best for</th></tr>
+        <tr><td><strong style="color:var(--text-2)">XTTS v2</strong> (Coqui)</td><td>SSML-like tags, fine-tunable</td><td>Excellent (multilingual)</td><td>Local, free, fine control</td></tr>
+        <tr><td><strong style="color:var(--text-2)">OpenVoice</strong></td><td>Granular (emotion, pause, accent)</td><td>Zero-shot, supports Hindi</td><td>Fast style transfer</td></tr>
+        <tr><td><strong style="color:var(--text-2)">ElevenLabs</strong></td><td>Professional UI, less pause control</td><td>Native 12 Indian languages</td><td>Easiest, cloud-based</td></tr>
+        <tr><td><strong style="color:var(--text-2)">IndicVoiceChanger</strong></td><td>Fine-tuned for Indian languages</td><td>Native Hindi, Tamil, etc.</td><td>High-fidelity conversion</td></tr>
+      </table>
+      <div class="two-col">
+        <div class="col-box">
+          <div class="cb-hd">⌨️ Local (XTTS v2)</div>
+          <code class="code-inline">pip install TTS</code>
+          <code class="code-inline">tts --model_name tts_models/multilingual/multi-dataset/xtts_v2 --speaker_wav your_voice.wav --text "नमस्ते" --language_idx hi</code>
+        </div>
+        <div class="col-box">
+          <div class="cb-hd">☁️ Cloud (ElevenLabs)</div>
+          <ul>
+            <li>30-second instant clone</li>
+            <li>Supports Hindi, Punjabi, etc.</li>
+            <li>Less fine-grained pause control</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="step-card reveal in">
+    <div class="step-hd">
+      <div class="step-num">04</div>
+      <h3>Inject your rhythm (fine-tuning)</h3>
+    </div>
+    <div class="step-body">
+      <p>For XTTS or OpenVoice, you can fine-tune on your marked-up data to lock in your unique prosody. Even 5 minutes of annotated audio makes a difference.</p>
+      <pre class="code"># XTTS fine-tuning example (simplified)
+from TTS.tts.configs.xtts_config import XttsConfig
+from TTS.tts.models.xtts import Xtts
+model = Xtts.init_from_config(config)
+model.train_with_prosody(audio_files="path/*.wav", transcriptions="prosody_marked.txt")</pre>
+      <div>
+        <span class="tech-tag">~100 steps</span>
+        <span class="tech-tag">2–5 min on GPU</span>
+        <span class="tech-tag">LoRA possible</span>
+      </div>
+      <div class="insight-box"><span class="ico">🧬</span>For <strong style="color:var(--text-2)">IndicVoiceChanger</strong> (based on SeedVC), you can fine-tune with as little as 1 utterance for speaker adaptation. Ideal for Hinglish.</div>
+    </div>
+  </div>
+
+  <!-- STEP 5 -->
+  <div class="step-card reveal in">
+    <div class="step-hd">
+      <div class="step-num">05</div>
+      <h3>Generate speech with your prosody</h3>
+    </div>
+    <div class="step-body">
+      <p>Now feed your annotated Hinglish script into the model.</p>
+      <div class="two-col">
+        <div class="col-box">
+          <div class="cb-hd">XTTS v2 (Python)</div>
+          <pre class="code" style="margin:.5rem 0">model.synthesize(
+  "बेटा, [pause=0.6] कैसे हो?",
+  speaker_wav="myvoice.wav",
+  language="hi"
+)</pre>
+        </div>
+        <div class="col-box">
+          <div class="cb-hd">OpenVoice (demo)</div>
+          <pre class="code" style="margin:.5rem 0">clone_voice(
+  text="तुम [emphasis]हमेशा[/emphasis] याद आओगे।",
+  reference="myvoice.wav",
+  style="emotion: warm; pause: 0.8"
+)</pre>
+        </div>
+      </div>
+      <p style="margin-top:.6rem">✓ The output should now preserve your natural breaks, breath, and emphasis.</p>
+    </div>
+  </div>
+
+  <!-- STEP 6 -->
+  <div class="step-card reveal in">
+    <div class="step-hd">
+      <div class="step-num">06</div>
+      <h3>Fine-tune with audio editing</h3>
+    </div>
+    <div class="step-body">
+      <p>Sometimes AI still rushes a pause or flattens a tone. Use a DAW (Audacity, free) to manually adjust:</p>
+      <ul class="step-list">
+        <li><strong>Stretch silences:</strong> select a pause, Effect &gt; Change Tempo (without pitch shift).</li>
+        <li><strong>Add breath:</strong> copy a breath from your original sample and layer it.</li>
+        <li><strong>Pitch envelope:</strong> slightly lower pitch at sentence ends for warmth.</li>
+      </ul>
+      <div class="insight-box"><span class="ico">💗</span>This extra step transforms "good clone" into "uncanny valley? no, that's just Dad."</div>
+    </div>
+  </div>
+
+  <!-- STEP 7 -->
+  <div class="step-card reveal in">
+    <div class="step-hd">
+      <div class="step-num">07</div>
+      <h3>Deploy &amp; preserve</h3>
+    </div>
+    <div class="step-body">
+      <p>Store your model and generated files. For family use:</p>
+      <ul class="step-list">
+        <li><strong>Legacy vault:</strong> keep triggered messages (birthday wishes, festivals) with exact prosody.</li>
+        <li><strong>Family streaming:</strong> use WebRTC or a simple media server to stream to family devices.</li>
+        <li><strong>Encrypt checkpoints:</strong> your voice is personal data — protect it accordingly.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SUMMARY TABLE -->
+  <div class="sec-hd reveal in" style="margin-top:2.4rem">
+    <div class="eyebrow">Quick Reference</div>
+    <h2 class="sec-h display">Best tools for Hinglish + prosody.</h2>
+  </div>
+  <table class="reveal in">
+    <tr><th>Tool</th><th>Pause control</th><th>Emotion</th><th>Hinglish quality</th><th>Ease</th></tr>
+    <tr><td>XTTS v2 (Coqui)</td><td>SSML / JSON tags</td><td>Fine-tunable</td><td>⭐⭐⭐⭐⭐</td><td>⭐⭐⭐ (CLI)</td></tr>
+    <tr><td>OpenVoice</td><td>explicit rhythm params</td><td>style transfer</td><td>⭐⭐⭐⭐</td><td>⭐⭐⭐</td></tr>
+    <tr><td>ElevenLabs</td><td>limited (comma-based)</td><td>good (pre-set)</td><td>⭐⭐⭐⭐⭐</td><td>⭐⭐⭐⭐⭐</td></tr>
+    <tr><td>IndicVoiceChanger</td><td>via fine-tune</td><td>moderate</td><td>⭐⭐⭐⭐⭐</td><td>⭐⭐</td></tr>
+  </table>
+
+  <div class="insight-box reveal in" style="border-left-color:var(--gold)">
+    <span class="ico">💎</span><strong style="color:var(--text-2)">Pro tip:</strong> Record your sample while <em>looking at a photo of your loved one</em> — it naturally brings out authentic emotion, breath, and micro-pauses that no model can synthesize from scratch.
+  </div>
+
+  <!-- LEGAL & ETHICAL FRAMEWORK -->
+  <div class="legal-card reveal in">
+    <div class="legal-hd">
+      <h2>🛡️ Voice / Digital Clone — Legal &amp; Ethical Framework</h2>
+      <span class="legal-badge">⚠️ Reverse AI Layer · Informed Consent Protocol</span>
+    </div>
+    <div class="legal-body">
+
+      <div class="principle-strip">
+        <span>🔏 <strong>digital watermarking</strong> (DWT-based)</span>
+        <span>⚖️ <strong>ethical use framework</strong></span>
+        <span>📝 <strong>explicit consent log</strong></span>
+        <span>🚫 <strong>misuse prevention</strong></span>
+      </div>
+
+      <div class="legal-grid">
+        <div>
+          <div class="legal-subhd">Mandatory Consent Checklist</div>
+          <ul class="checklist">
+            <li><span class="ci">✓</span> Explicit, documented consent from voice owner</li>
+            <li><span class="ci">✓</span> Comprehensive usage agreement (clear limitations)</li>
+            <li><span class="ci">✓</span> Technical watermarking for synthetic audio</li>
+            <li><span class="ci">✓</span> Clear disclosure protocols for synthetic content</li>
+            <li><span class="ci">✓</span> Data protection: encryption &amp; access controls</li>
+            <li><span class="ci">✓</span> Consent revocation mechanism</li>
+            <li><span class="ci">✓</span> Legal counsel review (jurisdiction-specific)</li>
+            <li><span class="ci">✓</span> Register with regulatory bodies (if required)</li>
+            <li><span class="ci">✓</span> Audit trails of all cloning activities</li>
+            <li><span class="ci">✓</span> Age verification of voice donor (18+)</li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="legal-subhd">Reverse AI Layer · Four Pillars</div>
+          <div class="pillars">
+            <span class="ptag">🔊 inaudible · 📋 registered · 🔄 revocable</span>
+            <div class="pillar-row">
+              <div class="pillar-n">🎧</div>
+              <div class="pillar-t"><strong>Identification</strong><span>Inaudible acoustic fingerprints (DWT-based watermarking) in every synthetic speech output.</span></div>
+            </div>
+            <div class="pillar-row">
+              <div class="pillar-n">📖</div>
+              <div class="pillar-t"><strong>Regulation</strong><span>Public ledger of authorized models; all clones registered with timestamp and creator.</span></div>
+            </div>
+            <div class="pillar-row">
+              <div class="pillar-n">✍️</div>
+              <div class="pillar-t"><strong>Consent</strong><span>Smart contract / signed document from original speaker; revocable at any time.</span></div>
+            </div>
+            <div class="pillar-row">
+              <div class="pillar-n">🛡️</div>
+              <div class="pillar-t"><strong>Boundaries</strong><span>On-inference filters block harmful generation (impersonation, fraud, political misuse).</span></div>
+            </div>
+          </div>
+          <div class="legal-foot-note">
+            🔏 Digital watermarking (DWT-based, inaudible) · ⚖️ ethical use framework · 📝 explicit consent log · 🚫 misuse prevention embedded.
+          </div>
+        </div>
+      </div>
+
+      <div class="status-strip">
+        <span><span class="ci">✓</span> watermarking mandatory</span>
+        <span><span class="ci">✓</span> ethical framework</span>
+        <span><span class="ci">✓</span> consent log</span>
+        <span><span class="ci">✓</span> misuse prevention</span>
+        <span><span class="ci">✓</span> revocable</span>
+      </div>
+
+      <div class="warning-strip">
+        ⚠️ Every generated voice clone must be detectable, regulated, and tied to informed consent. ⚠️
+      </div>
+
+      <div class="footer-note">
+        🤖 reverse turing test · human autonomy protocol · all clones registered &amp; auditable &nbsp;·&nbsp;
+        🔏 inaudible DWT watermark &nbsp;·&nbsp; 📖 public ledger &nbsp;·&nbsp; ✍️ smart-contract consent
+      </div>
+    </div>
+  </div>
+
+  <div class="signature reveal in">
+    © 2026 Mahesh Sonker — step-by-step Hinglish voice cloning · true prosody guide · reverse AI compliant
+  </div>
+</div>
+
+<footer class="page-foot">
+  <span style="color:var(--accent)">●</span>&nbsp; Authentic cadence preserved · Open-source first · Ethics built-in
+</footer>
+
+<script>
+const io = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

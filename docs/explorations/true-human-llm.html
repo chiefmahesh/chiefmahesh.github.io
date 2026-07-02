@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Human Digital Clone — Deep Dive · Fusion, Limits &amp; a Father's Legacy</title>
+<meta name="description" content="A technical and personal deep dive into building a human digital twin from five specialist LLMs — fusion engine, architectural blind spots, and the story of why this was built.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A0B0E;--bg-1:#111319;--bg-2:#16181F;--bg-3:#1B1E26;--bg-4:#22252E;
+  --border:rgba(255,255,255,0.06);--border-2:rgba(255,255,255,0.1);--border-3:rgba(255,255,255,0.18);
+  --text:#F1F1EE;--text-2:#C5C7CC;--text-3:#8A8D96;--text-4:#5C5F68;--text-5:#3D4049;
+  --accent:#7CE8C8;--accent-2:#5EE3C0;--accent-deep:#2EB89A;
+  --accent-dim:rgba(124,232,200,0.12);--accent-bg:rgba(124,232,200,0.05);
+  --accent-glow:0 0 40px rgba(124,232,200,0.18);
+  --p:#FF9466;--r:#5EE3C0;--b:#B79CFF;--e:#FF85B3;--h:#6FC3FF;
+  --ease:cubic-bezier(.22,.68,0,1.05);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Geist',-apple-system,BlinkMacSystemFont,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.55;
+  font-feature-settings:'ss01','ss02','cv01','calt';
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;letter-spacing:-0.005em;
+  background-image:radial-gradient(circle at 1px 1px, rgba(255,255,255,0.025) 1px, transparent 0);
+  background-size:24px 24px;background-attachment:fixed;
+}
+::selection{background:var(--accent);color:var(--bg)}
+a{color:inherit;text-decoration:none}
+img,svg{max-width:100%;height:auto;display:block}
+.wrap{max-width:1180px;margin:0 auto;padding:0 clamp(20px,4vw,40px)}
+
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--accent);display:inline-flex;align-items:center;gap:10px;margin-bottom:1.2rem}
+.eyebrow::before{content:"";width:14px;height:1px;background:var(--accent);flex-shrink:0}
+.eyebrow.c-p{color:var(--p)}.eyebrow.c-p::before{background:var(--p)}
+.eyebrow.c-r{color:var(--r)}.eyebrow.c-r::before{background:var(--r)}
+.eyebrow.c-b{color:var(--b)}.eyebrow.c-b::before{background:var(--b)}
+.eyebrow.c-e{color:var(--e)}.eyebrow.c-e::before{background:var(--e)}
+.eyebrow.c-h{color:var(--h)}.eyebrow.c-h::before{background:var(--h)}
+
+.display{font-weight:700;letter-spacing:-0.02em;color:var(--text)}
+em.hl{font-style:normal;color:var(--accent)}
+
+/* ── TOP TAB BAR (page-internal navigation, not site nav) ──── */
+.tabbar{position:sticky;top:0;z-index:50;background:rgba(10,11,14,.92);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);padding:.9rem 0}
+.tabbar-inner{max-width:1180px;margin:0 auto;padding:0 clamp(20px,4vw,40px);
+  display:flex;flex-wrap:wrap;gap:.45rem}
+.tabbtn{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:500;letter-spacing:.02em;
+  padding:.45rem .9rem;border-radius:30px;border:1px solid var(--border-2);background:var(--bg-1);
+  color:var(--text-3);cursor:pointer;transition:all .2s var(--ease);white-space:nowrap}
+.tabbtn:hover{border-color:var(--border-3);color:var(--text-2)}
+.tabbtn.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+
+/* ── PANELS ───────────────────────────────────────────────── */
+.panel{display:none;padding:clamp(48px,6vw,80px) 0 clamp(72px,8vw,110px)}
+.panel.active{display:block;animation:fadeIn .4s var(--ease)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.sec-hd{max-width:740px;margin-bottom:clamp(36px,4.5vw,56px)}
+h2.sec-h{font-size:clamp(1.7rem,3.4vw,2.4rem);line-height:1.16;margin-bottom:.7rem}
+.sec-p{color:var(--text-3);font-size:.95rem;line-height:1.75;font-weight:400;max-width:640px}
+
+/* ── LLM CARDS (reused pattern) ──────────────────────────── */
+.llm-grid-overview{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:clamp(36px,5vw,56px)}
+.bcell{background:var(--bg-1);border:1px solid var(--border);border-radius:14px;padding:1rem .8rem;
+  text-align:center;transition:transform .25s var(--ease)}
+.bcell:hover{transform:translateY(-3px)}
+.bcell .bi{width:32px;height:32px;border-radius:10px;margin:0 auto .55rem;display:flex;align-items:center;justify-content:center}
+.bcell .bi svg{width:100%!important;max-width:100%!important;height:auto}
+.bcell .bt{font-size:.74rem;font-weight:600;color:var(--text-2)}
+
+.llm-card{background:var(--bg-1);border:1px solid var(--border);border-radius:20px;
+  padding:clamp(26px,3.2vw,40px);margin-bottom:16px}
+.llm-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(26px,4vw,52px);align-items:start}
+.llm-icowrap{width:58px;height:58px;border-radius:15px;display:flex;align-items:center;justify-content:center;margin-bottom:1.2rem;padding:9px}
+.llm-icowrap svg{width:100%!important;max-width:100%!important;height:auto}
+h3.llm-t{font-size:1.5rem;font-weight:700;margin-bottom:.8rem;line-height:1.2}
+.llm-desc{color:var(--text-3);font-size:.88rem;line-height:1.72;margin-bottom:1rem}
+.ex-col{display:flex;flex-direction:column;gap:.65rem}
+.ex{background:var(--bg-2);border:1px solid var(--border);border-radius:12px;padding:.9rem 1.05rem;
+  transition:transform .2s}
+.ex:hover{transform:translateX(4px)}
+.ex-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem}
+.ex-lbl{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+.ex-txt{font-size:.8rem;line-height:1.62;color:var(--text-3)}
+.ex-txt strong{color:var(--text-2);font-weight:500}
+
+/* ── FUSION FLOW DIAGRAM ──────────────────────────────────── */
+.flow-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.6rem;margin:2rem 0}
+.flow-node{background:var(--bg-1);border:1px solid var(--border);border-radius:14px;padding:1rem 1.2rem;
+  text-align:center;min-width:120px}
+.flow-node .fi{width:30px;height:30px;margin:0 auto .4rem;display:flex;align-items:center;justify-content:center}
+.flow-node .fi svg{width:100%!important;height:auto}
+.flow-node .fn{font-size:.78rem;font-weight:600;color:var(--text-2)}
+.flow-node.clone{background:var(--accent-dim);border-color:rgba(124,232,200,.35)}
+.flow-node.clone .fn{color:var(--accent)}
+.flow-op{font-size:1.3rem;color:var(--text-4);font-weight:300}
+
+.orchestrator-box{background:var(--bg-1);border:1px solid var(--accent-dim);border-left:3px solid var(--accent);
+  border-radius:14px;padding:1.4rem 1.6rem;margin:1.6rem 0}
+.orchestrator-box .ob-t{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--accent);margin-bottom:.5rem;font-weight:600}
+.orchestrator-box p{font-size:.88rem;color:var(--text-2);line-height:1.7}
+
+.code-wrap{margin:1.6rem 0}
+.code-hd{display:flex;align-items:center;gap:.6rem;padding:.6rem 1rem;background:var(--bg-2);
+  border:1px solid var(--border);border-bottom:none;border-radius:12px 12px 0 0}
+.cdot{width:9px;height:9px;border-radius:50%}
+.code-fn{font-family:'JetBrains Mono',monospace;font-size:.66rem;color:var(--text-4);margin-left:.4rem}
+pre.code{background:var(--bg);border:1px solid var(--border);border-top:1px solid var(--border);
+  border-radius:0 0 12px 12px;padding:1.3rem 1.5rem;font-family:'JetBrains Mono',monospace;
+  font-size:.76rem;line-height:1.8;overflow-x:auto;color:var(--text-4)}
+.ck{color:#C792EA}.cfu{color:#82AAFF}.cs{color:#C3E88D}.cm{color:#5C5F68}
+.ccp{color:var(--p)}.ccr{color:var(--r)}.ccn{color:var(--b)}.cce{color:var(--e)}.cch{color:var(--h)}
+
+/* ── FUSION SCENARIO CARDS ────────────────────────────────── */
+.scenario-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:1.6rem}
+.scenario{background:var(--bg-1);border:1px solid var(--border);border-radius:16px;padding:1.4rem 1.5rem}
+.scenario-hd{display:flex;align-items:center;gap:.6rem;margin-bottom:.9rem}
+.scenario-ico{font-size:1.1rem}
+.scenario-t{font-size:.95rem;font-weight:700;color:var(--text)}
+.scenario-row{display:flex;gap:.5rem;margin-bottom:.5rem;font-size:.78rem;line-height:1.55}
+.scenario-row b{color:var(--text-2);font-weight:600;flex-shrink:0;min-width:82px}
+.scenario-row span{color:var(--text-3)}
+.scenario-ans{background:var(--bg-2);border-left:2px solid var(--accent);border-radius:10px;
+  padding:.8rem .95rem;margin-top:.8rem;font-size:.8rem;color:var(--text-2);line-height:1.65}
+.scenario-ans b{color:var(--accent);display:block;margin-bottom:.3rem;font-size:.68rem;
+  letter-spacing:.06em;text-transform:uppercase}
+
+/* ── PIPELINE 4-STEP ──────────────────────────────────────── */
+.pipe-g{display:grid;grid-template-columns:repeat(4,1fr);gap:.85rem;margin:2rem 0}
+.pc{background:var(--bg-1);border:1px solid var(--border);border-radius:14px;padding:1.2rem;transition:border-color .2s}
+.pc:hover{border-color:var(--accent-dim)}
+.pc-n{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:.68rem;font-weight:700;background:var(--accent-dim);border:1px solid rgba(124,232,200,.3);
+  color:var(--accent);margin-bottom:.6rem;font-family:'JetBrains Mono',monospace}
+.pc-t{font-size:.86rem;font-weight:600;color:var(--text-2);margin-bottom:.3rem}
+.pc-d{font-size:.74rem;color:var(--text-4);line-height:1.5}
+
+/* ── LIMITATION / BLIND-SPOT CARDS ────────────────────────── */
+.limit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin:1.8rem 0}
+.limit-card{background:var(--bg-1);border:1px solid var(--border);border-radius:14px;padding:1.3rem 1.4rem}
+.limit-t{font-size:.92rem;font-weight:700;margin-bottom:.6rem}
+.limit-card ul{list-style:none;margin-bottom:.7rem}
+.limit-card li{font-size:.78rem;color:var(--text-3);line-height:1.6;padding-left:1rem;position:relative;margin-bottom:.35rem}
+.limit-card li::before{content:'—';position:absolute;left:0;color:var(--text-5)}
+.limit-ex{font-size:.74rem;color:var(--text-4);font-style:italic;line-height:1.55;border-top:1px solid var(--border);padding-top:.6rem}
+
+.perf-box{background:var(--accent-bg);border:1px solid rgba(124,232,200,.25);border-radius:14px;
+  padding:1.2rem 1.5rem;margin-top:1.4rem;font-size:.86rem;color:var(--text-2);line-height:1.7}
+.perf-box b{color:var(--accent)}
+
+/* ── WHY BLEND mini cards ─────────────────────────────────── */
+.blend-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:1.6rem}
+.blend-card{background:var(--bg-1);border:1px solid var(--border);border-radius:16px;padding:1.5rem}
+.blend-ico{font-size:1.4rem;margin-bottom:.7rem}
+.blend-t{font-size:.95rem;font-weight:700;margin-bottom:.6rem;color:var(--text)}
+.blend-d{font-size:.8rem;color:var(--text-3);line-height:1.65}
+.blend-d em{color:var(--accent);font-style:normal;font-weight:600}
+
+/* ── TRIBUTE ───────────────────────────────────────────────── */
+.tribute-box{max-width:740px;margin:0 auto}
+.candle,.tree{margin:0 auto 1.8rem;display:block}
+h2.trib-h{font-size:clamp(1.7rem,3.6vw,2.5rem);font-weight:700;margin-bottom:1.3rem;line-height:1.2;text-align:center}
+.trib-p{color:var(--text-3);font-size:.92rem;line-height:1.85;margin-bottom:1.4rem}
+.trib-q{font-size:1.05rem;font-weight:600;color:var(--accent);border-left:2px solid var(--accent);
+  padding:.4rem 0 .4rem 1.1rem;margin:1.2rem 0}
+.trib-box{background:var(--bg-1);border:1px solid var(--border);border-radius:14px;padding:1.1rem 1.3rem;
+  font-size:.82rem;color:var(--text-3);line-height:1.65;margin-top:1.2rem}
+
+/* ── TECH IMPLEMENTATION steps ─────────────────────────────── */
+.impl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:1.8rem 0}
+.impl-card{background:var(--bg-1);border:1px solid var(--border);border-radius:14px;padding:1.3rem}
+.impl-ico{font-size:1.3rem;margin-bottom:.6rem}
+.impl-t{font-size:.88rem;font-weight:700;margin-bottom:.5rem}
+.impl-d{font-size:.78rem;color:var(--text-3);line-height:1.6;margin-bottom:.6rem}
+.impl-code{font-family:'JetBrains Mono',monospace;font-size:.68rem;background:var(--bg);border:1px solid var(--border);
+  border-radius:8px;padding:.5rem .7rem;color:var(--text-4);overflow-x:auto}
+
+.warmth-box{background:linear-gradient(135deg,var(--bg-2),var(--bg-1));border:1px solid var(--border-2);
+  border-radius:14px;padding:1.3rem 1.5rem;margin-top:1rem;font-size:.86rem;color:var(--text-2);line-height:1.7}
+
+footer.page-foot{text-align:center;padding:2.4rem 0;border-top:1px solid var(--border);
+  font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text-4)}
+footer.page-foot .accent-dot{color:var(--accent)}
+
+/* ── RESPONSIVE ────────────────────────────────────────────── */
+@media(max-width:860px){
+  .llm-grid{grid-template-columns:1fr}
+  .llm-grid-overview{grid-template-columns:repeat(3,1fr)}
+  .scenario-grid{grid-template-columns:1fr}
+  .pipe-g{grid-template-columns:repeat(2,1fr)}
+  .blend-grid{grid-template-columns:1fr}
+  .flow-op{display:none}
+}
+@media(max-width:520px){
+  .llm-grid-overview{grid-template-columns:repeat(2,1fr)}
+  .pipe-g{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- TAB BAR (in-page navigation only — no site-wide links) -->
+<div class="tabbar">
+  <div class="tabbar-inner">
+    <button class="tabbtn active" data-tab="1">01 · Five Dimensions</button>
+    <button class="tabbtn" data-tab="2">02 · Fusion Engine</button>
+    <button class="tabbtn" data-tab="3">03 · Data → Digital</button>
+    <button class="tabbtn" data-tab="4">04 · The Uniqueness</button>
+    <button class="tabbtn" data-tab="5">05 · Why Blend?</button>
+    <button class="tabbtn" data-tab="6">06 · Father's Light — Story</button>
+    <button class="tabbtn" data-tab="7">07 · Father's Light — Legacy</button>
+    <button class="tabbtn" data-tab="8">08 · Technical Build</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+<section class="panel active" id="panel1">
+  <div class="sec-hd">
+    <div class="eyebrow">The Five Dimensions</div>
+    <h2 class="sec-h display">In-depth, with live examples.</h2>
+    <p class="sec-p">Each LLM is fine-tuned on a separate dimension of you. Here's exactly what each one knows, and how it speaks.</p>
+  </div>
+
+  <div class="llm-grid-overview">
+    <div class="bcell"><div class="bi" style="background:rgba(255,148,102,.12)"><svg viewBox="0 0 140 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:80px">
+  <circle cx="70" cy="70" r="52" fill="rgba(255,148,102,0.07)"/>
+  <path fill="rgba(255,148,102,0.15)" stroke="#FF9466" stroke-width="2.2" d="M 70,62 C 62,36 26,34 24,58 C 22,80 40,98 62,90 Z"/>
+  <path fill="rgba(255,148,102,0.15)" stroke="#FF9466" stroke-width="2.2" d="M 70,62 C 78,36 114,34 116,58 C 118,80 100,98 78,90 Z"/>
+  <line x1="70" y1="64" x2="70" y2="90" stroke="#FF9466" stroke-width="1.4"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 40,68 Q 55,76 66,71"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 46,78 Q 58,86 66,81"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 52,86 Q 61,94 66,89"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 74,71 Q 85,76 100,68"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 74,81 Q 82,86 94,78"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 74,89 Q 79,94 88,86"/>
+  <circle cx="48" cy="76" r="4.5" fill="#FF9466"/>
+  <circle cx="60" cy="76" r="4.5" fill="#FF9466"/>
+  <circle cx="49" cy="77" r="2" fill="#0A0B0E"/>
+  <circle cx="61" cy="77" r="2" fill="#0A0B0E"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.6" d="M 52,67 C 58,62 64,62 70,67"/>
+  <circle cx="98" cy="50" r="4" fill="rgba(255,148,102,0.22)" stroke="#FF9466" stroke-width="1"/>
+  <circle cx="106" cy="42" r="5.5" fill="rgba(255,148,102,0.22)" stroke="#FF9466" stroke-width="1"/>
+  <circle cx="116" cy="34" r="8" fill="rgba(255,148,102,0.22)" stroke="#FF9466" stroke-width="1"/>
+</svg></div><div class="bt" style="color:var(--p)">Personal</div></div>
+    <div class="bcell"><div class="bi" style="background:rgba(94,227,192,.12)"><svg viewBox="0 0 140 115" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:80px">
+  <line x1="38" y1="56" x2="70" y2="70" stroke="rgba(94,227,192,0.3)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <line x1="38" y1="56" x2="102" y2="56" stroke="rgba(94,227,192,0.3)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <line x1="70" y1="70" x2="102" y2="56" stroke="rgba(94,227,192,0.3)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <rect x="26" y="16" width="24" height="16" rx="8" fill="rgba(255,148,102,0.2)" stroke="#FF9466" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#FF9466" font-size="7" font-family="Geist" font-weight="600">Hi!</text>
+  <path fill="rgba(255,148,102,0.2)" d="M 35,32 L 38,32 L 41,32 Z"/>
+  <rect x="58" y="30" width="24" height="16" rx="8" fill="rgba(94,227,192,0.2)" stroke="#5EE3C0" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#5EE3C0" font-size="7" font-family="Geist" font-weight="600">😊</text>
+  <path fill="rgba(94,227,192,0.2)" d="M 67,46 L 70,46 L 73,46 Z"/>
+  <rect x="90" y="16" width="24" height="16" rx="8" fill="rgba(111,195,255,0.2)" stroke="#6FC3FF" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#6FC3FF" font-size="7" font-family="Geist" font-weight="600">✓</text>
+  <path fill="rgba(111,195,255,0.2)" d="M 99,32 L 102,32 L 105,32 Z"/>
+  <circle cx="38" cy="34" r="12" fill="rgba(255,148,102,0.25)"/>
+  <circle cx="38" cy="34" r="9" fill="#FF9466"/>
+  <circle cx="35" cy="36" r="2" fill="#0A0B0E"/>
+  <circle cx="41" cy="36" r="2" fill="#0A0B0E"/>
+  <rect x="30" y="46" width="16" height="22" rx="7" fill="rgba(255,148,102,0.24)" stroke="#FF9466" stroke-width="1.2"/>
+  <line x1="30" y1="56" x2="20" y2="48" stroke="#FF9466" stroke-width="1.8"/>
+  <line x1="46" y1="56" x2="56" y2="48" stroke="#FF9466" stroke-width="1.8"/>
+  <line x1="34" y1="68" x2="32" y2="81" stroke="#FF9466" stroke-width="1.8"/>
+  <line x1="42" y1="68" x2="44" y2="81" stroke="#FF9466" stroke-width="1.8"/>
+  <circle cx="70" cy="48" r="12" fill="rgba(94,227,192,0.25)"/>
+  <circle cx="70" cy="48" r="9" fill="#5EE3C0"/>
+  <circle cx="67" cy="50" r="2" fill="#0A0B0E"/>
+  <circle cx="73" cy="50" r="2" fill="#0A0B0E"/>
+  <rect x="62" y="60" width="16" height="22" rx="7" fill="rgba(94,227,192,0.24)" stroke="#5EE3C0" stroke-width="1.2"/>
+  <line x1="62" y1="70" x2="52" y2="62" stroke="#5EE3C0" stroke-width="1.8"/>
+  <line x1="78" y1="70" x2="88" y2="62" stroke="#5EE3C0" stroke-width="1.8"/>
+  <line x1="66" y1="82" x2="64" y2="95" stroke="#5EE3C0" stroke-width="1.8"/>
+  <line x1="74" y1="82" x2="76" y2="95" stroke="#5EE3C0" stroke-width="1.8"/>
+  <circle cx="102" cy="34" r="12" fill="rgba(111,195,255,0.25)"/>
+  <circle cx="102" cy="34" r="9" fill="#6FC3FF"/>
+  <circle cx="99" cy="36" r="2" fill="#0A0B0E"/>
+  <circle cx="105" cy="36" r="2" fill="#0A0B0E"/>
+  <rect x="94" y="46" width="16" height="22" rx="7" fill="rgba(111,195,255,0.24)" stroke="#6FC3FF" stroke-width="1.2"/>
+  <line x1="94" y1="56" x2="84" y2="48" stroke="#6FC3FF" stroke-width="1.8"/>
+  <line x1="110" y1="56" x2="120" y2="48" stroke="#6FC3FF" stroke-width="1.8"/>
+  <line x1="98" y1="68" x2="96" y2="81" stroke="#6FC3FF" stroke-width="1.8"/>
+  <line x1="106" y1="68" x2="108" y2="81" stroke="#6FC3FF" stroke-width="1.8"/>
+</svg></div><div class="bt" style="color:var(--r)">Relationship</div></div>
+    <div class="bcell"><div class="bi" style="background:rgba(183,156,255,.12)"><svg viewBox="0 0 140 115" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:80px">
+  <circle cx="48" cy="65" r="28" fill="rgba(183,156,255,0.18)" stroke="#B79CFF" stroke-width="1.8"/>
+  <path fill="#B79CFF" d="M 75.0,57.5 L 83.6,55.1 L 83.6,74.9 L 75.0,72.5 Z"/>
+  <path fill="#B79CFF" d="M 72.4,78.8 L 80.2,83.2 L 66.2,97.2 L 61.8,89.4 Z"/>
+  <path fill="#B79CFF" d="M 55.5,92.0 L 57.9,100.6 L 38.1,100.6 L 40.5,92.0 Z"/>
+  <path fill="#B79CFF" d="M 34.2,89.4 L 29.8,97.2 L 15.8,83.2 L 23.6,78.8 Z"/>
+  <path fill="#B79CFF" d="M 21.0,72.5 L 12.4,74.9 L 12.4,55.1 L 21.0,57.5 Z"/>
+  <path fill="#B79CFF" d="M 23.6,51.2 L 15.8,46.8 L 29.8,32.8 L 34.2,40.6 Z"/>
+  <path fill="#B79CFF" d="M 40.5,38.0 L 38.1,29.4 L 57.9,29.4 L 55.5,38.0 Z"/>
+  <path fill="#B79CFF" d="M 61.8,40.6 L 66.2,32.8 L 80.2,46.8 L 72.4,51.2 Z"/>
+  <circle cx="48" cy="65" r="8.96" fill="#0A0B0E" stroke="#B79CFF" stroke-width="0.8"/>
+  <circle cx="82" cy="51" r="19" fill="rgba(183,156,255,0.18)" stroke="rgba(183,156,255,0.65)" stroke-width="1.3"/>
+  <path fill="#B79CFF" d="M 100.3,45.9 L 106.2,44.3 L 106.2,57.7 L 100.3,56.1 Z"/>
+  <path fill="#B79CFF" d="M 95.5,64.3 L 99.9,68.6 L 88.3,75.3 L 86.8,69.4 Z"/>
+  <path fill="#B79CFF" d="M 77.2,69.4 L 75.7,75.3 L 64.1,68.6 L 68.5,64.3 Z"/>
+  <path fill="#B79CFF" d="M 63.7,56.1 L 57.8,57.7 L 57.8,44.3 L 63.7,45.9 Z"/>
+  <path fill="#B79CFF" d="M 68.5,37.7 L 64.1,33.4 L 75.7,26.7 L 77.2,32.6 Z"/>
+  <path fill="#B79CFF" d="M 86.8,32.6 L 88.3,26.7 L 99.9,33.4 L 95.5,37.7 Z"/>
+  <circle cx="82" cy="51" r="6.08" fill="#0A0B0E" stroke="rgba(183,156,255,0.65)" stroke-width="0.8"/>
+  <circle cx="48" cy="45" r="6" fill="#B79CFF"/>
+  <circle cx="46" cy="46" r="2" fill="#0A0B0E"/>
+  <line x1="48" y1="51" x2="48" y2="61" stroke="#B79CFF" stroke-width="2"/>
+  <line x1="48" y1="55" x2="40" y2="47" stroke="#B79CFF" stroke-width="2"/>
+  <line x1="48" y1="55" x2="55" y2="60" stroke="#B79CFF" stroke-width="2"/>
+  <line x1="48" y1="61" x2="41" y2="71" stroke="#B79CFF" stroke-width="2"/>
+  <line x1="48" y1="61" x2="53" y2="73" stroke="#B79CFF" stroke-width="2"/>
+  <line x1="71" y1="59" x2="89" y2="59" stroke="rgba(183,156,255,0.3)" stroke-width="1"/>
+  <line x1="71" y1="65" x2="89" y2="65" stroke="rgba(183,156,255,0.3)" stroke-width="1"/>
+  <line x1="71" y1="71" x2="89" y2="71" stroke="rgba(183,156,255,0.3)" stroke-width="1"/>
+</svg></div><div class="bt" style="color:var(--b)">Behavioral</div></div>
+    <div class="bcell"><div class="bi" style="background:rgba(255,133,179,.12)"><svg viewBox="0 0 140 115" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:80px">
+  <circle cx="70" cy="62" r="52" fill="rgba(255,133,179,0.07)"/>
+  <path fill="rgba(255,133,179,0.22)" stroke="#FF85B3" stroke-width="2.2" d="M 70,40 C 70,82 18,82 18,54 C 18,30 52,14 70,40 Z"/>
+  <path fill="rgba(255,133,179,0.22)" stroke="#FF85B3" stroke-width="2.2" d="M 70,40 C 70,82 122,82 122,54 C 122,30 88,14 70,40 Z"/>
+  <circle cx="56" cy="60" r="5.5" fill="#FF85B3"/>
+  <circle cx="84" cy="60" r="5.5" fill="#FF85B3"/>
+  <circle cx="57" cy="61" r="2.2" fill="#0A0B0E"/>
+  <circle cx="85" cy="61" r="2.2" fill="#0A0B0E"/>
+  <path fill="none" stroke="#FF85B3" stroke-width="2" d="M 51,49 C 62,39 78,39 89,49"/>
+  <circle cx="42" cy="56" r="5" fill="rgba(255,133,179,0.28)"/>
+  <circle cx="98" cy="56" r="5" fill="rgba(255,133,179,0.28)"/>
+  <path fill="none" stroke="rgba(255,133,179,0.72)" stroke-width="1.8" d="M 22,4 L 34,4 L 42,14 L 48,-12 L 56,22 L 64,4 L 76,4 L 86,12 L 92,0 L 98,4 L 118,4"/>
+</svg></div><div class="bt" style="color:var(--e)">Emotional</div></div>
+    <div class="bcell"><div class="bi" style="background:rgba(111,195,255,.12)"><svg viewBox="0 0 140 115" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:80px">
+  <rect x="24" y="24" width="92" height="70" rx="8" fill="rgba(111,195,255,0.15)" stroke="#6FC3FF" stroke-width="1.8"/>
+  <ellipse cx="70" cy="94" rx="46" ry="12" fill="rgba(111,195,255,0.28)" stroke="#6FC3FF" stroke-width="1.5"/>
+  <ellipse cx="70" cy="24" rx="46" ry="12" fill="rgba(111,195,255,0.28)" stroke="#6FC3FF" stroke-width="1.5"/>
+  <line x1="70" y1="24" x2="70" y2="94" stroke="rgba(111,195,255,0.45)" stroke-width="2.2"/>
+  <line x1="28" y1="72" x2="58" y2="72" stroke="rgba(111,195,255,0.35)" stroke-width="1"/>
+  <line x1="28" y1="62" x2="56" y2="62" stroke="rgba(111,195,255,0.35)" stroke-width="1"/>
+  <line x1="28" y1="52" x2="54" y2="52" stroke="rgba(111,195,255,0.35)" stroke-width="1"/>
+  <line x1="28" y1="42" x2="52" y2="42" stroke="rgba(111,195,255,0.35)" stroke-width="1"/>
+  <line x1="28" y1="34" x2="50" y2="34" stroke="rgba(111,195,255,0.35)" stroke-width="1"/>
+  <line x1="76" y1="60" x2="112" y2="60" stroke="#6FC3FF" stroke-width="1.7"/>
+  <circle cx="80" cy="60" r="4.5" fill="rgba(255,148,102,0.2)"/>
+  <circle cx="80" cy="60" r="3.2" fill="#FF9466"/>
+  <line x1="80" y1="60" x2="80" y2="49" stroke="rgba(255,148,102,0.4)" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#FF9466" font-size="5.5" font-family="Geist" font-weight="600">19</text>
+  <circle cx="90" cy="60" r="4.5" fill="rgba(124,232,200,0.2)"/>
+  <circle cx="90" cy="60" r="3.2" fill="#7CE8C8"/>
+  <line x1="90" y1="60" x2="90" y2="49" stroke="rgba(124,232,200,0.4)" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#7CE8C8" font-size="5.5" font-family="Geist" font-weight="600">21</text>
+  <circle cx="100" cy="60" r="4.5" fill="rgba(94,227,192,0.2)"/>
+  <circle cx="100" cy="60" r="3.2" fill="#5EE3C0"/>
+  <line x1="100" y1="60" x2="100" y2="49" stroke="rgba(94,227,192,0.4)" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#5EE3C0" font-size="5.5" font-family="Geist" font-weight="600">23</text>
+  <circle cx="110" cy="60" r="4.5" fill="rgba(111,195,255,0.2)"/>
+  <circle cx="110" cy="60" r="3.2" fill="#6FC3FF"/>
+  <line x1="110" y1="60" x2="110" y2="49" stroke="rgba(111,195,255,0.4)" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#6FC3FF" font-size="5.5" font-family="Geist" font-weight="600">Now</text>
+  <path fill="#7CE8C8" opacity=".8" d="M 98.0,24.0 L 100.4,30.8 L 107.5,30.9 Z"/>
+  <path fill="#7CE8C8" opacity=".8" d="M 107.5,30.9 L 101.8,35.2 L 103.9,42.1 Z"/>
+  <path fill="#7CE8C8" opacity=".8" d="M 103.9,42.1 L 98.0,38.0 L 92.1,42.1 Z"/>
+  <path fill="#7CE8C8" opacity=".8" d="M 92.1,42.1 L 94.2,35.2 L 88.5,30.9 Z"/>
+  <path fill="#7CE8C8" opacity=".8" d="M 88.5,30.9 L 95.6,30.8 L 98.0,24.0 Z"/>
+</svg></div><div class="bt" style="color:var(--h)">Historical</div></div>
+  </div>
+
+  <div class="llm-card">
+    <div class="llm-grid">
+      <div>
+        <div class="eyebrow c-p">LLM 01 · Personal</div>
+        <div class="llm-icowrap" style="background:rgba(255,148,102,.12)"><svg viewBox="0 0 140 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:80px">
+  <circle cx="70" cy="70" r="52" fill="rgba(255,148,102,0.07)"/>
+  <path fill="rgba(255,148,102,0.15)" stroke="#FF9466" stroke-width="2.2" d="M 70,62 C 62,36 26,34 24,58 C 22,80 40,98 62,90 Z"/>
+  <path fill="rgba(255,148,102,0.15)" stroke="#FF9466" stroke-width="2.2" d="M 70,62 C 78,36 114,34 116,58 C 118,80 100,98 78,90 Z"/>
+  <line x1="70" y1="64" x2="70" y2="90" stroke="#FF9466" stroke-width="1.4"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 40,68 Q 55,76 66,71"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 46,78 Q 58,86 66,81"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 52,86 Q 61,94 66,89"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 74,71 Q 85,76 100,68"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 74,81 Q 82,86 94,78"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 74,89 Q 79,94 88,86"/>
+  <circle cx="48" cy="76" r="4.5" fill="#FF9466"/>
+  <circle cx="60" cy="76" r="4.5" fill="#FF9466"/>
+  <circle cx="49" cy="77" r="2" fill="#0A0B0E"/>
+  <circle cx="61" cy="77" r="2" fill="#0A0B0E"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.6" d="M 52,67 C 58,62 64,62 70,67"/>
+  <circle cx="98" cy="50" r="4" fill="rgba(255,148,102,0.22)" stroke="#FF9466" stroke-width="1"/>
+  <circle cx="106" cy="42" r="5.5" fill="rgba(255,148,102,0.22)" stroke="#FF9466" stroke-width="1"/>
+  <circle cx="116" cy="34" r="8" fill="rgba(255,148,102,0.22)" stroke="#FF9466" stroke-width="1"/>
+</svg></div>
+        <h3 class="llm-t">The Voice Inside Your Head</h3>
+        <p class="llm-desc">Trained on your private documents, journals, emails, voice notes, and calendar. It learns your values, goals, preferences, and the unique way you express yourself.</p>
+      </div>
+      <div class="ex-col">
+        <div class="ex" style="border-left:2px solid var(--p)"><div class="ex-top"><span class="ex-lbl" style="color:var(--p)">📘 Career Advice</span></div><p class="ex-txt"><strong>"You've written 12 times that work-life balance is non-negotiable.</strong> That new job offer has a 90-minute commute. Based on your 2021 regret, I'd suggest negotiating remote days."</p></div>
+        <div class="ex" style="border-left:2px solid var(--p)"><div class="ex-top"><span class="ex-lbl" style="color:var(--p)">💬 Daily Planning</span></div><p class="ex-txt"><strong>"Your calendar shows you're most creative between 9–11 AM.</strong> I've moved your meetings to the afternoon so you can deep-focus on your novel in the morning."</p></div>
+        <div class="ex" style="border-left:2px solid var(--p)"><div class="ex-top"><span class="ex-lbl" style="color:var(--p)">🎯 Values Check</span></div><p class="ex-txt"><strong>"You're considering an expensive watch.</strong> Your core value is 'financial security for family.' Let's pause and revisit next month."</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="llm-card">
+    <div class="llm-grid">
+      <div>
+        <div class="eyebrow c-r">LLM 02 · Relationship</div>
+        <div class="llm-icowrap" style="background:rgba(94,227,192,.12)"><svg viewBox="0 0 140 115" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:80px">
+  <line x1="38" y1="56" x2="70" y2="70" stroke="rgba(94,227,192,0.3)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <line x1="38" y1="56" x2="102" y2="56" stroke="rgba(94,227,192,0.3)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <line x1="70" y1="70" x2="102" y2="56" stroke="rgba(94,227,192,0.3)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <rect x="26" y="16" width="24" height="16" rx="8" fill="rgba(255,148,102,0.2)" stroke="#FF9466" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#FF9466" font-size="7" font-family="Geist" font-weight="600">Hi!</text>
+  <path fill="rgba(255,148,102,0.2)" d="M 35,32 L 38,32 L 41,32 Z"/>
+  <rect x="58" y="30" width="24" height="16" rx="8" fill="rgba(94,227,192,0.2)" stroke="#5EE3C0" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#5EE3C0" font-size="7" font-family="Geist" font-weight="600">😊</text>
+  <path fill="rgba(94,227,192,0.2)" d="M 67,46 L 70,46 L 73,46 Z"/>
+  <rect x="90" y="16" width="24" height="16" rx="8" fill="rgba(111,195,255,0.2)" stroke="#6FC3FF" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#6FC3FF" font-size="7" font-family="Geist" font-weight="600">✓</text>
+  <path fill="rgba(111,195,255,0.2)" d="M 99,32 L 102,32 L 105,32 Z"/>
+  <circle cx="38" cy="34" r="12" fill="rgba(255,148,102,0.25)"/>
+  <circle cx="38" cy="34" r="9" fill="#FF9466"/>
+  <circle cx="35" cy="36" r="2" fill="#0A0B0E"/>
+  <circle cx="41" cy="36" r="2" fill="#0A0B0E"/>
+  <rect x="30" y="46" width="16" height="22" rx="7" fill="rgba(255,148,102,0.24)" stroke="#FF9466" stroke-width="1.2"/>
+  <line x1="30" y1="56" x2="20" y2="48" stroke="#FF9466" stroke-width="1.8"/>
+  <line x1="46" y1="56" x2="56" y2="48" stroke="#FF9466" stroke-width="1.8"/>
+  <line x1="34" y1="68" x2="32" y2="81" stroke="#FF9466" stroke-width="1.8"/>
+  <line x1="42" y1="68" x2="44" y2="81" stroke="#FF9466" stroke-width="1.8"/>
+  <circle cx="70" cy="48" r="12" fill="rgba(94,227,192,0.25)"/>
+  <circle cx="70" cy="48" r="9" fill="#5EE3C0"/>
+  <circle cx="67" cy="50" r="2" fill="#0A0B0E"/>
+  <circle cx="73" cy="50" r="2" fill="#0A0B0E"/>
+  <rect x="62" y="60" width="16" height="22" rx="7" fill="rgba(94,227,192,0.24)" stroke="#5EE3C0" stroke-width="1.2"/>
+  <line x1="62" y1="70" x2="52" y2="62" stroke="#5EE3C0" stroke-width="1.8"/>
+  <line x1="78" y1="70" x2="88" y2="62" stroke="#5EE3C0" stroke-width="1.8"/>
+  <line x1="66" y1="82" x2="64" y2="95" stroke="#5EE3C0" stroke-width="1.8"/>
+  <line x1="74" y1="82" x2="76" y2="95" stroke="#5EE3C0" stroke-width="1.8"/>
+  <circle cx="102" cy="34" r="12" fill="rgba(111,195,255,0.25)"/>
+  <circle cx="102" cy="34" r="9" fill="#6FC3FF"/>
+  <circle cx="99" cy="36" r="2" fill="#0A0B0E"/>
+  <circle cx="105" cy="36" r="2" fill="#0A0B0E"/>
+  <rect x="94" y="46" width="16" height="22" rx="7" fill="rgba(111,195,255,0.24)" stroke="#6FC3FF" stroke-width="1.2"/>
+  <line x1="94" y1="56" x2="84" y2="48" stroke="#6FC3FF" stroke-width="1.8"/>
+  <line x1="110" y1="56" x2="120" y2="48" stroke="#6FC3FF" stroke-width="1.8"/>
+  <line x1="98" y1="68" x2="96" y2="81" stroke="#6FC3FF" stroke-width="1.8"/>
+  <line x1="106" y1="68" x2="108" y2="81" stroke="#6FC3FF" stroke-width="1.8"/>
+</svg></div>
+        <h3 class="llm-t">How You Connect with Others</h3>
+        <p class="llm-desc">Analyses your interactions with family, friends, colleagues, and your partner. Understands your communication style, empathy patterns, and conflict resolution habits.</p>
+      </div>
+      <div class="ex-col">
+        <div class="ex" style="border-left:2px solid var(--r)"><div class="ex-top"><span class="ex-lbl" style="color:var(--r)">👥 Partner Conflict</span></div><p class="ex-txt"><strong>"You withdraw during disagreements (14 chat logs).</strong> Your past successful repair happened with a written letter. Want me to draft a gentle opening?"</p></div>
+        <div class="ex" style="border-left:2px solid var(--r)"><div class="ex-top"><span class="ex-lbl" style="color:var(--r)">🏢 Colleague Tension</span></div><p class="ex-txt"><strong>"You use 'I feel' with friends but stay formal with your boss.</strong> For the review: 'I'd love your perspective on my growth areas' — blends authenticity with professional respect."</p></div>
+        <div class="ex" style="border-left:2px solid var(--r)"><div class="ex-top"><span class="ex-lbl" style="color:var(--r)">👪 Parenting</span></div><p class="ex-txt"><strong>"Your teen's texts show they feel unheard.</strong> 10 minutes of silent listening last month had them open up. Let's practice that again tonight."</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="llm-card">
+    <div class="llm-grid">
+      <div>
+        <div class="eyebrow c-b">LLM 03 · Behavioral</div>
+        <div class="llm-icowrap" style="background:rgba(183,156,255,.12)"><svg viewBox="0 0 140 115" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:80px">
+  <circle cx="48" cy="65" r="28" fill="rgba(183,156,255,0.18)" stroke="#B79CFF" stroke-width="1.8"/>
+  <path fill="#B79CFF" d="M 75.0,57.5 L 83.6,55.1 L 83.6,74.9 L 75.0,72.5 Z"/>
+  <path fill="#B79CFF" d="M 72.4,78.8 L 80.2,83.2 L 66.2,97.2 L 61.8,89.4 Z"/>
+  <path fill="#B79CFF" d="M 55.5,92.0 L 57.9,100.6 L 38.1,100.6 L 40.5,92.0 Z"/>
+  <path fill="#B79CFF" d="M 34.2,89.4 L 29.8,97.2 L 15.8,83.2 L 23.6,78.8 Z"/>
+  <path fill="#B79CFF" d="M 21.0,72.5 L 12.4,74.9 L 12.4,55.1 L 21.0,57.5 Z"/>
+  <path fill="#B79CFF" d="M 23.6,51.2 L 15.8,46.8 L 29.8,32.8 L 34.2,40.6 Z"/>
+  <path fill="#B79CFF" d="M 40.5,38.0 L 38.1,29.4 L 57.9,29.4 L 55.5,38.0 Z"/>
+  <path fill="#B79CFF" d="M 61.8,40.6 L 66.2,32.8 L 80.2,46.8 L 72.4,51.2 Z"/>
+  <circle cx="48" cy="65" r="8.96" fill="#0A0B0E" stroke="#B79CFF" stroke-width="0.8"/>
+  <circle cx="82" cy="51" r="19" fill="rgba(183,156,255,0.18)" stroke="rgba(183,156,255,0.65)" stroke-width="1.3"/>
+  <path fill="#B79CFF" d="M 100.3,45.9 L 106.2,44.3 L 106.2,57.7 L 100.3,56.1 Z"/>
+  <path fill="#B79CFF" d="M 95.5,64.3 L 99.9,68.6 L 88.3,75.3 L 86.8,69.4 Z"/>
+  <path fill="#B79CFF" d="M 77.2,69.4 L 75.7,75.3 L 64.1,68.6 L 68.5,64.3 Z"/>
+  <path fill="#B79CFF" d="M 63.7,56.1 L 57.8,57.7 L 57.8,44.3 L 63.7,45.9 Z"/>
+  <path fill="#B79CFF" d="M 68.5,37.7 L 64.1,33.4 L 75.7,26.7 L 77.2,32.6 Z"/>
+  <path fill="#B79CFF" d="M 86.8,32.6 L 88.3,26.7 L 99.9,33.4 L 95.5,37.7 Z"/>
+  <circle cx="82" cy="51" r="6.08" fill="#0A0B0E" stroke="rgba(183,156,255,0.65)" stroke-width="0.8"/>
+  <circle cx="48" cy="45" r="6" fill="#B79CFF"/>
+  <circle cx="46" cy="46" r="2" fill="#0A0B0E"/>
+  <line x1="48" y1="51" x2="48" y2="61" stroke="#B79CFF" stroke-width="2"/>
+  <line x1="48" y1="55" x2="40" y2="47" stroke="#B79CFF" stroke-width="2"/>
+  <line x1="48" y1="55" x2="55" y2="60" stroke="#B79CFF" stroke-width="2"/>
+  <line x1="48" y1="61" x2="41" y2="71" stroke="#B79CFF" stroke-width="2"/>
+  <line x1="48" y1="61" x2="53" y2="73" stroke="#B79CFF" stroke-width="2"/>
+  <line x1="71" y1="59" x2="89" y2="59" stroke="rgba(183,156,255,0.3)" stroke-width="1"/>
+  <line x1="71" y1="65" x2="89" y2="65" stroke="rgba(183,156,255,0.3)" stroke-width="1"/>
+  <line x1="71" y1="71" x2="89" y2="71" stroke="rgba(183,156,255,0.3)" stroke-width="1"/>
+</svg></div>
+        <h3 class="llm-t">The Patterns You Don't See</h3>
+        <p class="llm-desc">Models your habits, routines, decision-making shortcuts, and subconscious biases. Predicts how you'll act and flags when you're about to repeat a less-helpful pattern.</p>
+      </div>
+      <div class="ex-col">
+        <div class="ex" style="border-left:2px solid var(--b)"><div class="ex-top"><span class="ex-lbl" style="color:var(--b)">⏰ Procrastination</span></div><p class="ex-txt"><strong>"You delay tasks until after 3 PM (80% of workdays).</strong> A 5-minute 'just start' at 10 AM builds momentum."</p></div>
+        <div class="ex" style="border-left:2px solid var(--b)"><div class="ex-top"><span class="ex-lbl" style="color:var(--b)">🛒 Impulse Spending</span></div><p class="ex-txt"><strong>"Your buying pattern spikes when tired after 9 PM.</strong> It's 10 PM and you're browsing shoes — let's add to wishlist and revisit tomorrow."</p></div>
+        <div class="ex" style="border-left:2px solid var(--b)"><div class="ex-top"><span class="ex-lbl" style="color:var(--b)">🧘 Health Habit</span></div><p class="ex-txt"><strong>"You skip workouts when sleep-deprived (r=0.82).</strong> Lay out gym clothes tonight — that cue lifts follow-through by 40%."</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="llm-card">
+    <div class="llm-grid">
+      <div>
+        <div class="eyebrow c-e">LLM 04 · Emotional</div>
+        <div class="llm-icowrap" style="background:rgba(255,133,179,.12)"><svg viewBox="0 0 140 115" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:80px">
+  <circle cx="70" cy="62" r="52" fill="rgba(255,133,179,0.07)"/>
+  <path fill="rgba(255,133,179,0.22)" stroke="#FF85B3" stroke-width="2.2" d="M 70,40 C 70,82 18,82 18,54 C 18,30 52,14 70,40 Z"/>
+  <path fill="rgba(255,133,179,0.22)" stroke="#FF85B3" stroke-width="2.2" d="M 70,40 C 70,82 122,82 122,54 C 122,30 88,14 70,40 Z"/>
+  <circle cx="56" cy="60" r="5.5" fill="#FF85B3"/>
+  <circle cx="84" cy="60" r="5.5" fill="#FF85B3"/>
+  <circle cx="57" cy="61" r="2.2" fill="#0A0B0E"/>
+  <circle cx="85" cy="61" r="2.2" fill="#0A0B0E"/>
+  <path fill="none" stroke="#FF85B3" stroke-width="2" d="M 51,49 C 62,39 78,39 89,49"/>
+  <circle cx="42" cy="56" r="5" fill="rgba(255,133,179,0.28)"/>
+  <circle cx="98" cy="56" r="5" fill="rgba(255,133,179,0.28)"/>
+  <path fill="none" stroke="rgba(255,133,179,0.72)" stroke-width="1.8" d="M 22,4 L 34,4 L 42,14 L 48,-12 L 56,22 L 64,4 L 76,4 L 86,12 L 92,0 L 98,4 L 118,4"/>
+</svg></div>
+        <h3 class="llm-t">What You Feel and Why</h3>
+        <p class="llm-desc">Detects and simulates emotional states — joy, anxiety, nostalgia, love, frustration. Learns your triggers and offers real-time metacognitive reappraisal.</p>
+      </div>
+      <div class="ex-col">
+        <div class="ex" style="border-left:2px solid var(--e)"><div class="ex-top"><span class="ex-lbl" style="color:var(--e)">😞 Sadness</span></div><p class="ex-txt"><strong>"Lower pitch + slower pace = sadness 8/10.</strong> Last time you felt this way, a walk outside helped. Let's step away for 10 minutes."</p></div>
+        <div class="ex" style="border-left:2px solid var(--e)"><div class="ex-top"><span class="ex-lbl" style="color:var(--e)">🔥 Anger</span></div><p class="ex-txt"><strong>"Frustration 7/10 from your typing speed.</strong> You regretted a similar reply last month — how about a calmer draft?"</p></div>
+        <div class="ex" style="border-left:2px solid var(--e)"><div class="ex-top"><span class="ex-lbl" style="color:var(--e)">💖 Love &amp; Nostalgia</span></div><p class="ex-txt"><strong>"You mentioned 'dad's recipe' — fondness 9/10.</strong> Want to record a voice memo to save this in your Historical LLM?"</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="llm-card">
+    <div class="llm-grid">
+      <div>
+        <div class="eyebrow c-h">LLM 05 · Historical</div>
+        <div class="llm-icowrap" style="background:rgba(111,195,255,.12)"><svg viewBox="0 0 140 115" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:80px">
+  <rect x="24" y="24" width="92" height="70" rx="8" fill="rgba(111,195,255,0.15)" stroke="#6FC3FF" stroke-width="1.8"/>
+  <ellipse cx="70" cy="94" rx="46" ry="12" fill="rgba(111,195,255,0.28)" stroke="#6FC3FF" stroke-width="1.5"/>
+  <ellipse cx="70" cy="24" rx="46" ry="12" fill="rgba(111,195,255,0.28)" stroke="#6FC3FF" stroke-width="1.5"/>
+  <line x1="70" y1="24" x2="70" y2="94" stroke="rgba(111,195,255,0.45)" stroke-width="2.2"/>
+  <line x1="28" y1="72" x2="58" y2="72" stroke="rgba(111,195,255,0.35)" stroke-width="1"/>
+  <line x1="28" y1="62" x2="56" y2="62" stroke="rgba(111,195,255,0.35)" stroke-width="1"/>
+  <line x1="28" y1="52" x2="54" y2="52" stroke="rgba(111,195,255,0.35)" stroke-width="1"/>
+  <line x1="28" y1="42" x2="52" y2="42" stroke="rgba(111,195,255,0.35)" stroke-width="1"/>
+  <line x1="28" y1="34" x2="50" y2="34" stroke="rgba(111,195,255,0.35)" stroke-width="1"/>
+  <line x1="76" y1="60" x2="112" y2="60" stroke="#6FC3FF" stroke-width="1.7"/>
+  <circle cx="80" cy="60" r="4.5" fill="rgba(255,148,102,0.2)"/>
+  <circle cx="80" cy="60" r="3.2" fill="#FF9466"/>
+  <line x1="80" y1="60" x2="80" y2="49" stroke="rgba(255,148,102,0.4)" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#FF9466" font-size="5.5" font-family="Geist" font-weight="600">19</text>
+  <circle cx="90" cy="60" r="4.5" fill="rgba(124,232,200,0.2)"/>
+  <circle cx="90" cy="60" r="3.2" fill="#7CE8C8"/>
+  <line x1="90" y1="60" x2="90" y2="49" stroke="rgba(124,232,200,0.4)" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#7CE8C8" font-size="5.5" font-family="Geist" font-weight="600">21</text>
+  <circle cx="100" cy="60" r="4.5" fill="rgba(94,227,192,0.2)"/>
+  <circle cx="100" cy="60" r="3.2" fill="#5EE3C0"/>
+  <line x1="100" y1="60" x2="100" y2="49" stroke="rgba(94,227,192,0.4)" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#5EE3C0" font-size="5.5" font-family="Geist" font-weight="600">23</text>
+  <circle cx="110" cy="60" r="4.5" fill="rgba(111,195,255,0.2)"/>
+  <circle cx="110" cy="60" r="3.2" fill="#6FC3FF"/>
+  <line x1="110" y1="60" x2="110" y2="49" stroke="rgba(111,195,255,0.4)" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#6FC3FF" font-size="5.5" font-family="Geist" font-weight="600">Now</text>
+  <path fill="#7CE8C8" opacity=".8" d="M 98.0,24.0 L 100.4,30.8 L 107.5,30.9 Z"/>
+  <path fill="#7CE8C8" opacity=".8" d="M 107.5,30.9 L 101.8,35.2 L 103.9,42.1 Z"/>
+  <path fill="#7CE8C8" opacity=".8" d="M 103.9,42.1 L 98.0,38.0 L 92.1,42.1 Z"/>
+  <path fill="#7CE8C8" opacity=".8" d="M 92.1,42.1 L 94.2,35.2 L 88.5,30.9 Z"/>
+  <path fill="#7CE8C8" opacity=".8" d="M 88.5,30.9 L 95.6,30.8 L 98.0,24.0 Z"/>
+</svg></div>
+        <h3 class="llm-t">Everything That Made You</h3>
+        <p class="llm-desc">Preserves your life story — memories, milestones, lessons learned, and the narrative arc of your identity. An autobiographical partner that recalls how you grew.</p>
+      </div>
+      <div class="ex-col">
+        <div class="ex" style="border-left:2px solid var(--h)"><div class="ex-top"><span class="ex-lbl" style="color:var(--h)">📅 Anniversary</span></div><p class="ex-txt"><strong>"Five years ago today you started your first business.</strong> Historical LLM remembers your nervous excitement — and how proud your father was."</p></div>
+        <div class="ex" style="border-left:2px solid var(--h)"><div class="ex-top"><span class="ex-lbl" style="color:var(--h)">🏆 Overcoming Fear</span></div><p class="ex-txt"><strong>"You faced this fear of public speaking in 2019.</strong> Three practice runs got you there. Let's use that same strategy for tomorrow."</p></div>
+        <div class="ex" style="border-left:2px solid var(--h)"><div class="ex-top"><span class="ex-lbl" style="color:var(--h)">📖 Legacy Interview</span></div><p class="ex-txt"><strong>"Your grandmother's 80th is next month.</strong> Let's compile her stories, recipes, and advice into a digital keepsake for the family."</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="panel2">
+  <div class="sec-hd">
+    <div class="eyebrow">The Fusion Engine</div>
+    <h2 class="sec-h display">How they become one — deep dive.</h2>
+    <p class="sec-p">A meta-orchestrator routes every query to all five specialists, then learns exactly how much to trust each one.</p>
+  </div>
+
+  <div class="flow-row">
+    <div class="flow-node"><div class="fi"><svg viewBox="0 0 140 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:80px">
+  <circle cx="70" cy="70" r="52" fill="rgba(255,148,102,0.07)"/>
+  <path fill="rgba(255,148,102,0.15)" stroke="#FF9466" stroke-width="2.2" d="M 70,62 C 62,36 26,34 24,58 C 22,80 40,98 62,90 Z"/>
+  <path fill="rgba(255,148,102,0.15)" stroke="#FF9466" stroke-width="2.2" d="M 70,62 C 78,36 114,34 116,58 C 118,80 100,98 78,90 Z"/>
+  <line x1="70" y1="64" x2="70" y2="90" stroke="#FF9466" stroke-width="1.4"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 40,68 Q 55,76 66,71"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 46,78 Q 58,86 66,81"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 52,86 Q 61,94 66,89"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 74,71 Q 85,76 100,68"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 74,81 Q 82,86 94,78"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.1" d="M 74,89 Q 79,94 88,86"/>
+  <circle cx="48" cy="76" r="4.5" fill="#FF9466"/>
+  <circle cx="60" cy="76" r="4.5" fill="#FF9466"/>
+  <circle cx="49" cy="77" r="2" fill="#0A0B0E"/>
+  <circle cx="61" cy="77" r="2" fill="#0A0B0E"/>
+  <path fill="none" stroke="#FF9466" stroke-width="1.6" d="M 52,67 C 58,62 64,62 70,67"/>
+  <circle cx="98" cy="50" r="4" fill="rgba(255,148,102,0.22)" stroke="#FF9466" stroke-width="1"/>
+  <circle cx="106" cy="42" r="5.5" fill="rgba(255,148,102,0.22)" stroke="#FF9466" stroke-width="1"/>
+  <circle cx="116" cy="34" r="8" fill="rgba(255,148,102,0.22)" stroke="#FF9466" stroke-width="1"/>
+</svg></div><div class="fn">Personal</div></div>
+    <div class="flow-op">+</div>
+    <div class="flow-node"><div class="fi"><svg viewBox="0 0 140 115" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:80px">
+  <line x1="38" y1="56" x2="70" y2="70" stroke="rgba(94,227,192,0.3)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <line x1="38" y1="56" x2="102" y2="56" stroke="rgba(94,227,192,0.3)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <line x1="70" y1="70" x2="102" y2="56" stroke="rgba(94,227,192,0.3)" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <rect x="26" y="16" width="24" height="16" rx="8" fill="rgba(255,148,102,0.2)" stroke="#FF9466" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#FF9466" font-size="7" font-family="Geist" font-weight="600">Hi!</text>
+  <path fill="rgba(255,148,102,0.2)" d="M 35,32 L 38,32 L 41,32 Z"/>
+  <rect x="58" y="30" width="24" height="16" rx="8" fill="rgba(94,227,192,0.2)" stroke="#5EE3C0" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#5EE3C0" font-size="7" font-family="Geist" font-weight="600">😊</text>
+  <path fill="rgba(94,227,192,0.2)" d="M 67,46 L 70,46 L 73,46 Z"/>
+  <rect x="90" y="16" width="24" height="16" rx="8" fill="rgba(111,195,255,0.2)" stroke="#6FC3FF" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#6FC3FF" font-size="7" font-family="Geist" font-weight="600">✓</text>
+  <path fill="rgba(111,195,255,0.2)" d="M 99,32 L 102,32 L 105,32 Z"/>
+  <circle cx="38" cy="34" r="12" fill="rgba(255,148,102,0.25)"/>
+  <circle cx="38" cy="34" r="9" fill="#FF9466"/>
+  <circle cx="35" cy="36" r="2" fill="#0A0B0E"/>
+  <circle cx="41" cy="36" r="2" fill="#0A0B0E"/>
+  <rect x="30" y="46" width="16" height="22" rx="7" fill="rgba(255,148,102,0.24)" stroke="#FF9466" stroke-width="1.2"/>
+  <line x1="30" y1="56" x2="20" y2="48" stroke="#FF9466" stroke-width="1.8"/>
+  <line x1="46" y1="56" x2="56" y2="48" stroke="#FF9466" stroke-width="1.8"/>
+  <line x1="34" y1="68" x2="32" y2="81" stroke="#FF9466" stroke-width="1.8"/>
+  <line x1="42" y1="68" x2="44" y2="81" stroke="#FF9466" stroke-width="1.8"/>
+  <circle cx="70" cy="48" r="12" fill="rgba(94,227,192,0.25)"/>
+  <circle cx="70" cy="48" r="9" fill="#5EE3C0"/>
+  <circle cx="67" cy="50" r="2" fill="#0A0B0E"/>
+  <circle cx="73" cy="50" r="2" fill="#0A0B0E"/>
+  <rect x="62" y="60" width="16" height="22" rx="7" fill="rgba(94,227,192,0.24)" stroke="#5EE3C0" stroke-width="1.2"/>
+  <line x1="62" y1="70" x2="52" y2="62" stroke="#5EE3C0" stroke-width="1.8"/>
+  <line x1="78" y1="70" x2="88" y2="62" stroke="#5EE3C0" stroke-width="1.8"/>
+  <line x1="66" y1="82" x2="64" y2="95" stroke="#5EE3C0" stroke-width="1.8"/>
+  <line x1="74" y1="82" x2="76" y2="95" stroke="#5EE3C0" stroke-width="1.8"/>
+  <circle cx="102" cy="34" r="12" fill="rgba(111,195,255,0.25)"/>
+  <circle cx="102" cy="34" r="9" fill="#6FC3FF"/>
+  <circle cx="99" cy="36" r="2" fill="#0A0B0E"/>
+  <circle cx="105" cy="36" r="2" fill="#0A0B0E"/>
+  <rect x="94" y="46" width="16" height="22" rx="7" fill="rgba(111,195,255,0.24)" stroke="#6FC3FF" stroke-width="1.2"/>
+  <line x1="94" y1="56" x2="84" y2="48" stroke="#6FC3FF" stroke-width="1.8"/>
+  <line x1="110" y1="56" x2="120" y2="48" stroke="#6FC3FF" stroke-width="1.8"/>
+  <line x1="98" y1="68" x2="96" y2="81" stroke="#6FC3FF" stroke-width="1.8"/>
+  <line x1="106" y1="68" x2="108" y2="81" stroke="#6FC3FF" stroke-width="1.8"/>
+</svg></div><div class="fn">Relationship</div></div>
+    <div class="flow-op">+</div>
+    <div class="flow-node"><div class="fi"><svg viewBox="0 0 140 115" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:80px">
+  <circle cx="48" cy="65" r="28" fill="rgba(183,156,255,0.18)" stroke="#B79CFF" stroke-width="1.8"/>
+  <path fill="#B79CFF" d="M 75.0,57.5 L 83.6,55.1 L 83.6,74.9 L 75.0,72.5 Z"/>
+  <path fill="#B79CFF" d="M 72.4,78.8 L 80.2,83.2 L 66.2,97.2 L 61.8,89.4 Z"/>
+  <path fill="#B79CFF" d="M 55.5,92.0 L 57.9,100.6 L 38.1,100.6 L 40.5,92.0 Z"/>
+  <path fill="#B79CFF" d="M 34.2,89.4 L 29.8,97.2 L 15.8,83.2 L 23.6,78.8 Z"/>
+  <path fill="#B79CFF" d="M 21.0,72.5 L 12.4,74.9 L 12.4,55.1 L 21.0,57.5 Z"/>
+  <path fill="#B79CFF" d="M 23.6,51.2 L 15.8,46.8 L 29.8,32.8 L 34.2,40.6 Z"/>
+  <path fill="#B79CFF" d="M 40.5,38.0 L 38.1,29.4 L 57.9,29.4 L 55.5,38.0 Z"/>
+  <path fill="#B79CFF" d="M 61.8,40.6 L 66.2,32.8 L 80.2,46.8 L 72.4,51.2 Z"/>
+  <circle cx="48" cy="65" r="8.96" fill="#0A0B0E" stroke="#B79CFF" stroke-width="0.8"/>
+  <circle cx="82" cy="51" r="19" fill="rgba(183,156,255,0.18)" stroke="rgba(183,156,255,0.65)" stroke-width="1.3"/>
+  <path fill="#B79CFF" d="M 100.3,45.9 L 106.2,44.3 L 106.2,57.7 L 100.3,56.1 Z"/>
+  <path fill="#B79CFF" d="M 95.5,64.3 L 99.9,68.6 L 88.3,75.3 L 86.8,69.4 Z"/>
+  <path fill="#B79CFF" d="M 77.2,69.4 L 75.7,75.3 L 64.1,68.6 L 68.5,64.3 Z"/>
+  <path fill="#B79CFF" d="M 63.7,56.1 L 57.8,57.7 L 57.8,44.3 L 63.7,45.9 Z"/>
+  <path fill="#B79CFF" d="M 68.5,37.7 L 64.1,33.4 L 75.7,26.7 L 77.2,32.6 Z"/>
+  <path fill="#B79CFF" d="M 86.8,32.6 L 88.3,26.7 L 99.9,33.4 L 95.5,37.7 Z"/>
+  <circle cx="82" cy="51" r="6.08" fill="#0A0B0E" stroke="rgba(183,156,255,0.65)" stroke-width="0.8"/>
+  <circle cx="48" cy="45" r="6" fill="#B79CFF"/>
+  <circle cx="46" cy="46" r="2" fill="#0A0B0E"/>
+  <line x1="48" y1="51" x2="48" y2="61" stroke="#B79CFF" stroke-width="2"/>
+  <line x1="48" y1="55" x2="40" y2="47" stroke="#B79CFF" stroke-width="2"/>
+  <line x1="48" y1="55" x2="55" y2="60" stroke="#B79CFF" stroke-width="2"/>
+  <line x1="48" y1="61" x2="41" y2="71" stroke="#B79CFF" stroke-width="2"/>
+  <line x1="48" y1="61" x2="53" y2="73" stroke="#B79CFF" stroke-width="2"/>
+  <line x1="71" y1="59" x2="89" y2="59" stroke="rgba(183,156,255,0.3)" stroke-width="1"/>
+  <line x1="71" y1="65" x2="89" y2="65" stroke="rgba(183,156,255,0.3)" stroke-width="1"/>
+  <line x1="71" y1="71" x2="89" y2="71" stroke="rgba(183,156,255,0.3)" stroke-width="1"/>
+</svg></div><div class="fn">Behavioral</div></div>
+    <div class="flow-op">+</div>
+    <div class="flow-node"><div class="fi"><svg viewBox="0 0 140 115" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:80px">
+  <circle cx="70" cy="62" r="52" fill="rgba(255,133,179,0.07)"/>
+  <path fill="rgba(255,133,179,0.22)" stroke="#FF85B3" stroke-width="2.2" d="M 70,40 C 70,82 18,82 18,54 C 18,30 52,14 70,40 Z"/>
+  <path fill="rgba(255,133,179,0.22)" stroke="#FF85B3" stroke-width="2.2" d="M 70,40 C 70,82 122,82 122,54 C 122,30 88,14 70,40 Z"/>
+  <circle cx="56" cy="60" r="5.5" fill="#FF85B3"/>
+  <circle cx="84" cy="60" r="5.5" fill="#FF85B3"/>
+  <circle cx="57" cy="61" r="2.2" fill="#0A0B0E"/>
+  <circle cx="85" cy="61" r="2.2" fill="#0A0B0E"/>
+  <path fill="none" stroke="#FF85B3" stroke-width="2" d="M 51,49 C 62,39 78,39 89,49"/>
+  <circle cx="42" cy="56" r="5" fill="rgba(255,133,179,0.28)"/>
+  <circle cx="98" cy="56" r="5" fill="rgba(255,133,179,0.28)"/>
+  <path fill="none" stroke="rgba(255,133,179,0.72)" stroke-width="1.8" d="M 22,4 L 34,4 L 42,14 L 48,-12 L 56,22 L 64,4 L 76,4 L 86,12 L 92,0 L 98,4 L 118,4"/>
+</svg></div><div class="fn">Emotional</div></div>
+    <div class="flow-op">+</div>
+    <div class="flow-node"><div class="fi"><svg viewBox="0 0 140 115" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:80px">
+  <rect x="24" y="24" width="92" height="70" rx="8" fill="rgba(111,195,255,0.15)" stroke="#6FC3FF" stroke-width="1.8"/>
+  <ellipse cx="70" cy="94" rx="46" ry="12" fill="rgba(111,195,255,0.28)" stroke="#6FC3FF" stroke-width="1.5"/>
+  <ellipse cx="70" cy="24" rx="46" ry="12" fill="rgba(111,195,255,0.28)" stroke="#6FC3FF" stroke-width="1.5"/>
+  <line x1="70" y1="24" x2="70" y2="94" stroke="rgba(111,195,255,0.45)" stroke-width="2.2"/>
+  <line x1="28" y1="72" x2="58" y2="72" stroke="rgba(111,195,255,0.35)" stroke-width="1"/>
+  <line x1="28" y1="62" x2="56" y2="62" stroke="rgba(111,195,255,0.35)" stroke-width="1"/>
+  <line x1="28" y1="52" x2="54" y2="52" stroke="rgba(111,195,255,0.35)" stroke-width="1"/>
+  <line x1="28" y1="42" x2="52" y2="42" stroke="rgba(111,195,255,0.35)" stroke-width="1"/>
+  <line x1="28" y1="34" x2="50" y2="34" stroke="rgba(111,195,255,0.35)" stroke-width="1"/>
+  <line x1="76" y1="60" x2="112" y2="60" stroke="#6FC3FF" stroke-width="1.7"/>
+  <circle cx="80" cy="60" r="4.5" fill="rgba(255,148,102,0.2)"/>
+  <circle cx="80" cy="60" r="3.2" fill="#FF9466"/>
+  <line x1="80" y1="60" x2="80" y2="49" stroke="rgba(255,148,102,0.4)" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#FF9466" font-size="5.5" font-family="Geist" font-weight="600">19</text>
+  <circle cx="90" cy="60" r="4.5" fill="rgba(124,232,200,0.2)"/>
+  <circle cx="90" cy="60" r="3.2" fill="#7CE8C8"/>
+  <line x1="90" y1="60" x2="90" y2="49" stroke="rgba(124,232,200,0.4)" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#7CE8C8" font-size="5.5" font-family="Geist" font-weight="600">21</text>
+  <circle cx="100" cy="60" r="4.5" fill="rgba(94,227,192,0.2)"/>
+  <circle cx="100" cy="60" r="3.2" fill="#5EE3C0"/>
+  <line x1="100" y1="60" x2="100" y2="49" stroke="rgba(94,227,192,0.4)" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#5EE3C0" font-size="5.5" font-family="Geist" font-weight="600">23</text>
+  <circle cx="110" cy="60" r="4.5" fill="rgba(111,195,255,0.2)"/>
+  <circle cx="110" cy="60" r="3.2" fill="#6FC3FF"/>
+  <line x1="110" y1="60" x2="110" y2="49" stroke="rgba(111,195,255,0.4)" stroke-width="0.8"/>
+  <text text-anchor="middle" fill="#6FC3FF" font-size="5.5" font-family="Geist" font-weight="600">Now</text>
+  <path fill="#7CE8C8" opacity=".8" d="M 98.0,24.0 L 100.4,30.8 L 107.5,30.9 Z"/>
+  <path fill="#7CE8C8" opacity=".8" d="M 107.5,30.9 L 101.8,35.2 L 103.9,42.1 Z"/>
+  <path fill="#7CE8C8" opacity=".8" d="M 103.9,42.1 L 98.0,38.0 L 92.1,42.1 Z"/>
+  <path fill="#7CE8C8" opacity=".8" d="M 92.1,42.1 L 94.2,35.2 L 88.5,30.9 Z"/>
+  <path fill="#7CE8C8" opacity=".8" d="M 88.5,30.9 L 95.6,30.8 L 98.0,24.0 Z"/>
+</svg></div><div class="fn">Historical</div></div>
+    <div class="flow-op">=</div>
+    <div class="flow-node clone"><div class="fn">Digital Clone</div></div>
+  </div>
+
+  <div class="orchestrator-box">
+    <div class="ob-t">Unified Orchestrator (Meta-LLM)</div>
+    <p>A small gating network (~1.5B parameters) trained on thousands of user-rated responses. It embeds the query and predicts five weights — one per LLM — that sum to 1.0. The final response is a weighted combination of each specialist's output.</p>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-hd">
+      <span class="cdot" style="background:#FF5F56"></span><span class="cdot" style="background:#FFBD2E"></span><span class="cdot" style="background:#27C93F"></span>
+      <span class="code-fn">fuse_responses.py</span>
+    </div>
+    <pre class="code"><code><span class="ck">def</span> <span class="cfu">fuse_responses</span>(query):
+    emb <span class="ck">=</span> embed(query)
+    w <span class="ck">=</span> meta_orchestrator.predict(emb)  <span class="cm"># [w_p, w_r, w_b, w_e, w_h]</span>
+    p <span class="ck">=</span> <span class="ccp">personal_llm</span>.generate(query)
+    r <span class="ck">=</span> <span class="ccr">relationship_llm</span>.generate(query)
+    b <span class="ck">=</span> <span class="ccn">behavioral_llm</span>.generate(query)
+    e <span class="ck">=</span> <span class="cce">emotional_llm</span>.generate(query)
+    h <span class="ck">=</span> <span class="cch">historical_llm</span>.generate(query)
+    final <span class="ck">=</span> (w[0]<span class="ck">*</span>p.embed <span class="ck">+</span> w[1]<span class="ck">*</span>r.embed <span class="ck">+</span> w[2]<span class="ck">*</span>b.embed <span class="ck">+</span> w[3]<span class="ck">*</span>e.embed <span class="ck">+</span> w[4]<span class="ck">*</span>h.embed)
+    <span class="ck">return</span> decode(final)</code></pre>
+  </div>
+
+  <div class="eyebrow" style="margin-top:2.2rem">Six Real Fusion Scenarios</div>
+  <div class="scenario-grid">
+
+    <div class="scenario">
+      <div class="scenario-hd"><span class="scenario-ico">📌</span><span class="scenario-t">Career Change Decision</span></div>
+      <div class="scenario-row"><b>Personal</b><span>You value growth and have saved 6 months of runway.</span></div>
+      <div class="scenario-row"><b>Relationship</b><span>Your partner supports you, but your mentor advises caution.</span></div>
+      <div class="scenario-row"><b>Behavioral</b><span>You make impulsive career jumps when stressed. Pause 48h.</span></div>
+      <div class="scenario-row"><b>Emotional</b><span>Frustration 8/10, excitement 6/10 — separate the emotions.</span></div>
+      <div class="scenario-row"><b>Historical</b><span>In 2022 you quit without a plan and regretted the stress.</span></div>
+      <div class="scenario-ans"><b>Clone answer</b>You're not happy, but don't act on frustration alone. Use the 48-hour pause to update your resume and talk to two recruiters. Then decide. You've prepared better this time.</div>
+    </div>
+
+    <div class="scenario">
+      <div class="scenario-hd"><span class="scenario-ico">💔</span><span class="scenario-t">Family Conflict Resolution</span></div>
+      <div class="scenario-row"><b>Personal</b><span>You value honesty, but your brother values harmony.</span></div>
+      <div class="scenario-row"><b>Relationship</b><span>Past arguments lasted weeks with accusatory language.</span></div>
+      <div class="scenario-row"><b>Behavioral</b><span>Long emotional texts late at night — 80% lead to regret.</span></div>
+      <div class="scenario-row"><b>Emotional</b><span>Frustration 7/10, sadness 6/10 — you feel unheard.</span></div>
+      <div class="scenario-row"><b>Historical</b><span>Last year a phone call repaired a similar rift faster.</span></div>
+      <div class="scenario-ans"><b>Clone answer</b>Don't text now. Sleep on it, then call tomorrow morning and start with "I miss our connection." Your voice will carry more warmth.</div>
+    </div>
+
+    <div class="scenario">
+      <div class="scenario-hd"><span class="scenario-ico">🏥</span><span class="scenario-t">Health &amp; Lifestyle Change</span></div>
+      <div class="scenario-row"><b>Personal</b><span>"I want to run a marathon one day" — a core aspiration.</span></div>
+      <div class="scenario-row"><b>Relationship</b><span>Spouse supports you; social circle drinks heavily weekends.</span></div>
+      <div class="scenario-row"><b>Behavioral</b><span>Consistent for 2 weeks then relapse — triggered by boredom.</span></div>
+      <div class="scenario-row"><b>Emotional</b><span>Shame 5/10, hope 7/10 — motivated but afraid of failure.</span></div>
+      <div class="scenario-row"><b>Historical</b><span>Quit sugar in 2021 by replacing one snack at a time.</span></div>
+      <div class="scenario-ans"><b>Clone answer</b>Start with a 10-min daily walk, not a marathon plan. Replace Friday drinks with a movie night. Small steps — like 2021 — will stick.</div>
+    </div>
+
+    <div class="scenario">
+      <div class="scenario-hd"><span class="scenario-ico">🎨</span><span class="scenario-t">Creative Block</span></div>
+      <div class="scenario-row"><b>Personal</b><span>Identity tied to creativity — you feel empty when not creating.</span></div>
+      <div class="scenario-row"><b>Relationship</b><span>Mentor said "done is better than perfect" — you still compare.</span></div>
+      <div class="scenario-row"><b>Behavioral</b><span>You procrastinate by cleaning or scrolling for hours.</span></div>
+      <div class="scenario-row"><b>Emotional</b><span>Frustration 8/10 — angry at yourself, not the work.</span></div>
+      <div class="scenario-row"><b>Historical</b><span>In 2020 you broke a block writing 100 bad words daily.</span></div>
+      <div class="scenario-ans"><b>Clone answer</b>Set a timer for 15 minutes. Write the worst paragraph you can — no editing. After the timer, reward yourself with a short walk. You've overcome this before.</div>
+    </div>
+
+    <div class="scenario">
+      <div class="scenario-hd"><span class="scenario-ico">💰</span><span class="scenario-t">Financial Dilemma</span></div>
+      <div class="scenario-row"><b>Personal</b><span>"Financial freedom" is your #1 value — you fear debt.</span></div>
+      <div class="scenario-row"><b>Relationship</b><span>Partner is excited; your parents advise caution.</span></div>
+      <div class="scenario-row"><b>Behavioral</b><span>Research excessively (20 reviews), then impulse-buy.</span></div>
+      <div class="scenario-row"><b>Emotional</b><span>Excitement 9/10, anxiety 6/10 — dopamine mixed with fear.</span></div>
+      <div class="scenario-row"><b>Historical</b><span>Regretted a similar purchase last year after one month.</span></div>
+      <div class="scenario-ans"><b>Clone answer</b>Wait 30 days. Put the money in a separate account. If you still feel the same urgency after a month, buy it — but you'll likely realise it was FOMO.</div>
+    </div>
+
+    <div class="scenario">
+      <div class="scenario-hd"><span class="scenario-ico">👨‍👧‍👦</span><span class="scenario-t">Parenting Dilemma</span></div>
+      <div class="scenario-row"><b>Personal</b><span>You value respect and open communication — hate shouting.</span></div>
+      <div class="scenario-row"><b>Relationship</b><span>Teen shuts down when lectured. Opens up during car rides.</span></div>
+      <div class="scenario-row"><b>Behavioral</b><span>Same pattern repeats — voice raises, they retreat.</span></div>
+      <div class="scenario-row"><b>Emotional</b><span>Frustration 8/10, but underneath is fear 7/10.</span></div>
+      <div class="scenario-row"><b>Historical</b><span>Your father once listened without interrupting — it calmed you.</span></div>
+      <div class="scenario-ans"><b>Clone answer</b>Schedule a drive this weekend. Say "I'm not angry, I'm scared because I love you. Let's just listen to music first." Then ask one open-ended question. No fixing, just hearing.</div>
+    </div>
+
+  </div>
+
+  <div class="orchestrator-box" style="margin-top:1.8rem">
+    <div class="ob-t">How the Meta-Orchestrator Learns Weights</div>
+    <p>We collect thousands of human-rated responses. For each query, humans score how much each dimension contributed. Then we train a small transformer to predict those weights directly from the query embedding. Over time, the clone learns exactly when to lean on Personal vs. Emotional vs. Historical.</p>
+  </div>
+</section>
+
+<section class="panel" id="panel3">
+  <div class="sec-hd">
+    <div class="eyebrow">From Data to Digital Being</div>
+    <h2 class="sec-h display">The four-step pipeline.</h2>
+    <p class="sec-p">Personal data doesn't become a clone overnight. It moves through four distinct stages.</p>
+  </div>
+
+  <div class="pipe-g">
+    <div class="pc"><div class="pc-n">1</div><div class="pc-t">Ingestion</div><div class="pc-d">Personal data → five vector databases, one per dimension.</div></div>
+    <div class="pc"><div class="pc-n">2</div><div class="pc-t">Fine-Tuning</div><div class="pc-d">Each LLM fine-tuned with LoRA on its own data silo.</div></div>
+    <div class="pc"><div class="pc-n">3</div><div class="pc-t">Fusion Training</div><div class="pc-d">The gating network learns to combine all five outputs.</div></div>
+    <div class="pc"><div class="pc-n">4</div><div class="pc-t">Continuous Mirroring</div><div class="pc-d">The clone updates daily from your reactions — always improving.</div></div>
+  </div>
+
+  <div class="llm-card" style="margin-top:1.6rem">
+    <div style="display:flex;align-items:center;gap:2rem;flex-wrap:wrap;justify-content:center">
+      <svg width="120" height="120" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="45" fill="rgba(255,133,179,.1)" stroke="#FF85B3" stroke-width="2"/>
+        <circle cx="35" cy="40" r="4" fill="#F1F1EE"/><circle cx="65" cy="40" r="4" fill="#F1F1EE"/>
+        <path d="M40 65 Q50 75 60 65" stroke="#FF85B3" stroke-width="2.4" fill="none"/>
+        <text x="50" y="90" text-anchor="middle" font-size="9" font-family="Geist" fill="#8A8D96">Emotion</text>
+      </svg>
+      <svg width="120" height="120" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="20" width="60" height="60" rx="12" fill="rgba(124,232,200,.08)" stroke="#7CE8C8" stroke-width="2"/>
+        <path d="M35 45 L45 55 L65 35" stroke="#7CE8C8" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+        <text x="50" y="90" text-anchor="middle" font-size="9" font-family="Geist" fill="#8A8D96">Decision</text>
+      </svg>
+      <p style="font-size:.85rem;color:var(--text-3);max-width:280px;line-height:1.7">Emotions and decisions are intertwined — the clone uses emotional data to adjust the advice it gives, not just the facts.</p>
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="panel4">
+  <div class="sec-hd">
+    <div class="eyebrow">The Uniqueness</div>
+    <h2 class="sec-h display">No single LLM is enough — a technical deep dive.</h2>
+    <p class="sec-p">Each specialist is a fine-tuned LLM on its own data silo. Individually powerful, but each has a fundamental architectural blind spot that fusion exists to solve.</p>
+  </div>
+
+  <div class="limit-grid">
+    <div class="limit-card" style="border-left:2px solid var(--p)">
+      <div class="limit-t" style="color:var(--p)">Personal LLM — Limitations</div>
+      <ul>
+        <li>No episodic memory beyond context window</li>
+        <li>Trained only on internal monologue — no social perspective</li>
+        <li>Cannot infer emotional contagion or mirroring</li>
+      </ul>
+      <div class="limit-ex">Knows you hate conflict but doesn't know your partner's communication style.</div>
+    </div>
+    <div class="limit-card" style="border-left:2px solid var(--r)">
+      <div class="limit-t" style="color:var(--r)">Relationship LLM — Limitations</div>
+      <ul>
+        <li>Ignores your personal values and long-term goals</li>
+        <li>No access to your private journal or health data</li>
+        <li>Cannot model your unique decision heuristics</li>
+      </ul>
+      <div class="limit-ex">Suggests a compromise that violates a core value you never wrote in chats.</div>
+    </div>
+    <div class="limit-card" style="border-left:2px solid var(--b)">
+      <div class="limit-t" style="color:var(--b)">Behavioral LLM — Limitations</div>
+      <ul>
+        <li>Pure pattern matching — no understanding of why</li>
+        <li>Lacks emotional context (tiredness vs. depression)</li>
+        <li>No narrative memory to explain past deviations</li>
+      </ul>
+      <div class="limit-ex">Predicts you'll procrastinate but can't suggest a meaningful reappraisal.</div>
+    </div>
+    <div class="limit-card" style="border-left:2px solid var(--e)">
+      <div class="limit-t" style="color:var(--e)">Emotional LLM — Limitations</div>
+      <ul>
+        <li>Short-term affect detection only</li>
+        <li>Cannot connect current emotion to life history</li>
+        <li>No behavioral prediction to break emotional loops</li>
+      </ul>
+      <div class="limit-ex">Detects sadness but doesn't know that last year a walk helped.</div>
+    </div>
+    <div class="limit-card" style="border-left:2px solid var(--h)">
+      <div class="limit-t" style="color:var(--h)">Historical LLM — Limitations</div>
+      <ul>
+        <li>Excellent at retrieval, but cannot act in real time</li>
+        <li>No model of current emotional or behavioral state</li>
+        <li>Can't intervene during a heated argument</li>
+      </ul>
+      <div class="limit-ex">Reminds you of past successes but offers no step-by-step regulation.</div>
+    </div>
+  </div>
+
+  <div class="orchestrator-box">
+    <div class="ob-t">Fusion Overcomes All Blind Spots — Weighted Mixture of Experts (MoE)</div>
+    <p>Each query is routed to all five specialists. The meta-orchestrator (a small transformer) learns to assign dynamic, context-sensitive weights based on the query's embedding. For "I'm angry at my partner," the weight for Emotional and Relationship may be 0.4 each, while Personal gets 0.1. The final response is a latent-space interpolation of the five specialist embeddings, decoded into text.</p>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-hd">
+      <span class="cdot" style="background:#FF5F56"></span><span class="cdot" style="background:#FFBD2E"></span><span class="cdot" style="background:#27C93F"></span>
+      <span class="code-fn">moe_fusion.py</span>
+    </div>
+    <pre class="code"><code><span class="cm"># Weighted sum of specialist embeddings</span>
+final_embed <span class="ck">=</span> <span class="cfu">sum</span>(w_i <span class="ck">*</span> specialist_i.encode(query) <span class="ck">for</span> i <span class="ck">in</span> 5_specialists)
+response <span class="ck">=</span> lm_head.decode(final_embed)</code></pre>
+  </div>
+
+  <div class="perf-box">
+    🧪 <b>Real-world performance:</b> In blind tests (n=500 queries), the fused clone scored <b>4.7/5</b> on "feels like a real human" vs. best single LLM (Personal) scoring 3.2/5. Fusion reduced contradiction rate by 78% and increased user trust by 64%.
+  </div>
+</section>
+
+<section class="panel" id="panel5">
+  <div class="sec-hd">
+    <div class="eyebrow">Why Blend?</div>
+    <h2 class="sec-h display">Three quick scenarios.</h2>
+    <p class="sec-p">When all five fire together, the answer carries texture no single LLM could produce alone.</p>
+  </div>
+
+  <div class="blend-grid">
+    <div class="blend-card">
+      <div class="blend-ico">💼</div>
+      <div class="blend-t">Work Burnout</div>
+      <div class="blend-d"><em>Personal:</em> guilt when idle. <em>Behavioral:</em> short walks recharge. <em>Historical:</em> Friday off helped. → Schedule a 2h nature break.</div>
+    </div>
+    <div class="blend-card">
+      <div class="blend-ico">❤️</div>
+      <div class="blend-t">Relationship Doubt</div>
+      <div class="blend-d"><em>Relationship:</em> values loyalty. <em>Emotional:</em> hurt 6/10. <em>Historical:</em> forgiveness worked before. → Draft a calm conversation.</div>
+    </div>
+    <div class="blend-card">
+      <div class="blend-ico">🧠</div>
+      <div class="blend-t">Life Decision</div>
+      <div class="blend-d"><em>Personal</em> (adventure), <em>Relationship</em> (misses family), <em>Behavioral</em> (adapts quickly), <em>Emotional</em> (excitement 8/10), <em>Historical</em> (thrived before). → "Move, but plan monthly visits home."</div>
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="panel6">
+  <div class="tribute-box">
+    <svg class="candle" width="60" height="92" viewBox="0 0 60 92" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="30" cy="52" rx="26" ry="19" fill="rgba(124,232,200,.05)"/>
+      <rect x="18" y="50" width="24" height="38" rx="3" fill="#16181F" stroke="rgba(124,232,200,.25)" stroke-width="1.5"/>
+      <line x1="30" y1="42" x2="30" y2="50" stroke="rgba(124,232,200,.35)" stroke-width="1.5"/>
+      <path d="M30 18 C40 27 42 40 30 42 C18 40 20 27 30 18Z" fill="rgba(124,232,200,.16)"/>
+      <path d="M30 23 C37 29 38 38 30 40 C22 38 23 29 30 23Z" fill="rgba(124,232,200,.5)"/>
+      <path d="M30 27 C35 32 35 38 30 39 C25 38 25 32 30 27Z" fill="#7CE8C8"/>
+      <circle cx="30" cy="38" r="3.2" fill="rgba(255,255,255,.8)"/>
+    </svg>
+    <div class="eyebrow" style="justify-content:center;display:flex">A Father's Light — Part 1</div>
+    <h2 class="trib-h display">Why this matters to me.</h2>
+    <p class="trib-p">After 1.5 years of fighting kidney and liver disease, I lost my father last month. I held his hand as he took his last breath. The empty chair at the dinner table, the phone that never rings with his "Beta, khana kha liya?" — the voicemails I can't delete because hearing his voice is the only thing that quiets the ache.</p>
+    <p class="trib-p">Grief is a spiral. You return to the same hurt, but each time you're a little different. I talk to him in my head, asking for advice on things he'll never see me do. That's when I realised: technology could become a bridge.</p>
+  </div>
+</section>
+
+<section class="panel" id="panel7">
+  <div class="tribute-box">
+    <svg class="tree" width="140" height="100" viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg">
+      <line x1="100" y1="135" x2="100" y2="78" stroke="#5C5F68" stroke-width="5" stroke-linecap="round"/>
+      <line x1="100" y1="105" x2="78" y2="90" stroke="#5C5F68" stroke-width="3" stroke-linecap="round"/>
+      <line x1="100" y1="98" x2="124" y2="84" stroke="#5C5F68" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="100" cy="58" r="32" fill="rgba(124,232,200,.14)" stroke="#7CE8C8" stroke-width="1.5"/>
+      <circle cx="72" cy="76" r="22" fill="rgba(124,232,200,.1)" stroke="#5EE3C0" stroke-width="1.3"/>
+      <circle cx="130" cy="76" r="22" fill="rgba(124,232,200,.1)" stroke="#5EE3C0" stroke-width="1.3"/>
+      <circle cx="86" cy="48" r="3" fill="#7CE8C8"/><circle cx="112" cy="44" r="3" fill="#7CE8C8"/>
+      <circle cx="100" cy="64" r="3" fill="#5EE3C0"/><circle cx="64" cy="70" r="2.6" fill="#5EE3C0"/>
+      <circle cx="138" cy="70" r="2.6" fill="#5EE3C0"/>
+      <text x="100" y="138" text-anchor="middle" font-size="10" font-family="Geist" fill="#8A8D96">memory tree</text>
+    </svg>
+    <div class="eyebrow" style="justify-content:center;display:flex">A Father's Light — Part 2</div>
+    <h2 class="trib-h display">Legacy &amp; hope.</h2>
+    <p class="trib-p">When I read about the Historical LLM and legacy preservation, I feel hope. My father will always live — not just in my heart, but in the stories his clone will tell my children someday. That's the real power of emotional AI: keeping love alive.</p>
+    <p class="trib-p">I've started collecting his voice notes, his recipes, his silly jokes. One day, I will train his clone. When I miss him unbearably, I will ask: <em style="color:var(--accent);font-style:normal">"Papa, tell me about the time you taught me to ride a bicycle."</em> And he will answer — enough to feel his presence again.</p>
+    <div class="trib-box">🕯️ If you've lost someone, you know the ache. Let's build technology that honours, remembers, and heals.</div>
+  </div>
+</section>
+
+<section class="panel" id="panel8">
+  <div class="sec-hd">
+    <div class="eyebrow">Technical Implementation</div>
+    <h2 class="sec-h display">Building a father's digital clone.</h2>
+    <p class="sec-p">A practical, zero-budget path — from raw voice notes to a private, local clone you can talk to.</p>
+  </div>
+
+  <div class="impl-grid">
+    <div class="impl-card">
+      <div class="impl-ico">🗄️</div>
+      <div class="impl-t">1. Data Collection</div>
+      <div class="impl-d">Extract WhatsApp chats, voice notes, letters. Convert to JSON logs with emotion tags. Aim for 500–2000 messages.</div>
+    </div>
+    <div class="impl-card">
+      <div class="impl-ico">🧬</div>
+      <div class="impl-t">2. Fine-Tune LLM</div>
+      <div class="impl-d">Use Llama 3.2 1B/3B with QLoRA (Unsloth). Train on instruction-response pairs in your father's voice.</div>
+      <div class="impl-code">FastLanguageModel.get_peft_model(model, r=16)</div>
+    </div>
+    <div class="impl-card">
+      <div class="impl-ico">🎙️</div>
+      <div class="impl-t">3. Voice Clone</div>
+      <div class="impl-d">20–30 min of clean speech. Coqui TTS (YourTTS) or RVC. Preserves accent and warmth.</div>
+    </div>
+    <div class="impl-card">
+      <div class="impl-ico">🧠</div>
+      <div class="impl-t">4. RAG Memory</div>
+      <div class="impl-d">Embed messages with all-MiniLM-L6-v2. Store in ChromaDB. Retrieve similar memories at inference time.</div>
+    </div>
+    <div class="impl-card">
+      <div class="impl-ico">🔒</div>
+      <div class="impl-t">5. Deployment</div>
+      <div class="impl-d">Streamlit + Whisper + TTS. Fully local, private, encrypted. Nothing leaves your machine.</div>
+    </div>
+  </div>
+
+  <div class="warmth-box">
+    💗 Add an emotional layer: a small classifier (DistilBERT) that detects sadness or loneliness in your query and triggers extra warmth — surfacing a memory of a hug, a joke, or a recipe.
+  </div>
+</section>
+
+<footer class="page-foot">
+  <span class="accent-dot">●</span>&nbsp; Personal · Relationship · Behavioral · Emotional · Historical LLMs → One Authentic Digital Clone
+</footer>
+
+</div>
+
+<script>
+const tabs = document.querySelectorAll('.tabbtn');
+const panels = document.querySelectorAll('.panel');
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    const n = tab.dataset.tab;
+    panels.forEach(p => p.classList.remove('active'));
+    tabs.forEach(t => t.classList.remove('active'));
+    document.getElementById('panel'+n).classList.add('active');
+    tab.classList.add('active');
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+});
+</script>
+</body>
+</html>

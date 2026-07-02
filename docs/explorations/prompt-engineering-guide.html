@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Engineering Mastery — Claude Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════
+   DESIGN TOKENS
+══════════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  /* Core surfaces */
+  --bg:     #09090C;
+  --bg-1:   #0F1017;
+  --bg-2:   #14161E;
+  --bg-3:   #191C25;
+  --bg-4:   #1F222C;
+  --bg-5:   #252933;
+
+  /* Borders */
+  --b0: rgba(255,255,255,0.04);
+  --b1: rgba(255,255,255,0.08);
+  --b2: rgba(255,255,255,0.13);
+  --b3: rgba(255,255,255,0.22);
+
+  /* Text */
+  --t0: #F4F3F0;
+  --t1: #C8CAD0;
+  --t2: #878B96;
+  --t3: #555962;
+  --t4: #333640;
+
+  /* Mint — primary accent */
+  --m:    #7CE8C8;
+  --m2:   #5EE3C0;
+  --m3:   #3ECFAC;
+  --mg:   rgba(124,232,200,0.14);
+  --mb:   rgba(124,232,200,0.08);
+  --mbb:  rgba(124,232,200,0.22);
+
+  /* Category accents */
+  --core:    #7CE8C8;  /* mint   — Core */
+  --adv:     #C4B5FD;  /* violet — Advanced */
+  --pro:     #93C5FD;  /* sky    — Pro */
+  --core-bg: rgba(124,232,200,0.08);
+  --adv-bg:  rgba(196,181,253,0.08);
+  --pro-bg:  rgba(147,197,253,0.08);
+
+  /* Semantic */
+  --bad:      #F87171;
+  --bad-bg:   rgba(248,113,113,0.08);
+  --good:     #34D399;
+  --good-bg:  rgba(52,211,153,0.08);
+  --amber:    #FBBF24;
+  --amber-bg: rgba(251,191,36,0.08);
+  --violet:   #C4B5FD;
+  --violet-bg:rgba(196,181,253,0.08);
+  --blue:     #93C5FD;
+  --blue-bg:  rgba(147,197,253,0.08);
+  --teal:     #5EEAD4;
+  --teal-bg:  rgba(94,234,212,0.08);
+  --teal-border: rgba(94,234,212,0.22);
+  --green:    #4ADE80;
+  --green-bg: rgba(74,222,128,0.08);
+  --rose:     #F87171;
+  --rose-bg:  rgba(248,113,113,0.08);
+
+  /* Legacy compat */
+  --paper: var(--bg-2);  --paper-2: var(--bg-3);  --paper-3: var(--b1);
+  --white: var(--bg-1);
+  --ink:   var(--t0);    --ink-80: var(--t1);     --ink-60: var(--t2);
+  --ink-40:var(--t3);    --ink-20: var(--t4);
+  --amber-dim:   var(--m2);
+  --amber-glow:  var(--m);
+  --amber-bg:    var(--mb);
+  --amber-border:var(--mbb);
+
+  /* Code */
+  --code-bg:      #07080B;
+  --code-border:  rgba(255,255,255,0.07);
+  --code-comment: #4A4868;
+  --code-key:     #C792EA;
+  --code-str:     #C3E88D;
+  --code-num:     #F78C6C;
+  --code-tag:     #89DDFF;
+  --code-attr:    #FFCB6B;
+  --code-val:     #80CBC4;
+  --code-plain:   #C2C4CC;
+
+  --ease: cubic-bezier(0.4,0,0.2,1);
+  --ease-out: cubic-bezier(0,0,0.2,1);
+  --r-sm: 6px;  --r: 10px;  --r-lg: 14px;  --r-xl: 20px;  --r-2xl: 28px;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.5),0 1px 2px rgba(0,0,0,0.4);
+  --shadow:    0 4px 16px rgba(0,0,0,0.5),0 1px 4px rgba(0,0,0,0.35);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.6),0 4px 12px rgba(0,0,0,0.45);
+  --transition: 0.18s var(--ease);
+}
+
+/* ══════════════════════════════════════════════════════
+   BASE
+══════════════════════════════════════════════════════ */
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  font-family:'DM Sans',system-ui,sans-serif;
+  background:var(--bg);color:var(--t0);
+  line-height:1.65;min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+::selection{background:var(--m);color:#09090C}
+
+/* ══════════════════════════════════════════════════════
+   PROGRESS BAR — gradient sweep
+══════════════════════════════════════════════════════ */
+#progress-bar{
+  position:fixed;top:0;left:0;height:2px;
+  background:linear-gradient(90deg,var(--m3),var(--m),var(--adv),var(--m));
+  background-size:200% 100%;
+  animation:pb-shine 2.4s linear infinite;
+  width:0%;z-index:1000;transition:width 0.2s var(--ease-out);
+}
+@keyframes pb-shine{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ══════════════════════════════════════════════════════
+   HERO
+══════════════════════════════════════════════════════ */
+.hero{
+  position:relative;overflow:hidden;
+  padding:100px 48px 90px;text-align:center;
+  background:var(--bg);
+}
+
+/* Architectural grid lines */
+.hero::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(var(--b0) 1px,transparent 1px),
+    linear-gradient(90deg,var(--b0) 1px,transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(ellipse 80% 90% at 50% 50%,black 0%,transparent 100%);
+  -webkit-mask-image:radial-gradient(ellipse 80% 90% at 50% 50%,black 0%,transparent 100%);
+}
+
+/* Glow orbs */
+.hero::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 110%,rgba(124,232,200,0.16) 0%,transparent 65%),
+    radial-gradient(ellipse 35% 30% at 15% -5%,rgba(196,181,253,0.12) 0%,transparent 60%),
+    radial-gradient(ellipse 35% 30% at 85% -5%,rgba(94,234,212,0.08) 0%,transparent 60%);
+}
+
+.hero-inner{position:relative;z-index:2;max-width:700px;margin:0 auto}
+
+/* Eyebrow kicker */
+.hero-kicker{
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.18em;
+  text-transform:uppercase;color:var(--m);
+  margin-bottom:32px;
+  padding:6px 18px;border-radius:999px;
+  background:var(--mb);border:1px solid var(--mbb);
+}
+.hero-kicker::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--m);animation:kb 2s ease infinite}
+.hero-kicker::after{content:'';width:5px;height:5px;border-radius:50%;background:var(--m);animation:kb 2s ease infinite 0.6s}
+@keyframes kb{0%,100%{opacity:0.3;transform:scale(0.7)}50%{opacity:1;transform:scale(1.1)}}
+
+/* H1 */
+.hero h1{
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:clamp(40px,6.5vw,74px);
+  font-weight:700;line-height:1.04;letter-spacing:-0.03em;
+  color:var(--t0);margin-bottom:20px;
+}
+.hero h1 em{
+  font-style:italic;
+  background:linear-gradient(135deg,var(--m),var(--adv));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.hero h1 span{
+  display:block;
+  font-size:0.56em;font-weight:400;font-style:italic;
+  color:var(--t2);margin-top:10px;letter-spacing:0;
+  font-family:'Playfair Display',serif;
+}
+
+/* Hero lead */
+.hero-lead{
+  font-size:17px;color:var(--t2);max-width:500px;
+  margin:0 auto 44px;font-weight:300;line-height:1.75;
+}
+
+/* Tags */
+.hero-tags{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.hero-tag{
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.06em;
+  padding:5px 14px;border-radius:999px;
+  border:1px solid var(--b1);color:var(--t3);
+  background:var(--bg-2);
+  transition:border-color 0.2s,color 0.2s;
+}
+.hero-tag:hover{border-color:var(--b2);color:var(--t2)}
+
+/* ══════════════════════════════════════════════════════
+   STICKY NAV
+══════════════════════════════════════════════════════ */
+.sticky-nav{
+  position:sticky;top:0;z-index:200;
+  background:rgba(9,9,12,0.88);
+  backdrop-filter:blur(20px) saturate(1.4);
+  -webkit-backdrop-filter:blur(20px) saturate(1.4);
+  border-bottom:1px solid var(--b1);
+}
+
+/* thin mint top accent on nav */
+.sticky-nav::before{
+  content:'';display:block;height:1px;
+  background:linear-gradient(90deg,transparent 0%,var(--m) 40%,var(--adv) 70%,transparent 100%);
+  opacity:0.4;
+}
+
+.nav-inner{
+  max-width:1120px;margin:0 auto;
+  display:flex;align-items:center;gap:2px;
+  height:48px;overflow-x:auto;scrollbar-width:none;
+  padding:0 24px;
+}
+.nav-inner::-webkit-scrollbar{display:none}
+
+.nav-link{
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.06em;
+  padding:6px 14px;border-radius:var(--r-sm);white-space:nowrap;
+  color:var(--t3);background:transparent;cursor:pointer;
+  text-decoration:none;transition:all 0.15s var(--ease);
+  display:inline-block;flex-shrink:0;border:1px solid transparent;
+  position:relative;
+}
+.nav-link:hover{color:var(--t1);background:var(--bg-3)}
+.nav-link.active{
+  color:var(--m);background:var(--mb);
+  border-color:var(--mbb);
+}
+.nav-link.active::after{
+  content:'';position:absolute;bottom:-1px;left:14px;right:14px;
+  height:1px;background:var(--m);
+}
+
+.nav-divider{width:1px;height:16px;background:var(--b1);flex-shrink:0;margin:0 6px}
+
+/* ══════════════════════════════════════════════════════
+   PAGE
+══════════════════════════════════════════════════════ */
+.page{max-width:1120px;margin:0 auto;padding:64px 24px 120px}
+
+/* ══════════════════════════════════════════════════════
+   TECHNIQUE BLOCK — portfolio centrepiece
+══════════════════════════════════════════════════════ */
+.technique{
+  display:grid;
+  grid-template-columns:260px 1fr;
+  gap:0;
+  margin-bottom:2px;
+  border-radius:var(--r-2xl);
+  background:var(--bg-1);
+  border:1px solid var(--b1);
+  overflow:hidden;
+  transition:border-color 0.2s var(--ease), box-shadow 0.2s var(--ease),transform 0.2s var(--ease);
+  position:relative;
+}
+.technique:hover{
+  border-color:var(--b2);
+  box-shadow:var(--shadow);
+  transform:translateY(-1px);
+}
+.technique+.technique{margin-top:10px}
+
+/* LEFT RAIL */
+.t-rail{
+  padding:32px 28px;
+  border-right:1px solid var(--b1);
+  background:var(--bg-2);
+  display:flex;flex-direction:column;
+  position:relative;overflow:hidden;
+}
+
+/* Large ghost number as background */
+.t-num{
+  font-family:'Playfair Display',serif;
+  font-size:72px;font-weight:700;line-height:1;
+  color:var(--t4);
+  opacity:0.5;
+  margin-bottom:12px;letter-spacing:-0.04em;
+  /* layered text effect */
+  text-shadow:0 0 0 var(--t4);
+}
+
+/* Category eyebrow */
+.t-category{
+  font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.18em;
+  text-transform:uppercase;color:var(--m);
+  margin-bottom:10px;
+  display:flex;align-items:center;gap:6px;
+}
+.t-category::before{content:'';width:16px;height:1px;background:currentColor;opacity:0.6}
+
+.t-title{
+  font-family:'Playfair Display',serif;font-size:18px;font-weight:600;
+  line-height:1.3;color:var(--t0);margin-bottom:12px;
+}
+.t-desc{
+  font-size:13px;color:var(--t2);line-height:1.68;flex:1;
+}
+
+/* Badge */
+.t-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  margin-top:20px;align-self:flex-start;
+  font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.1em;
+  padding:4px 12px;border-radius:999px;text-transform:uppercase;
+}
+.t-badge.core{background:var(--core-bg);color:var(--core);border:1px solid rgba(124,232,200,0.25)}
+.t-badge.advanced{background:var(--adv-bg);color:var(--adv);border:1px solid rgba(196,181,253,0.25)}
+.t-badge.pro{background:var(--pro-bg);color:var(--pro);border:1px solid rgba(147,197,253,0.25)}
+
+/* Coloured left accent bar injected via JS category class */
+.technique.is-core   .t-rail::after,
+.technique.is-adv    .t-rail::after,
+.technique.is-pro    .t-rail::after{
+  content:'';position:absolute;left:0;top:24px;bottom:24px;width:2px;border-radius:0 2px 2px 0;
+}
+.technique.is-core .t-rail::after{background:var(--core)}
+.technique.is-adv  .t-rail::after{background:var(--adv)}
+.technique.is-pro  .t-rail::after{background:var(--pro)}
+
+/* RIGHT CONTENT */
+.t-content{
+  padding:28px 32px;
+  display:flex;flex-direction:column;gap:18px;
+  background:var(--bg-1);
+}
+
+/* ══════════════════════════════════════════════════════
+   CODE BLOCK
+══════════════════════════════════════════════════════ */
+.code-block{
+  border-radius:var(--r-lg);
+  overflow:hidden;
+  border:1px solid var(--code-border);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.code-header{
+  display:flex;align-items:center;gap:10px;
+  background:var(--bg-3);
+  padding:9px 16px;
+  border-bottom:1px solid var(--code-border);
+}
+.code-dots{display:flex;gap:6px}
+.code-dot{width:10px;height:10px;border-radius:50%}
+.code-dot.r{background:#FF5F57}.code-dot.y{background:#FEBC2E}.code-dot.g{background:#28C840}
+
+.code-file{
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;
+  color:var(--t3);letter-spacing:0.05em;flex:1;
+}
+/* filename pill */
+.code-file::before{
+  content:'';display:inline-block;width:8px;height:8px;border-radius:2px;
+  background:rgba(124,232,200,0.2);border:1px solid var(--mbb);
+  margin-right:8px;vertical-align:middle;
+}
+
+.copy-btn{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.06em;
+  padding:3px 10px;border-radius:var(--r-sm);
+  border:1px solid var(--b2);background:var(--bg-4);
+  color:var(--t3);cursor:pointer;transition:all 0.15s;
+}
+.copy-btn:hover{background:var(--mb);color:var(--m);border-color:var(--mbb)}
+.copy-btn.copied{color:var(--code-str);border-color:rgba(195,232,141,0.35);background:rgba(195,232,141,0.06)}
+
+pre.code-pre{
+  background:var(--code-bg);
+  padding:18px 20px;margin:0;
+  overflow-x:auto;
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;line-height:1.78;
+  color:var(--code-plain);white-space:pre;
+}
+pre.code-pre .cm{color:var(--code-comment);font-style:italic}
+pre.code-pre .kw{color:var(--code-key)}
+pre.code-pre .st{color:var(--code-str)}
+pre.code-pre .nu{color:var(--code-num)}
+pre.code-pre .tg{color:var(--code-tag)}
+pre.code-pre .at{color:var(--code-attr)}
+pre.code-pre .vl{color:var(--code-val)}
+pre.code-pre .hl{
+  display:block;
+  background:rgba(124,232,200,0.07);
+  border-left:2px solid var(--m);
+  padding-left:10px;margin-left:-20px;padding-right:20px;
+  margin-right:-20px;
+}
+
+/* ══════════════════════════════════════════════════════
+   COMPARISON
+══════════════════════════════════════════════════════ */
+.comparison{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cmp-pane{border-radius:var(--r);overflow:hidden;border:1px solid var(--b1)}
+.cmp-header{
+  display:flex;align-items:center;gap:8px;padding:8px 14px;
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;
+}
+.cmp-header.bad{background:var(--bad-bg);color:var(--bad);border-bottom:1px solid rgba(248,113,113,0.15)}
+.cmp-header.good{background:var(--good-bg);color:var(--good);border-bottom:1px solid rgba(52,211,153,0.18)}
+.cmp-body{
+  padding:14px 16px;background:var(--bg-2);
+  font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.6;color:var(--t1);
+}
+.cmp-body.bad{color:var(--bad);opacity:0.6;text-decoration:line-through;text-decoration-color:rgba(248,113,113,0.4)}
+
+/* ══════════════════════════════════════════════════════
+   TRY LIVE BUTTON + RESPONSE PANEL
+══════════════════════════════════════════════════════ */
+.try-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+
+.try-btn{
+  font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:0.05em;
+  padding:9px 20px;border-radius:999px;
+  background:var(--m);color:#09090C;border:none;cursor:pointer;font-weight:600;
+  transition:all 0.2s var(--ease);display:flex;align-items:center;gap:7px;
+  white-space:nowrap;position:relative;overflow:hidden;
+}
+.try-btn::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.15),transparent);
+  opacity:0;transition:opacity 0.2s;
+}
+.try-btn:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(124,232,200,0.4)}
+.try-btn:hover::before{opacity:1}
+.try-btn:active{transform:translateY(0)}
+.try-btn:disabled{opacity:0.3;cursor:not-allowed;transform:none;box-shadow:none}
+.try-btn svg{width:12px;height:12px;flex-shrink:0}
+.try-note{font-size:12px;color:var(--t3);letter-spacing:0.02em}
+
+/* Response panel — terminal feel */
+.response-panel{
+  border-radius:var(--r-lg);
+  border:1px solid var(--b1);
+  background:var(--bg-2);
+  overflow:hidden;display:none;
+}
+.response-panel.open{display:block;animation:rp-in 0.25s var(--ease-out) both}
+@keyframes rp-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+.rp-header{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 16px;
+  border-bottom:1px solid var(--b1);
+  background:var(--bg-3);
+}
+.rp-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--teal);flex-shrink:0;
+  box-shadow:0 0 8px var(--teal);
+}
+.rp-dot.pulse{animation:rp-dot 1.2s ease infinite}
+@keyframes rp-dot{
+  0%,100%{opacity:0.6;transform:scale(0.8);box-shadow:0 0 4px var(--teal)}
+  50%{opacity:1;transform:scale(1);box-shadow:0 0 12px var(--teal)}
+}
+.rp-label{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  letter-spacing:0.12em;text-transform:uppercase;color:var(--teal);flex:1;
+}
+.rp-tokens{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--t4)}
+.rp-body{
+  padding:16px 18px;
+  font-size:13.5px;line-height:1.78;color:var(--t1);
+  white-space:pre-wrap;word-break:break-word;
+  max-height:340px;overflow-y:auto;
+  font-family:'DM Sans',sans-serif;
+}
+.rp-body::-webkit-scrollbar{width:4px}
+.rp-body::-webkit-scrollbar-track{background:transparent}
+.rp-body::-webkit-scrollbar-thumb{background:var(--b2);border-radius:4px}
+
+/* ══════════════════════════════════════════════════════
+   INSIGHT CALLOUTS
+══════════════════════════════════════════════════════ */
+.insight{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:12px 16px;border-radius:var(--r);
+  font-size:13px;line-height:1.65;color:var(--t1);
+  position:relative;
+}
+.insight::before{
+  content:'';position:absolute;inset:0;border-radius:var(--r);
+  opacity:0.5;pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,255,255,0.02),transparent);
+}
+.insight.amber {background:var(--mb);   border:1px solid var(--mbb); border-left:2px solid var(--m)}
+.insight.teal  {background:var(--teal-bg);border:1px solid var(--teal-border);border-left:2px solid var(--teal)}
+.insight.violet{background:var(--violet-bg);border:1px solid rgba(196,181,253,0.2);border-left:2px solid var(--violet)}
+.insight.blue  {background:var(--blue-bg);border:1px solid rgba(147,197,253,0.2);border-left:2px solid var(--blue)}
+.insight.green {background:var(--green-bg);border:1px solid rgba(74,222,128,0.2);border-left:2px solid var(--green)}
+.insight-icon{font-size:16px;flex-shrink:0;line-height:1.5}
+.insight strong{color:var(--t0);font-weight:600}
+.insight em{font-style:italic;color:var(--t1)}
+.insight code{
+  font-family:'JetBrains Mono',monospace;font-size:11.5px;
+  background:var(--bg-4);padding:1px 5px;border-radius:4px;color:var(--m2);
+}
+
+/* ══════════════════════════════════════════════════════
+   SECTION DIVIDERS
+══════════════════════════════════════════════════════ */
+.divider{
+  display:flex;align-items:center;gap:16px;
+  margin:52px 0 28px;
+}
+.divider::before,.divider::after{
+  content:'';flex:1;height:1px;
+  background:linear-gradient(90deg,transparent,var(--b2),transparent);
+}
+.divider-label{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;
+  text-transform:uppercase;color:var(--t3);white-space:nowrap;
+  padding:4px 14px;border-radius:999px;
+  background:var(--bg-2);border:1px solid var(--b1);
+}
+
+/* ══════════════════════════════════════════════════════
+   QUICK TIPS GRID
+══════════════════════════════════════════════════════ */
+.tips-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(188px,1fr));
+  gap:8px;margin-top:28px;
+}
+.tip-card{
+  padding:16px 15px;border-radius:var(--r-lg);
+  background:var(--bg-1);border:1px solid var(--b1);
+  transition:border-color 0.2s,box-shadow 0.2s;
+  position:relative;overflow:hidden;
+}
+.tip-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--b2),transparent);
+}
+.tip-card:hover{border-color:var(--b2);box-shadow:var(--shadow-sm)}
+.tip-num{
+  font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.12em;
+  color:var(--m);margin-bottom:7px;text-transform:uppercase;
+}
+.tip-title{font-size:13.5px;font-weight:600;color:var(--t0);margin-bottom:5px}
+.tip-body{font-size:12px;color:var(--t2);line-height:1.6}
+
+/* ══════════════════════════════════════════════════════
+   PLAYGROUND — flagship interactive section
+══════════════════════════════════════════════════════ */
+.playground{
+  background:var(--bg-1);
+  border:1px solid var(--b2);
+  border-radius:var(--r-2xl);
+  overflow:hidden;
+  box-shadow:var(--shadow-lg), 0 0 0 1px rgba(124,232,200,0.06) inset;
+}
+
+/* Thin mint stripe at very top */
+.playground::before{
+  content:'';display:block;height:1px;
+  background:linear-gradient(90deg,transparent 0%,var(--m) 30%,var(--adv) 70%,transparent 100%);
+}
+
+.pg-header{
+  background:var(--bg-2);padding:18px 28px;
+  display:flex;align-items:center;gap:16px;
+  border-bottom:1px solid var(--b1);
+}
+.pg-header-icon{font-size:20px}
+.pg-header-text{flex:1}
+.pg-header-title{
+  font-family:'Playfair Display',serif;font-size:18px;font-weight:600;
+  color:var(--t0);margin-bottom:3px;
+}
+.pg-header-sub{font-size:12px;color:var(--t3);font-weight:300}
+
+.pg-live-badge{
+  font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;
+  padding:5px 12px;border-radius:999px;
+  background:var(--mb);color:var(--m);
+  border:1px solid var(--mbb);
+  display:flex;align-items:center;gap:6px;
+}
+.pg-live-badge::before{
+  content:'';width:5px;height:5px;border-radius:50%;
+  background:var(--m);box-shadow:0 0 6px var(--m);
+  animation:rp-dot 1.4s ease infinite;
+}
+
+.pg-body{padding:24px 28px;background:var(--bg-1)}
+.pg-row{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+
+.pg-col-label{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;
+  text-transform:uppercase;color:var(--t3);margin-bottom:8px;
+}
+
+.pg-textarea{
+  width:100%;min-height:210px;resize:vertical;
+  font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.65;
+  padding:14px 16px;border-radius:var(--r-lg);
+  border:1px solid var(--b1);background:var(--bg-2);
+  color:var(--t0);outline:none;transition:border-color 0.2s;
+}
+.pg-textarea:focus{border-color:var(--mbb);box-shadow:0 0 0 3px var(--mb)}
+.pg-textarea::placeholder{color:var(--t4)}
+
+.pg-actions{display:flex;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+
+.pg-run{
+  font-family:'JetBrains Mono',monospace;font-size:12.5px;letter-spacing:0.05em;
+  padding:10px 28px;border-radius:999px;
+  background:var(--m);color:#09090C;border:none;cursor:pointer;font-weight:600;
+  transition:all 0.2s var(--ease);display:flex;align-items:center;gap:8px;
+}
+.pg-run:hover{background:var(--m3);transform:translateY(-1px);box-shadow:0 4px 20px rgba(124,232,200,0.4)}
+.pg-run:active{transform:translateY(0)}
+.pg-run:disabled{opacity:0.3;cursor:not-allowed;transform:none;box-shadow:none}
+
+.pg-clear{
+  font-family:'JetBrains Mono',monospace;font-size:11.5px;
+  padding:9px 18px;border-radius:999px;
+  border:1px solid var(--b2);background:transparent;
+  color:var(--t2);cursor:pointer;transition:all 0.15s;
+}
+.pg-clear:hover{background:var(--bg-3);border-color:var(--b3)}
+
+.pg-shortcut{font-size:12px;color:var(--t4);margin-left:auto}
+
+kbd{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  background:var(--bg-3);border:1px solid var(--b2);
+  border-radius:4px;padding:2px 6px;color:var(--t2);
+}
+
+.pg-starters-label{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--t3);margin:18px 0 10px;
+}
+.pg-starters{display:flex;flex-wrap:wrap;gap:7px}
+.pg-starter{
+  font-size:12px;padding:6px 14px;border-radius:999px;
+  border:1px solid var(--b1);background:var(--bg-2);
+  color:var(--t2);cursor:pointer;transition:all 0.15s;
+  display:flex;align-items:center;gap:5px;
+}
+.pg-starter:hover{background:var(--mb);border-color:var(--mbb);color:var(--m)}
+
+/* Technique checklist panel */
+.pg-body [style*="background:var(--bg-2)"]{background:var(--bg-2)!important}
+.pg-body [style*="border:1px solid var(--border)"]{border-color:var(--b1)!important}
+
+.pg-output-area{margin-top:20px;border-top:1px solid var(--b1);padding-top:20px;display:none}
+.pg-output-area.open{display:block}
+
+/* ══════════════════════════════════════════════════════
+   FOOTER
+══════════════════════════════════════════════════════ */
+footer{
+  background:var(--bg-1);
+  padding:44px 32px;text-align:center;
+  border-top:1px solid var(--b1);
+  font-family:'JetBrains Mono',monospace;
+  font-size:11.5px;color:var(--t3);letter-spacing:0.05em;
+}
+footer a{color:var(--m);text-decoration:none;transition:color 0.15s}
+footer a:hover{color:var(--m3);text-decoration:underline}
+.footer-inner{max-width:560px;margin:0 auto}
+.footer-logo{
+  font-family:'Playfair Display',serif;font-size:20px;font-weight:600;
+  color:var(--t1);margin-bottom:12px;letter-spacing:-0.01em;
+}
+
+/* ══════════════════════════════════════════════════════
+   ANIMATIONS
+══════════════════════════════════════════════════════ */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(18px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.technique{animation:fadeUp 0.5s var(--ease-out) both}
+.t1{animation-delay:0.04s}.t2{animation-delay:0.08s}
+.t3{animation-delay:0.12s}.t4{animation-delay:0.16s}
+.t5{animation-delay:0.20s}.t6{animation-delay:0.24s}
+.t7{animation-delay:0.28s}.t8{animation-delay:0.32s}
+.t9{animation-delay:0.36s}.t10{animation-delay:0.40s}
+
+/* ══════════════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════════════ */
+@media(max-width:820px){
+  .technique{grid-template-columns:1fr}
+  .t-rail{border-right:none;border-bottom:1px solid var(--b1);padding:24px 20px 18px}
+  .t-num{font-size:52px;margin-bottom:6px}
+  .t-content{padding:20px}
+  .comparison{grid-template-columns:1fr}
+  .pg-row{grid-template-columns:1fr}
+  .hero{padding:64px 24px 56px}
+  .page{padding:40px 16px 80px}
+  .sticky-nav{padding:0}
+  .nav-inner{padding:0 16px}
+}
+@media(max-width:540px){
+  .hero h1{font-size:38px}
+  .t-title{font-size:16px}
+  pre.code-pre{font-size:12px}
+  .tips-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<!-- ════════ HERO ════════ -->
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-kicker">Claude · Prompt Engineering</div>
+    <h1>Talk to AI Like a <em>Pro</em><span>10 techniques that unlock Claude's full potential</span></h1>
+    <p class="hero-lead">Real-world examples. Live responses. No coding required — just clear, intentional language.</p>
+    <div class="hero-tags">
+      <span class="hero-tag">10 techniques</span>
+      <span class="hero-tag">Click-to-try examples</span>
+      <span class="hero-tag">AWS &amp; cloud examples</span>
+      <span class="hero-tag">Live AI playground</span>
+    </div>
+  </div>
+</header>
+
+<!-- ════════ NAV ════════ -->
+<nav class="sticky-nav" id="topnav">
+  <div class="nav-inner">
+    <a class="nav-link" href="#t1">01 Specific</a>
+    <a class="nav-link" href="#t2">02 Context</a>
+    <a class="nav-link" href="#t3">03 Examples</a>
+    <a class="nav-link" href="#t4">04 Steps</a>
+    <a class="nav-link" href="#t5">05 XML Tags</a>
+    <a class="nav-link" href="#t6">06 Constraints</a>
+    <a class="nav-link" href="#t7">07 Role</a>
+    <a class="nav-link" href="#t8">08 Iterate</a>
+    <a class="nav-link" href="#t9">09 Negatives</a>
+    <a class="nav-link" href="#t10">10 Alternatives</a>
+    <div class="nav-divider"></div>
+    <a class="nav-link" href="#playground">⚡ Playground</a>
+  </div>
+</nav>
+
+<!-- ════════ TECHNIQUES ════════ -->
+<main class="page">
+
+<!-- ── T1 ── -->
+<div class="technique is-core t1" id="t1">
+  <div class="t-rail">
+    <div class="t-num">01</div>
+    <div class="t-category">Precision</div>
+    <div class="t-title">Be Specific About the Output You Want</div>
+    <div class="t-desc">Claude takes you literally. A vague prompt returns a generic answer. Specificity — audience, scope, format, depth — produces targeted, usable output.</div>
+    <div class="t-badge core">◆ Core</div>
+  </div>
+  <div class="t-content">
+    <div class="comparison">
+      <div class="cmp-pane">
+        <div class="cmp-header bad">✗ Vague</div>
+        <div class="cmp-body bad">explain networking</div>
+      </div>
+      <div class="cmp-pane">
+        <div class="cmp-header good">✓ Specific</div>
+        <div class="cmp-body">explain NAT Gateway in AWS in 3 bullet points for a developer audience</div>
+      </div>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><div class="code-dot r"></div><div class="code-dot y"></div><div class="code-dot g"></div></div><span class="code-file">good-prompt.txt</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre class="code-pre"><span class="cm"># What makes this specific:</span>
+<span class="cm"># Audience + Format + Scope + Depth = great output</span>
+
+Explain <span class="st">NAT Gateway</span> in AWS
+<span class="hl">in 3 bullet points</span>
+<span class="hl">for a developer audience</span>
+who has never used AWS networking before.
+Focus on <span class="st">when to use it vs not</span>.</pre>
+    </div>
+    <div class="try-row">
+      <button class="try-btn" id="btn-t1" onclick="tryIt('t1', 'Explain NAT Gateway in AWS in exactly 3 bullet points for a developer audience who has never used AWS networking before. Focus on when to use it vs when NOT to use it. Each bullet should be 1-2 sentences max.')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Try Live
+      </button>
+      <span class="try-note">Runs against Claude Sonnet</span>
+    </div>
+    <div class="response-panel" id="rp-t1">
+      <div class="rp-header"><div class="rp-dot pulse" id="rd-t1"></div><div class="rp-label" id="rl-t1">Generating…</div><div class="rp-tokens" id="rt-t1"></div></div>
+      <div class="rp-body" id="rb-t1"></div>
+    </div>
+    <div class="insight amber"><span class="insight-icon">💡</span><div>Checklist before you type: <strong>Who is the audience?</strong> <strong>What format?</strong> <strong>How long?</strong> <strong>What angle?</strong> Answer these and your prompt writes itself.</div></div>
+  </div>
+</div>
+
+<!-- ── T2 ── -->
+<div class="technique is-core t2" id="t2">
+  <div class="t-rail">
+    <div class="t-num">02</div>
+    <div class="t-category">Context First</div>
+    <div class="t-title">Give Context Upfront</div>
+    <div class="t-desc">State your role, goal, and constraints in the first line. Claude uses everything you give it — so front-load the details that matter most before asking the question.</div>
+    <div class="t-badge core">◆ Core</div>
+  </div>
+  <div class="t-content">
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><div class="code-dot r"></div><div class="code-dot y"></div><div class="code-dot g"></div></div><span class="code-file">context-template.txt</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre class="code-pre"><span class="cm"># Structure: WHO → GOAL → CONSTRAINT → REQUEST</span>
+
+<span class="hl">I am a Director of Engineering.</span>
+<span class="hl">I want to reduce AWS costs by 30% this quarter.</span>
+<span class="hl">I have budget authority but no headcount to add.</span>
+
+Analyse this bill and give me the <span class="st">top 5</span> actionable
+savings — ranked by estimated monthly impact.
+Include effort level (Low / Med / High) for each.</pre>
+    </div>
+    <div class="insight teal"><span class="insight-icon">🎯</span><div><strong>The formula:</strong> <em>I am [role]. I want [goal]. I have [constraints]. [Request].</em> — This one structure accounts for 80% of prompt quality improvements.</div></div>
+    <div class="try-row">
+      <button class="try-btn" id="btn-t2" onclick="tryIt('t2', 'I am a Director of Engineering at a 50-person SaaS startup. I want to reduce AWS costs by 30% this quarter. I have budget authority but cannot hire additional staff.\n\nAssume we run a typical web app with EC2, RDS, S3, CloudFront, and Lambda. Give me the top 5 actionable cost savings ranked by estimated monthly dollar impact. For each, include: (1) what to do in one sentence, (2) estimated saving, (3) effort level Low/Med/High.')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Try Live
+      </button>
+    </div>
+    <div class="response-panel" id="rp-t2">
+      <div class="rp-header"><div class="rp-dot pulse" id="rd-t2"></div><div class="rp-label" id="rl-t2">Generating…</div><div class="rp-tokens" id="rt-t2"></div></div>
+      <div class="rp-body" id="rb-t2"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── T3 ── -->
+<div class="technique is-core t3" id="t3">
+  <div class="t-rail">
+    <div class="t-num">03</div>
+    <div class="t-category">Format Design</div>
+    <div class="t-title">Use Examples to Define Format</div>
+    <div class="t-desc">Instead of describing the format in words, show Claude exactly what you want. One concrete example is worth a paragraph of instructions — and the output will match it precisely.</div>
+    <div class="t-badge core">◆ Core</div>
+  </div>
+  <div class="t-content">
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><div class="code-dot r"></div><div class="code-dot y"></div><div class="code-dot g"></div></div><span class="code-file">format-example.txt</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre class="code-pre"><span class="cm"># Show the exact structure you want as a template</span>
+
+Output <span class="st">exactly</span> like this for each item:
+
+<span class="hl">Service:  EC2</span>
+<span class="hl">Cost:     $3,879/mo</span>
+<span class="hl">Action:   Convert on-demand to Reserved Instances</span>
+<span class="hl">Saving:   ~$1,200/mo (31%)</span>
+<span class="hl">Effort:   Low — takes 15 min in console</span>
+
+Give me 5 items. No intro paragraph. No conclusion.</pre>
+    </div>
+    <div class="try-row">
+      <button class="try-btn" id="btn-t3" onclick="tryIt('t3', 'Analyse a typical mid-size AWS bill for a web application company.\n\nOutput exactly like this for each savings opportunity:\n\nService:  [service name]\nCost:     [current monthly cost estimate]\nAction:   [what to do in one line]\nSaving:   [estimated monthly saving and percentage]\nEffort:   [Low/Med/High — one sentence why]\n\nGive me 5 items. No intro. No conclusion. Just the 5 formatted blocks.')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Try Live
+      </button>
+    </div>
+    <div class="response-panel" id="rp-t3">
+      <div class="rp-header"><div class="rp-dot pulse" id="rd-t3"></div><div class="rp-label" id="rl-t3">Generating…</div><div class="rp-tokens" id="rt-t3"></div></div>
+      <div class="rp-body" id="rb-t3"></div>
+    </div>
+    <div class="insight violet"><span class="insight-icon">📋</span><div><strong>Pro tip:</strong> Paste 2–3 examples of your own past output and say "generate 5 more in this exact style." Claude will reverse-engineer your format and voice almost perfectly.</div></div>
+  </div>
+</div>
+
+<!-- ── T4 ── -->
+<div class="technique is-core t4" id="t4">
+  <div class="t-rail">
+    <div class="t-num">04</div>
+    <div class="t-category">Reasoning</div>
+    <div class="t-title">Break Complex Tasks Into Steps</div>
+    <div class="t-desc">Ask Claude to think step by step. Numbered stages dramatically improve accuracy on anything involving logic, analysis, or prioritisation — it reasons rather than pattern-matches.</div>
+    <div class="t-badge core">◆ Core</div>
+  </div>
+  <div class="t-content">
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><div class="code-dot r"></div><div class="code-dot y"></div><div class="code-dot g"></div></div><span class="code-file">step-by-step.txt</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre class="code-pre"><span class="cm"># Numbered steps force sequential, logical reasoning</span>
+
+Review this AWS architecture diagram and:
+
+<span class="hl">Step 1: List all potential cost issues you spot</span>
+<span class="hl">Step 2: Prioritise them by monthly dollar impact (high→low)</span>
+<span class="hl">Step 3: For the top 3 only, suggest a specific fix</span>
+<span class="hl">Step 4: Flag any risks in implementing those fixes</span>
+
+Do not skip steps. Show your work at each stage.</pre>
+    </div>
+    <div class="try-row">
+      <button class="try-btn" id="btn-t4" onclick="tryIt('t4', 'Imagine you are reviewing an AWS architecture for a mid-size e-commerce company.\n\nStep 1: List all potential cost issues you would commonly spot (at least 6)\nStep 2: Prioritise them by estimated monthly dollar impact, highest first\nStep 3: For the top 3 only, give a specific, concrete fix with estimated saving\nStep 4: Flag any risks or caveats in implementing those top 3 fixes\n\nDo not skip steps. Label each step clearly.')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Try Live
+      </button>
+    </div>
+    <div class="response-panel" id="rp-t4">
+      <div class="rp-header"><div class="rp-dot pulse" id="rd-t4"></div><div class="rp-label" id="rl-t4">Generating…</div><div class="rp-tokens" id="rt-t4"></div></div>
+      <div class="rp-body" id="rb-t4"></div>
+    </div>
+    <div class="insight amber"><span class="insight-icon">🧠</span><div>Magic phrases: <strong>"think step by step"</strong>, <strong>"walk me through your reasoning"</strong>, <strong>"before answering, consider both sides"</strong>. All trigger slower, more accurate reasoning.</div></div>
+  </div>
+</div>
+
+<!-- ── T5 ── -->
+<div class="technique is-pro t5" id="t5">
+  <div class="t-rail">
+    <div class="t-num">05</div>
+    <div class="t-category">Structured Input</div>
+    <div class="t-title">Use XML Tags for Long or Complex Input</div>
+    <div class="t-desc">When pasting data, documents, or code, wrap them in XML tags. This gives Claude a clear, unambiguous boundary between your data and your instructions — and it handles this natively.</div>
+    <div class="t-badge pro">◈ Pro</div>
+  </div>
+  <div class="t-content">
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><div class="code-dot r"></div><div class="code-dot y"></div><div class="code-dot g"></div></div><span class="code-file">xml-pattern.txt</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre class="code-pre"><span class="cm"># Wrap pasted data in named XML tags</span>
+<span class="cm"># Claude treats tag content as clean, bounded input</span>
+
+<span class="tg">&lt;aws_bill&gt;</span>
+<span class="vl">  EC2: $4,230</span>
+<span class="vl">  RDS: $1,870</span>
+<span class="vl">  CloudFront: $890</span>
+<span class="vl">  S3: $340</span>
+<span class="vl">  Lambda: $120</span>
+<span class="vl">  NAT Gateway: $680</span>
+<span class="vl">  Elastic Load Balancing: $450</span>
+<span class="tg">&lt;/aws_bill&gt;</span>
+
+Analyse the <span class="tg">&lt;aws_bill&gt;</span> above and find cost anomalies.
+For each, explain <span class="st">why it looks high</span> and suggest a fix.
+Order by potential monthly saving, largest first.</pre>
+    </div>
+    <div class="try-row">
+      <button class="try-btn" id="btn-t5" onclick="tryIt('t5', '<aws_bill>\n  EC2 (on-demand, m5.xlarge x 8): $4,230\n  RDS (Multi-AZ, db.r5.2xlarge): $1,870\n  CloudFront: $890\n  S3 (3.2 TB stored, 1.1 TB transferred): $340\n  Lambda (4.2B invocations): $120\n  NAT Gateway (2.8 TB processed): $680\n  Elastic Load Balancing: $450\n  Total: $8,580/mo\n</aws_bill>\n\nAnalyse the <aws_bill> above. Find cost anomalies and inefficiencies. For each issue found: explain why it looks high, and suggest a specific fix with estimated saving. Order by potential monthly saving, largest first. No intro paragraph.')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Try Live
+      </button>
+    </div>
+    <div class="response-panel" id="rp-t5">
+      <div class="rp-header"><div class="rp-dot pulse" id="rd-t5"></div><div class="rp-label" id="rl-t5">Generating…</div><div class="rp-tokens" id="rt-t5"></div></div>
+      <div class="rp-body" id="rb-t5"></div>
+    </div>
+    <div class="insight blue"><span class="insight-icon">🏷️</span><div>Use descriptive tag names: <code style="background:var(--paper-2);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:12px">&lt;contract&gt;</code>, <code style="background:var(--paper-2);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:12px">&lt;error_log&gt;</code>, <code style="background:var(--paper-2);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:12px">&lt;email_thread&gt;</code>. Multiple tags in one prompt is fine — Claude tracks each one independently.</div></div>
+  </div>
+</div>
+
+<!-- ── T6 ── -->
+<div class="technique is-core t6" id="t6">
+  <div class="t-rail">
+    <div class="t-num">06</div>
+    <div class="t-category">Guardrails</div>
+    <div class="t-title">Set Constraints Explicitly</div>
+    <div class="t-desc">Constraints are as powerful as instructions. Defining word limits, regions, prohibited terms, and forbidden formats sculpts the output before a single word is generated.</div>
+    <div class="t-badge core">◆ Core</div>
+  </div>
+  <div class="t-content">
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><div class="code-dot r"></div><div class="code-dot y"></div><div class="code-dot g"></div></div><span class="code-file">constraints.txt</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre class="code-pre"><span class="cm"># List constraints as explicit rules — Claude follows them reliably</span>
+
+Summarise our AWS cost anomalies for the board.
+
+<span class="hl">Constraints:</span>
+<span class="hl">- Reply in under 200 words</span>
+<span class="hl">- No bullet points — plain prose only</span>
+<span class="hl">- Focus only on Mumbai (ap-south-1) region costs</span>
+<span class="hl">- Avoid technical jargon — board members are non-technical</span>
+<span class="hl">- Do not include any cost figures under $500/mo</span>
+<span class="hl">- End with exactly one recommended immediate action</span></pre>
+    </div>
+    <div class="try-row">
+      <button class="try-btn" id="btn-t6" onclick="tryIt('t6', 'Summarise typical AWS cost anomalies for a board of directors presentation.\n\nConstraints:\n- Reply in under 200 words\n- No bullet points — plain prose only\n- Focus only on compute and database costs\n- Avoid technical jargon — board members are non-technical\n- Do not mention specific AWS service names, describe them plainly\n- End with exactly one recommended immediate action')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Try Live
+      </button>
+    </div>
+    <div class="response-panel" id="rp-t6">
+      <div class="rp-header"><div class="rp-dot pulse" id="rd-t6"></div><div class="rp-label" id="rl-t6">Generating…</div><div class="rp-tokens" id="rt-t6"></div></div>
+      <div class="rp-body" id="rb-t6"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── T7 ── -->
+<div class="technique is-core t7" id="t7">
+  <div class="t-rail">
+    <div class="t-num">07</div>
+    <div class="t-category">Persona</div>
+    <div class="t-title">Assign a Role</div>
+    <div class="t-desc">Telling Claude to act as a specific expert instantly calibrates vocabulary, depth, and perspective. The same question gets a radically different — and better — response when filtered through a specialist persona.</div>
+    <div class="t-badge core">◆ Core</div>
+  </div>
+  <div class="t-content">
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><div class="code-dot r"></div><div class="code-dot y"></div><div class="code-dot g"></div></div><span class="code-file">role-assignment.txt</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre class="code-pre"><span class="cm"># Specific roles → specific expertise and tone</span>
+
+<span class="hl">Act as a senior AWS cost optimisation consultant</span>
+<span class="hl">with 10 years at Accenture specialising in fintech.</span>
+<span class="hl">You are known for blunt, direct advice with no padding.</span>
+
+Review this architecture and give your honest assessment.
+Do not soften your critique. If something is wasteful,
+say it plainly and explain the financial impact.</pre>
+    </div>
+    <div class="try-row">
+      <button class="try-btn" id="btn-t7" onclick="tryIt('t7', 'Act as a senior AWS cost optimisation consultant with 10 years experience specialising in SaaS startups. You are known for blunt, direct advice with no padding or corporate softening.\n\nA startup is running:\n- 12x m5.2xlarge EC2 instances (all on-demand)\n- RDS MySQL Multi-AZ db.r5.4xlarge (always-on, even nights/weekends)\n- 5TB S3 with no lifecycle rules\n- Data transfer between us-east-1 and eu-west-1 daily\n\nGive your honest, direct assessment. If something is wasteful, say so plainly. Estimate the monthly overspend.')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Try Live
+      </button>
+    </div>
+    <div class="response-panel" id="rp-t7">
+      <div class="rp-header"><div class="rp-dot pulse" id="rd-t7"></div><div class="rp-label" id="rl-t7">Generating…</div><div class="rp-tokens" id="rt-t7"></div></div>
+      <div class="rp-body" id="rb-t7"></div>
+    </div>
+    <div class="insight violet"><span class="insight-icon">🎭</span><div><strong>Roles that work great:</strong> "You are a patient teacher explaining to a 12-year-old", "You are a senior lawyer reviewing this clause", "You are a ruthless editor", "You are a skeptical investor" — each transforms the tone and quality.</div></div>
+  </div>
+</div>
+
+<!-- ── T8 ── -->
+<div class="technique is-adv t8" id="t8">
+  <div class="t-rail">
+    <div class="t-num">08</div>
+    <div class="t-category">Momentum</div>
+    <div class="t-title">Iterate — Don't Start Over</div>
+    <div class="t-desc">Claude holds the full conversation in memory. Instead of retyping from scratch, build on what it just produced. Short follow-up instructions are far more efficient than rewriting the whole prompt.</div>
+    <div class="t-badge advanced">◇ Advanced</div>
+  </div>
+  <div class="t-content">
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><div class="code-dot r"></div><div class="code-dot y"></div><div class="code-dot g"></div></div><span class="code-file">iteration-flow.txt</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre class="code-pre"><span class="cm"># Turn 1: Initial request</span>
+Analyse our AWS bill and list the top 5 cost savings.
+
+<span class="cm"># Turn 2: Narrow scope</span>
+<span class="hl">Good. Now do the same for CloudWatch only.</span>
+
+<span class="cm"># Turn 3: Change output</span>
+<span class="hl">Make it shorter — one sentence per item maximum.</span>
+
+<span class="cm"># Turn 4: Get actionable output</span>
+<span class="hl">Give me the CLI commands to implement fix #2.</span>
+
+<span class="cm"># Turn 5: Transform format</span>
+<span class="hl">Convert this into a Jira ticket description.</span></pre>
+    </div>
+    <div class="try-row">
+      <button class="try-btn" id="btn-t8" onclick="tryIt('t8', 'List the top 5 AWS cost savings for a company spending $12,000/month. Number each one. Be concise — 2 sentences max per item.\n\n(Note: In a real conversation, you would then follow up with: "Good. Now give me the CLI commands for fix #2." — Claude remembers the context and builds on it without you repeating yourself.)')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Try Live
+      </button>
+    </div>
+    <div class="response-panel" id="rp-t8">
+      <div class="rp-header"><div class="rp-dot pulse" id="rd-t8"></div><div class="rp-label" id="rl-t8">Generating…</div><div class="rp-tokens" id="rt-t8"></div></div>
+      <div class="rp-body" id="rb-t8"></div>
+    </div>
+    <div class="insight green"><span class="insight-icon">⚡</span><div><strong>Power moves:</strong> "Make it half as long", "Now write it for a non-technical audience", "Add a risk column to that table", "Convert to a Slack message" — all work perfectly without re-explaining the context.</div></div>
+  </div>
+</div>
+
+<!-- ── T9 ── -->
+<div class="technique is-adv t9" id="t9">
+  <div class="t-rail">
+    <div class="t-num">09</div>
+    <div class="t-category">Negative Space</div>
+    <div class="t-title">Use "Negative" Instructions</div>
+    <div class="t-desc">Telling Claude what NOT to do is often more powerful than describing what to do. Eliminating default behaviours — the summary paragraph, the disclaimer, the question echo — sharpens every response.</div>
+    <div class="t-badge advanced">◇ Advanced</div>
+  </div>
+  <div class="t-content">
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><div class="code-dot r"></div><div class="code-dot y"></div><div class="code-dot g"></div></div><span class="code-file">negatives.txt</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre class="code-pre"><span class="cm"># Strip default AI padding with explicit negatives</span>
+
+Review our AWS cost report and give recommendations.
+
+<span class="hl">Do not repeat the question back to me.</span>
+<span class="hl">Do not add a summary or conclusion paragraph at the end.</span>
+<span class="hl">Do not suggest consulting an AWS Solutions Architect.</span>
+<span class="hl">Do not hedge with phrases like "it depends" or "it varies".</span>
+<span class="hl">Do not use em-dashes or parenthetical asides.</span>
+<span class="hl">Do not list more than 5 items.</span></pre>
+    </div>
+    <div class="try-row">
+      <button class="try-btn" id="btn-t9" onclick="tryIt('t9', 'Give me 5 ways to reduce AWS data transfer costs.\n\nDo not repeat the question back to me.\nDo not add a summary or conclusion at the end.\nDo not hedge with "it depends" — give direct recommendations.\nDo not use more than 2 sentences per item.\nDo not recommend AWS Support or consulting a Solutions Architect.')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Try Live
+      </button>
+    </div>
+    <div class="response-panel" id="rp-t9">
+      <div class="rp-header"><div class="rp-dot pulse" id="rd-t9"></div><div class="rp-label" id="rl-t9">Generating…</div><div class="rp-tokens" id="rt-t9"></div></div>
+      <div class="rp-body" id="rb-t9"></div>
+    </div>
+    <div class="insight amber"><span class="insight-icon">🚫</span><div><strong>Common AI habits to kill:</strong> "It's important to note that...", "In conclusion...", "Great question!", "As an AI...". One "do not" wipes each one permanently for that conversation.</div></div>
+  </div>
+</div>
+
+<!-- ── T10 ── -->
+<div class="technique is-adv t10" id="t10">
+  <div class="t-rail">
+    <div class="t-num">10</div>
+    <div class="t-category">Optionality</div>
+    <div class="t-title">Ask for Alternatives</div>
+    <div class="t-desc">Request multiple approaches — and label the risk appetite for each. You get a full decision landscape instead of one opinion, and you stay in control of which path to take.</div>
+    <div class="t-badge advanced">◇ Advanced</div>
+  </div>
+  <div class="t-content">
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><div class="code-dot r"></div><div class="code-dot y"></div><div class="code-dot g"></div></div><span class="code-file">alternatives.txt</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre class="code-pre"><span class="cm"># Labelled alternatives give you a decision landscape</span>
+
+Give me 3 different approaches to reduce ECR costs:
+
+<span class="hl">Option A — Aggressive:</span>  Maximum saving, accepts risk
+<span class="hl">Option B — Moderate:</span>   Balanced saving vs stability
+<span class="hl">Option C — Zero-risk:</span>  No downtime, fully reversible
+
+For each option:
+- Estimated monthly saving
+- Biggest risk or trade-off
+- Time to implement
+- One CLI command to start</pre>
+    </div>
+    <div class="try-row">
+      <button class="try-btn" id="btn-t10" onclick="tryIt('t10', 'Give me 3 different approaches to reduce AWS ECR (Elastic Container Registry) costs:\n\nOption A — Aggressive: Maximum saving, willing to accept some disruption risk\nOption B — Moderate: Good saving with minimal operational risk  \nOption C — Zero-risk: Fully reversible, no downtime whatsoever\n\nFor each option provide:\n- Estimated monthly saving (be specific)\n- Biggest risk or trade-off\n- Time to implement\n- One AWS CLI command to get started\n\nNo intro. No conclusion. Just the 3 options.')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Try Live
+      </button>
+    </div>
+    <div class="response-panel" id="rp-t10">
+      <div class="rp-header"><div class="rp-dot pulse" id="rd-t10"></div><div class="rp-label" id="rl-t10">Generating…</div><div class="rp-tokens" id="rt-t10"></div></div>
+      <div class="rp-body" id="rb-t10"></div>
+    </div>
+    <div class="insight teal"><span class="insight-icon">🔀</span><div><strong>More alternative frames:</strong> "fast vs thorough", "cheap vs robust", "now vs later", "for a startup vs enterprise", "assuming 100 users vs 10M users" — each slices the problem space differently.</div></div>
+  </div>
+</div>
+
+<!-- ── QUICK REFERENCE ── -->
+<div class="divider"><span class="divider-label">Quick Reference</span></div>
+<div class="tips-grid">
+  <div class="tip-card"><div class="tip-num">01 · Precision</div><div class="tip-title">Specific Output</div><div class="tip-body">Name the audience, format, length, and angle before asking anything.</div></div>
+  <div class="tip-card"><div class="tip-num">02 · Context</div><div class="tip-title">Who → Goal → Constraint</div><div class="tip-body">Front-load your role, objective, and limits in the very first sentence.</div></div>
+  <div class="tip-card"><div class="tip-num">03 · Format</div><div class="tip-title">Show, Don't Describe</div><div class="tip-body">Paste a template or sample output — Claude will match it exactly.</div></div>
+  <div class="tip-card"><div class="tip-num">04 · Reasoning</div><div class="tip-title">Numbered Steps</div><div class="tip-body">Stage-by-stage instructions unlock analytical reasoning, not guessing.</div></div>
+  <div class="tip-card"><div class="tip-num">05 · Structure</div><div class="tip-title">XML Tags</div><div class="tip-body">Wrap pasted data in &lt;tags&gt; to cleanly separate it from instructions.</div></div>
+  <div class="tip-card"><div class="tip-num">06 · Guardrails</div><div class="tip-title">Hard Constraints</div><div class="tip-body">Word limits, region filters, forbidden phrases — Claude respects them all.</div></div>
+  <div class="tip-card"><div class="tip-num">07 · Persona</div><div class="tip-title">Act as [Expert]</div><div class="tip-body">A specialist role filters vocabulary, depth, and directness instantly.</div></div>
+  <div class="tip-card"><div class="tip-num">08 · Momentum</div><div class="tip-title">Build on Context</div><div class="tip-body">"Good. Now…" is all you need — Claude remembers everything above.</div></div>
+  <div class="tip-card"><div class="tip-num">09 · Negatives</div><div class="tip-title">Ban the Fluff</div><div class="tip-body">"Do not add a conclusion" kills padding more reliably than asking for brevity.</div></div>
+  <div class="tip-card"><div class="tip-num">10 · Options</div><div class="tip-title">3 Risk Levels</div><div class="tip-body">Aggressive / Moderate / Zero-risk gives you the full decision space.</div></div>
+</div>
+
+<!-- ── PLAYGROUND ── -->
+<div class="divider" id="playground"><span class="divider-label">Live Playground</span></div>
+<div class="playground">
+  <div class="pg-header">
+    <span class="pg-header-icon">⚡</span>
+    <div class="pg-header-text">
+      <div class="pg-header-title">Prompt Playground</div>
+      <div class="pg-header-sub">Apply all 10 techniques — write any prompt and run it against Claude Sonnet live</div>
+    </div>
+    <div class="pg-live-badge">Live API</div>
+  </div>
+  <div class="pg-body">
+    <div class="pg-row">
+      <div>
+        <div class="pg-col-label">Your Prompt</div>
+        <textarea class="pg-textarea" id="pg-input" placeholder="Write your prompt here using any combination of the 10 techniques above…&#10;&#10;Or click one of the starters below ↓"></textarea>
+        <div class="pg-actions">
+          <button class="pg-run" id="pg-run-btn" onclick="runPlayground()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Run Prompt
+          </button>
+          <button class="pg-clear" onclick="clearPG()">Clear</button>
+          <span class="pg-shortcut"><kbd>⌘</kbd> + <kbd>↵</kbd> to run</span>
+        </div>
+      </div>
+      <div>
+        <div class="pg-col-label">Quick Starters — Click to Load</div>
+        <div class="pg-starters">
+          <button class="pg-starter" onclick="loadStarter(0)">☁️ AWS cost review</button>
+          <button class="pg-starter" onclick="loadStarter(1)">📧 Follow-up email</button>
+          <button class="pg-starter" onclick="loadStarter(2)">🏗️ Architecture critique</button>
+          <button class="pg-starter" onclick="loadStarter(3)">📊 Board summary</button>
+          <button class="pg-starter" onclick="loadStarter(4)">⚖️ 3 options analysis</button>
+          <button class="pg-starter" onclick="loadStarter(5)">🔍 Debug root cause</button>
+          <button class="pg-starter" onclick="loadStarter(6)">📋 Meeting notes cleanup</button>
+          <button class="pg-starter" onclick="loadStarter(7)">💰 Salary negotiation</button>
+        </div>
+        <div style="margin-top:20px;padding:16px;background:var(--bg-2);border-radius:var(--r-lg);border:1px solid var(--b1)">
+          <div class="pg-col-label" style="margin-bottom:8px">Technique Checklist</div>
+          <div style="display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--ink-60)">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="chk1"> <span>Did I state my role + goal + constraints?</span></label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="chk2"> <span>Did I show an example of the format I want?</span></label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="chk3"> <span>Did I break it into numbered steps?</span></label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="chk4"> <span>Did I add "do not" instructions for fluff?</span></label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="chk5"> <span>Did I specify length / word count?</span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pg-output-area" id="pg-out">
+      <div class="pg-col-label" style="margin-bottom:12px">Claude's Response</div>
+      <div class="response-panel open">
+        <div class="rp-header"><div class="rp-dot pulse" id="pg-dot"></div><div class="rp-label" id="pg-label">Generating…</div></div>
+        <div class="rp-body" id="pg-body"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- ════════ FOOTER ════════ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">Claude · Anthropic</div>
+    <div style="margin-bottom:12px">Built with the Claude Sonnet API · All examples run live in your browser</div>
+    <div><a href="https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview" target="_blank">Full Prompt Engineering Docs →</a> &nbsp;·&nbsp; <a href="https://claude.ai" target="_blank">Open Claude →</a></div>
+  </div>
+</footer>
+
+<script>
+const STARTERS = [
+  `Act as a senior AWS cost optimisation consultant — blunt, no fluff.
+
+I am a CTO of a 200-person SaaS company spending $45,000/month on AWS.
+
+Step 1: List the 6 most common causes of AWS bill shock for SaaS companies
+Step 2: For each, give a specific detection method (console path or CLI command)
+Step 3: For the top 3 by impact, give an exact remediation
+
+Constraints:
+- No bullet points — use numbered lists only
+- Each remediation must include an estimated % saving
+- Do not recommend "contact AWS support"`,
+
+  `I am a senior engineering manager.
+
+Write a firm but professional follow-up email to a vendor named Haruto who missed our agreed deployment deadline by 2 weeks with no communication.
+
+Format:
+Subject: [subject line]
+Body: [email body, under 120 words]
+Tone: Direct, no anger, ends with a clear deadline ultimatum
+
+Do not: open with pleasantries, mention our frustration, use the word "disappointed"`,
+
+  `Act as a principal cloud architect with 15 years experience.
+
+Review this architecture and be ruthlessly honest:
+- 3 EC2 t3.medium instances behind an ALB (us-east-1)
+- RDS Postgres Multi-AZ db.t3.large (always on, even weekends)
+- All static assets served directly from EC2 (no CDN)
+- No auto-scaling configured
+- Backups stored in same region as primary
+
+Step 1: List every flaw you see (no holding back)
+Step 2: Rank them by: security risk, then cost waste, then performance
+Step 3: For the top 3, give the fix + time estimate`,
+
+  `I am a VP of Engineering presenting to a non-technical board.
+
+Summarise why our AWS costs increased 40% last quarter.
+
+Constraints:
+- Under 180 words
+- Plain prose — absolutely no bullet points or technical terms
+- Use analogies if helpful
+- Do not use: EC2, RDS, Lambda, S3, auto-scaling, multi-AZ
+- End with one clear action we are taking to fix it`,
+
+  `Give me 3 approaches to migrate our monolith to microservices:
+
+Option A — Aggressive: Full rewrite in 6 months, maximum disruption accepted
+Option B — Moderate: Strangler fig pattern over 18 months, team learns as they go  
+Option C — Zero-risk: Facade pattern, no code changes for 12 months
+
+For each option:
+- Realistic cost (team time + infra)
+- Biggest single risk
+- Success metric to know it's working
+- First step we can take this week
+
+No intro. No conclusion. Label each option clearly.`,
+
+  `Act as a senior SRE investigating a production incident.
+
+Symptoms:
+- API latency spiked from 120ms to 4,200ms at 14:32 UTC
+- No deployment in the last 6 hours
+- Database CPU: 12% → 89%
+- Memory stable
+- 3 new customers onboarded this morning
+
+Think step by step:
+Step 1: What are the most likely root causes? (rank by probability)
+Step 2: What logs/metrics should I check first for each?
+Step 3: What is the fastest mitigation for the top 2 causes?
+Step 4: What would you rule out immediately and why?`,
+
+  `Clean up and structure these rough meeting notes:
+
+"discussed q3 roadmap, sarah wants to push auth refactor to q4, james disagrees says its a blocker for enterprise deals, eventually agreed to timebox it to 2 weeks in august, also budget - devops asked for $8k for new monitoring tools, approved subject to cto sign off, action items - james to draft enterprise requirements doc by friday, sarah to get 3 quotes for monitoring tools, next sync august 5th"
+
+Format exactly like this:
+## Meeting Summary
+**Decision:** [one sentence]
+
+**Actions:**
+| Owner | Task | Due |
+
+**Deferred:**
+- [items pushed to later]
+
+**Next:** [date + agenda]`,
+
+  `Act as an experienced negotiation coach.
+
+Situation: I've been offered a Senior Engineer role at $145,000 base. My current salary is $128,000. I have 2 competing offers in hand but prefer this company.
+
+Give me 3 negotiation approaches:
+Option A — Assertive: Aim for $168,000 — maximise outcome, accept some risk of offer withdrawal
+Option B — Balanced: Aim for $158,000 — strong push, low risk
+Option C — Safe: Aim for $152,000 — small uplift, almost zero risk
+
+For each: the exact opening sentence I should say, what to do if they say no, and success probability (your estimate).`
+];
+
+async function streamClaude(prompt, bodyEl, labelEl, dotEl) {
+  bodyEl.textContent = '';
+  if (dotEl) { dotEl.classList.add('pulse'); }
+  if (labelEl) labelEl.textContent = 'Generating…';
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        stream: true,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`API ${res.status}: ${err.slice(0, 120)}`);
+    }
+
+    const reader = res.body.getReader();
+    const dec = new TextDecoder();
+    let buf = '', full = '', chars = 0;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      const lines = buf.split('\n');
+      buf = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const d = line.slice(6).trim();
+        if (d === '[DONE]') continue;
+        try {
+          const obj = JSON.parse(d);
+          if (obj.type === 'content_block_delta' && obj.delta?.text) {
+            full += obj.delta.text;
+            chars = full.length;
+            bodyEl.textContent = full;
+            bodyEl.scrollTop = bodyEl.scrollHeight;
+          }
+        } catch {}
+      }
+    }
+
+    if (dotEl) dotEl.classList.remove('pulse');
+    if (labelEl) labelEl.textContent = `Done · ${chars} chars`;
+
+  } catch (e) {
+    if (dotEl) dotEl.classList.remove('pulse');
+    if (labelEl) { labelEl.textContent = 'Error'; labelEl.style.color = 'var(--rose)'; }
+    bodyEl.textContent = '⚠ ' + e.message;
+  }
+}
+
+function tryIt(id, prompt) {
+  const btn = document.getElementById('btn-' + id);
+  const panel = document.getElementById('rp-' + id);
+  const body = document.getElementById('rb-' + id);
+  const label = document.getElementById('rl-' + id);
+  const dot = document.getElementById('rd-' + id);
+
+  btn.disabled = true;
+  panel.classList.add('open');
+  label.style.color = '';
+
+  streamClaude(prompt, body, label, dot).finally(() => { btn.disabled = false; });
+}
+
+function runPlayground() {
+  const prompt = document.getElementById('pg-input').value.trim();
+  if (!prompt) { document.getElementById('pg-input').focus(); return; }
+
+  const runBtn = document.getElementById('pg-run-btn');
+  const out = document.getElementById('pg-out');
+  const body = document.getElementById('pg-body');
+  const label = document.getElementById('pg-label');
+  const dot = document.getElementById('pg-dot');
+
+  runBtn.disabled = true;
+  out.classList.add('open');
+  label.style.color = '';
+  body.scrollTop = 0;
+
+  streamClaude(prompt, body, label, dot).finally(() => { runBtn.disabled = false; });
+}
+
+function clearPG() {
+  document.getElementById('pg-input').value = '';
+  document.getElementById('pg-out').classList.remove('open');
+  document.getElementById('pg-body').textContent = '';
+  ['chk1','chk2','chk3','chk4','chk5'].forEach(id => { document.getElementById(id).checked = false; });
+  document.getElementById('pg-input').focus();
+}
+
+function loadStarter(i) {
+  document.getElementById('pg-input').value = STARTERS[i];
+  document.getElementById('pg-input').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  document.getElementById('pg-input').focus();
+}
+
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// Cmd/Ctrl+Enter in playground
+document.getElementById('pg-input').addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); runPlayground(); }
+});
+
+// Sticky nav active state
+const techIds = ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','playground'];
+const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+window.addEventListener('scroll', () => {
+  // Progress bar
+  const scrolled = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+  document.getElementById('progress-bar').style.width = Math.min(scrolled * 100, 100) + '%';
+  // Active nav
+  let cur = '';
+  techIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && window.scrollY >= el.getBoundingClientRect().top + window.scrollY - 120) cur = id;
+  });
+  navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + cur));
+}, { passive: true });
+</script>
+</body>
+</html>
