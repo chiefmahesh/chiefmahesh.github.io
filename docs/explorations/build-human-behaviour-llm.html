@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Building a Human Behaviour LLM · Full Engineering Guide</title>
+<meta name="description" content="An AI veteran's complete playbook for building a domain-specific LLM for Human Behaviour — from data collection and annotation through training, evaluation, deployment, and a continuous improvement flywheel.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── PORTFOLIO TOKENS ─────────────────────────────────────── */
+:root{
+  --bg:#0A0B0E;--bg-1:#111319;--bg-2:#16181F;--bg-3:#1B1E26;--bg-4:#22252E;
+  --border:rgba(255,255,255,.06);--border-2:rgba(255,255,255,.10);--border-3:rgba(255,255,255,.18);
+  --text:#F1F1EE;--text-2:#C5C7CC;--text-3:#8A8D96;--text-4:#5C5F68;--text-5:#3D4049;
+  --accent:#7CE8C8;--accent-dim:rgba(124,232,200,.12);--accent-bg:rgba(124,232,200,.07);
+  /* Behavioural violet — this page's domain color */
+  --v:#B79CFF;--vd:rgba(183,156,255,.14);--vb:rgba(183,156,255,.08);--vbr:rgba(183,156,255,.28);
+  /* Stage colors */
+  --s1:#6FC3FF;--s1d:rgba(111,195,255,.13);  /* scope — sky */
+  --s2:#5EE3C0;--s2d:rgba(94,227,192,.13);   /* data — teal */
+  --s3:#FFC861;--s3d:rgba(255,200,97,.13);   /* process — amber */
+  --s4:#B79CFF;--s4d:rgba(183,156,255,.13);  /* train — violet */
+  --s5:#FF85B3;--s5d:rgba(255,133,179,.13);  /* eval — rose */
+  --s6:#FF9466;--s6d:rgba(255,148,102,.13);  /* deploy — orange */
+  --s7:#7CE8C8;--s7d:rgba(124,232,200,.13);  /* loop — mint */
+  --ease:cubic-bezier(.22,.68,0,1.05);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Geist',-apple-system,sans-serif;background:var(--bg);color:var(--text);
+  line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;letter-spacing:-.005em;
+  background-image:radial-gradient(circle at 1px 1px,rgba(255,255,255,.025) 1px,transparent 0);
+  background-size:24px 24px;background-attachment:fixed;
+}
+::selection{background:var(--v);color:var(--bg)}
+.wrap{max-width:1120px;margin:0 auto;padding:0 clamp(20px,4vw,40px)}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--v);
+  display:inline-flex;align-items:center;gap:10px;margin-bottom:1.1rem}
+.eyebrow::before{content:'';width:14px;height:1px;background:currentColor;flex-shrink:0}
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.reveal.in{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.08s}.d2{transition-delay:.16s}
+.hr{height:1px;background:var(--border)}
+
+/* ── HERO ─────────────────────────────────────────────────── */
+#hero{position:relative;padding:clamp(72px,9vw,110px) 0 clamp(48px,6vw,72px);overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(86px);pointer-events:none}
+.o1{width:520px;height:520px;background:var(--v);opacity:.08;top:-200px;right:-100px}
+.o2{width:380px;height:380px;background:var(--s2);opacity:.06;bottom:-120px;left:-80px}
+.hero-inner{position:relative;z-index:2;max-width:840px}
+.hero-pill{display:inline-flex;align-items:center;gap:8px;padding:5px 16px;border-radius:999px;
+  background:var(--bg-2);border:1px solid var(--vbr);
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--v);margin-bottom:1.6rem}
+.hero-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--v);position:relative}
+.hero-pill .dot::after{content:'';position:absolute;inset:-4px;border-radius:50%;
+  border:1px solid var(--v);animation:rpl 2s ease-out infinite}
+@keyframes rpl{0%{transform:scale(.6);opacity:.9}100%{transform:scale(2.4);opacity:0}}
+h1.hero-h{font-size:clamp(2.2rem,5.4vw,3.9rem);font-weight:800;letter-spacing:-.03em;
+  line-height:1.06;margin-bottom:1.1rem}
+h1.hero-h em{font-style:normal;color:var(--v)}
+.hero-lede{font-size:1rem;color:var(--text-3);max-width:640px;line-height:1.78;margin-bottom:1.8rem;font-weight:300}
+.hero-lede strong{color:var(--text-2);font-weight:600}
+.hero-meta{display:flex;flex-wrap:wrap;gap:1.6rem;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text-4)}
+.hero-meta b{color:var(--v);font-weight:600}
+
+/* ── PIPELINE MAP ─────────────────────────────────────────── */
+.pipe-map{background:var(--bg-1);border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  padding:1.6rem 0;position:relative}
+.pipe-map::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--s1),var(--s2),var(--s3),var(--s4),var(--s5),var(--s6),var(--s7),transparent);opacity:.6}
+.pipe-strip{display:flex;align-items:center;gap:0;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.pn{flex:0 0 auto;font-family:'JetBrains Mono',monospace;font-size:.7rem;
+  padding:.5rem 1rem;border-radius:999px;white-space:nowrap;border:1px solid;font-weight:500;
+  transition:transform .2s}
+.pn:hover{transform:translateY(-2px)}
+.pa{flex:0 0 auto;padding:0 .55rem;font-size:.85rem;color:var(--text-5)}
+
+/* ── STAGE SECTIONS ───────────────────────────────────────── */
+.stage{padding:clamp(56px,7vw,88px) 0 0}
+.stage-hd{display:flex;align-items:flex-start;gap:1.1rem;margin-bottom:1.4rem}
+.stage-num{width:52px;height:52px;border-radius:15px;display:flex;align-items:center;
+  justify-content:center;font-family:'JetBrains Mono',monospace;font-size:1.05rem;
+  font-weight:800;flex-shrink:0;border:1px solid}
+h2.stage-t{font-size:clamp(1.35rem,2.7vw,1.95rem);font-weight:700;letter-spacing:-.02em;line-height:1.2;margin-bottom:.25rem}
+.stage-sub{font-size:.85rem;color:var(--text-4);line-height:1.65;max-width:640px}
+.stage-body{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+.stage-body.full{grid-template-columns:1fr}
+
+.card{background:var(--bg-1);border:1px solid var(--border);border-radius:18px;padding:1.5rem 1.6rem}
+.card-hd{font-family:'JetBrains Mono',monospace;font-size:.64rem;letter-spacing:.12em;
+  text-transform:uppercase;margin-bottom:1rem;font-weight:600;display:flex;align-items:center;gap:8px}
+.card-hd::before{content:'';width:12px;height:1px;background:currentColor}
+
+.row{display:flex;align-items:flex-start;gap:.7rem;padding:.6rem 0;border-bottom:1px solid var(--border)}
+.row:last-child{border-bottom:none}
+.row-n{width:22px;height:22px;border-radius:6px;font-family:'JetBrains Mono',monospace;
+  font-size:.64rem;font-weight:700;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:.1rem;border:1px solid}
+.row-t{font-size:.83rem;font-weight:700;color:var(--text-2);margin-bottom:.18rem}
+.row-d{font-size:.75rem;color:var(--text-4);line-height:1.6}
+.row-d em{color:var(--text-3);font-style:normal;font-weight:500}
+.row-d code{font-family:'JetBrains Mono',monospace;font-size:.68rem;background:var(--bg-3);
+  padding:.08rem .4rem;border-radius:4px;color:var(--accent)}
+
+/* tables */
+table{width:100%;border-collapse:collapse;background:var(--bg-1);border:1px solid var(--border);
+  border-radius:14px;overflow:hidden;font-size:.8rem}
+th,td{padding:.75rem 1rem;text-align:left;border-bottom:1px solid var(--border)}
+th{background:var(--bg-2);color:var(--text-2);font-weight:600;font-family:'JetBrains Mono',monospace;
+  font-size:.66rem;letter-spacing:.05em;text-transform:uppercase}
+td{color:var(--text-3)}
+tr:last-child td{border-bottom:none}
+td code{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--accent);
+  background:var(--bg);padding:.1rem .4rem;border-radius:4px}
+td b{color:var(--text-2);font-weight:600}
+
+/* code blocks */
+.code-block{background:var(--bg-1);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.code-hd{display:flex;align-items:center;gap:.6rem;padding:.6rem 1rem;
+  background:var(--bg-2);border-bottom:1px solid var(--border)}
+.cdot{width:9px;height:9px;border-radius:50%}
+.code-fn{font-family:'JetBrains Mono',monospace;font-size:.64rem;color:var(--text-4);margin-left:.3rem}
+pre.code{background:var(--bg);padding:1.15rem 1.35rem;font-family:'JetBrains Mono',monospace;
+  font-size:.72rem;line-height:1.85;overflow-x:auto;color:var(--text-4)}
+.ck{color:#C792EA}.cs{color:#C3E88D}.cn{color:#F78C6C}.cm{color:#4E5058}.cf{color:#82AAFF}
+
+/* callouts */
+.callout{border-radius:14px;padding:1rem 1.3rem;font-size:.82rem;line-height:1.7;
+  color:var(--text-2);border:1px solid;border-left-width:3px;margin-top:12px}
+.callout b{font-weight:700}
+.callout.veteran{background:var(--vb);border-color:var(--vbr);border-left-color:var(--v)}
+.callout.veteran b{color:var(--v)}
+.callout.warn{background:rgba(255,133,179,.06);border-color:rgba(255,133,179,.25);border-left-color:var(--s5)}
+.callout.warn b{color:var(--s5)}
+.callout.tip{background:var(--accent-bg);border-color:rgba(124,232,200,.25);border-left-color:var(--accent)}
+.callout.tip b{color:var(--accent)}
+
+/* data source cards */
+.src-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:11px}
+.src{background:var(--bg-2);border:1px solid var(--border);border-radius:14px;padding:1.1rem 1.2rem;
+  transition:border-color .2s,transform .2s}
+.src:hover{border-color:var(--border-2);transform:translateY(-2px)}
+.src-ico{font-size:1.2rem;margin-bottom:.5rem;display:block}
+.src-t{font-size:.83rem;font-weight:700;color:var(--text-2);margin-bottom:.3rem}
+.src-d{font-size:.73rem;color:var(--text-4);line-height:1.55;margin-bottom:.5rem}
+.src-vol{font-family:'JetBrains Mono',monospace;font-size:.64rem;color:var(--s2);
+  background:var(--s2d);border:1px solid rgba(94,227,192,.25);border-radius:5px;
+  padding:.15rem .55rem;display:inline-block}
+
+/* training phases */
+.phase-flow{display:flex;flex-direction:column;gap:4px;margin-top:12px}
+.phase{background:var(--bg-2);border:1px solid var(--border);border-radius:13px;
+  padding:1rem 1.2rem;position:relative;overflow:hidden;transition:border-color .2s,transform .2s}
+.phase:hover{border-color:var(--vbr);transform:translateX(4px)}
+.phase::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--v)}
+.phase-t{display:flex;align-items:center;gap:.6rem;margin-bottom:.35rem}
+.phase-tag{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--v);background:var(--vd);border:1px solid var(--vbr);
+  padding:.14rem .55rem;border-radius:4px;font-weight:600}
+.phase-name{font-size:.86rem;font-weight:700;color:var(--text)}
+.phase-d{font-size:.75rem;color:var(--text-4);line-height:1.6}
+.phase-d code{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--accent);
+  background:var(--bg);padding:.06rem .4rem;border-radius:4px}
+.phase-arrow{text-align:center;color:var(--text-5);font-size:.85rem;padding:.05rem 0}
+
+/* eval benchmark bars */
+.bench-row{display:flex;align-items:center;gap:.8rem;margin-bottom:.7rem}
+.bench-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text-3);
+  width:150px;flex-shrink:0}
+.bench-track{flex:1;height:10px;background:var(--bg-3);border-radius:5px;overflow:hidden}
+.bench-fill{height:100%;border-radius:5px}
+.bench-val{font-family:'JetBrains Mono',monospace;font-size:.66rem;color:var(--text-4);
+  width:44px;text-align:right;flex-shrink:0}
+
+/* flywheel SVG */
+.wheel-card{background:var(--bg-1);border:1px solid rgba(124,232,200,.25);border-radius:18px;padding:1.6rem;text-align:center}
+.wheel-card svg{width:100%;max-width:420px;height:auto}
+@keyframes spinDash{to{stroke-dashoffset:-100}}
+.flow-ring{animation:spinDash 6s linear infinite}
+
+/* timeline / cost table wrap */
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:1.4rem}
+
+/* closing */
+.closing{padding:clamp(56px,8vw,96px) 0;text-align:center}
+.closing-q{font-size:clamp(1.1rem,2.3vw,1.5rem);font-weight:300;font-style:italic;
+  color:var(--text-2);line-height:1.7;max-width:660px;margin:0 auto 1rem}
+.closing-q em{font-style:normal;font-weight:700;color:var(--v)}
+
+footer{text-align:center;padding:1.8rem 0 2.6rem;border-top:1px solid var(--border);
+  font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text-4)}
+.foot-bar{height:2px;background:linear-gradient(90deg,var(--s1),var(--s2),var(--s3),var(--s4),var(--s5),var(--s6),var(--s7))}
+
+@media(max-width:820px){
+  .stage-body,.meta-grid{grid-template-columns:1fr}
+  .bench-label{width:110px}
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="orb o1"></div>
+  <div class="orb o2"></div>
+  <div class="wrap">
+    <div class="hero-inner">
+      <div class="hero-pill reveal in"><span class="dot"></span> LLM Engineering Playbook · Domain: Human Behaviour</div>
+      <h1 class="hero-h reveal in">How to build an LLM for<br><em>Human Behaviour.</em></h1>
+      <p class="hero-lede reveal in d1">The complete engineering path — <strong>data collection → processing → training → evaluation → deployment → continuous improvement</strong> — written the way a veteran would actually run the project. Every stage includes the models, tools, volumes, and hard-won decisions that separate a working behavioural LLM from an expensive experiment.</p>
+      <div class="hero-meta reveal in d2">
+        <span><b>7</b> stages</span>
+        <span><b>~12</b> weeks to v1</span>
+        <span><b>Llama 3.1 8B</b> base</span>
+        <span><b>QLoRA + DPO</b> training</span>
+        <span><b>daily</b> improvement loop</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PIPELINE MAP -->
+<div class="pipe-map">
+  <div class="wrap">
+    <div class="pipe-strip">
+      <span class="pn" style="color:var(--s1);border-color:rgba(111,195,255,.35);background:var(--s1d)">01 Scope</span><span class="pa">→</span>
+      <span class="pn" style="color:var(--s2);border-color:rgba(94,227,192,.35);background:var(--s2d)">02 Data Collection</span><span class="pa">→</span>
+      <span class="pn" style="color:var(--s3);border-color:rgba(255,200,97,.35);background:var(--s3d)">03 Processing &amp; Annotation</span><span class="pa">→</span>
+      <span class="pn" style="color:var(--s4);border-color:rgba(183,156,255,.35);background:var(--s4d)">04 Training</span><span class="pa">→</span>
+      <span class="pn" style="color:var(--s5);border-color:rgba(255,133,179,.35);background:var(--s5d)">05 Evaluation</span><span class="pa">→</span>
+      <span class="pn" style="color:var(--s6);border-color:rgba(255,148,102,.35);background:var(--s6d)">06 Deployment</span><span class="pa">→</span>
+      <span class="pn" style="color:var(--s7);border-color:rgba(124,232,200,.35);background:var(--s7d)">07 Feedback Flywheel ↻</span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ═══════════ STAGE 1: SCOPE ═══════════ -->
+<section class="stage">
+  <div class="stage-hd reveal">
+    <div class="stage-num" style="background:var(--s1d);border-color:rgba(111,195,255,.3);color:var(--s1)">01</div>
+    <div>
+      <h2 class="stage-t">Define the problem before touching data.</h2>
+      <p class="stage-sub">"Human Behaviour" is too broad to train on. A veteran narrows it to a task taxonomy first — because the taxonomy decides the data, and the data decides everything else.</p>
+    </div>
+  </div>
+  <div class="stage-body">
+    <div class="card reveal">
+      <div class="card-hd" style="color:var(--s1)">Task Taxonomy — what the model must do</div>
+      <div class="row"><div class="row-n" style="background:var(--s1d);border-color:rgba(111,195,255,.3);color:var(--s1)">A</div>
+        <div><div class="row-t">Behaviour Recognition</div><div class="row-d">Classify observed behaviour into a formal taxonomy: habit loops (cue→routine→reward), avoidance patterns, approach motivation, procrastination archetypes, decision heuristics.</div></div></div>
+      <div class="row"><div class="row-n" style="background:var(--s1d);border-color:rgba(111,195,255,.3);color:var(--s1)">B</div>
+        <div><div class="row-t">Behaviour Prediction</div><div class="row-d">Given history + context, predict likely next action with calibrated confidence. <em>"80% likelihood of task deferral when sleep &lt; 6h and task ambiguity is high."</em></div></div></div>
+      <div class="row"><div class="row-n" style="background:var(--s1d);border-color:rgba(111,195,255,.3);color:var(--s1)">C</div>
+        <div><div class="row-t">Intervention Generation</div><div class="row-d">Suggest evidence-based nudges grounded in COM-B, Fogg Behaviour Model, and implementation-intention research — never generic advice.</div></div></div>
+      <div class="row"><div class="row-n" style="background:var(--s1d);border-color:rgba(111,195,255,.3);color:var(--s1)">D</div>
+        <div><div class="row-t">Causal Explanation</div><div class="row-d">Explain <em>why</em> a pattern exists using established frameworks (operant conditioning, cognitive dissonance, self-determination theory) with citations.</div></div></div>
+    </div>
+    <div>
+      <div class="card reveal d1">
+        <div class="card-hd" style="color:var(--s1)">Success criteria — decided on day one</div>
+        <table>
+          <tr><th>Metric</th><th>Target v1</th></tr>
+          <tr><td>Behaviour classification F1 (27-class)</td><td><b>≥ 0.82</b></td></tr>
+          <tr><td>Prediction calibration (ECE)</td><td><b>≤ 0.08</b></td></tr>
+          <tr><td>Framework citation accuracy</td><td><b>≥ 95%</b></td></tr>
+          <tr><td>Harmful advice rate (red-team set)</td><td><b>0.0%</b></td></tr>
+          <tr><td>p95 inference latency (8B, A10G)</td><td><b>&lt; 1.8s</b></td></tr>
+        </table>
+      </div>
+      <div class="callout veteran reveal d2">
+        🎯 <b>Veteran rule #1:</b> If you can't write the eval before the model exists, you don't understand the problem yet. The eval set is the spec. We write 300 golden test cases in week one — before a single GPU spins up.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ STAGE 2: DATA ═══════════ -->
+<section class="stage">
+  <div class="stage-hd reveal">
+    <div class="stage-num" style="background:var(--s2d);border-color:rgba(94,227,192,.3);color:var(--s2)">02</div>
+    <div>
+      <h2 class="stage-t">Data collection — the 80% that decides the outcome.</h2>
+      <p class="stage-sub">A behavioural LLM lives or dies on data diversity: academic grounding + real-world messiness + longitudinal signal. Target: ~2.1B tokens for continued pre-training, ~180K examples for supervised fine-tuning.</p>
+    </div>
+  </div>
+  <div class="src-grid reveal">
+    <div class="src"><span class="src-ico">📚</span><div class="src-t">Academic Corpus</div><div class="src-d">Psychology & behavioural-science literature: open-access papers (PsyArXiv, PubMed Central OA subset), textbooks with cleared licences, APA-style case formulations.</div><span class="src-vol">~900M tokens</span></div>
+    <div class="src"><span class="src-ico">🗂️</span><div class="src-t">Validated Instruments</div><div class="src-d">Item banks + scoring logic for BFI-2, HEXACO, GAD-7, PHQ-9, BIS/BAS — with expert-written interpretive narratives per score band (licensed where required).</div><span class="src-vol">~40M tokens</span></div>
+    <div class="src"><span class="src-ico">💬</span><div class="src-t">Conversational Behaviour Data</div><div class="src-d">De-identified coaching transcripts, CBT-style dialogue datasets (e.g. licensed counselling corpora), annotated with technique labels (Socratic questioning, reframing, validation).</div><span class="src-vol">~350M tokens</span></div>
+    <div class="src"><span class="src-ico">📈</span><div class="src-t">Longitudinal Diaries</div><div class="src-d">Consented habit-tracking and experience-sampling datasets (ESM/EMA studies) — the only source that teaches temporal behaviour dynamics: streaks, relapse curves, context triggers.</div><span class="src-vol">~120M tokens</span></div>
+    <div class="src"><span class="src-ico">🧪</span><div class="src-t">Synthetic Scenarios</div><div class="src-d">Frontier-model-generated behavioural vignettes, verified by psychologists. Covers rare patterns (compulsive checking, delayed-return frustration) that real data under-represents.</div><span class="src-vol">~500M tokens</span></div>
+    <div class="src"><span class="src-ico">⚖️</span><div class="src-t">Counter-Examples &amp; Red-Team Set</div><div class="src-d">Deliberately harmful advice, pseudo-science (NLP eye-accessing, learning styles), manipulation scripts — labelled <code style="color:var(--s5)">NEGATIVE</code> so the model learns what <em>not</em> to say.</div><span class="src-vol">~190M tokens</span></div>
+  </div>
+  <div class="callout warn reveal d1">
+    ⚠️ <b>The consent line is absolute.</b> Behavioural data is health-adjacent. Every conversational and diary source needs documented consent for ML training, IRB clearance where applicable, and PII stripping <em>before</em> it enters the pipeline — not after. One contaminated source poisons the entire model legally.
+  </div>
+</section>
+
+<!-- ═══════════ STAGE 3: PROCESSING ═══════════ -->
+<section class="stage">
+  <div class="stage-hd reveal">
+    <div class="stage-num" style="background:var(--s3d);border-color:rgba(255,200,97,.3);color:var(--s3)">03</div>
+    <div>
+      <h2 class="stage-t">Processing &amp; annotation — where quality is manufactured.</h2>
+      <p class="stage-sub">Raw tokens are worthless. The pipeline below turns them into training-grade data with a three-tier annotation system.</p>
+    </div>
+  </div>
+  <div class="stage-body">
+    <div class="card reveal">
+      <div class="card-hd" style="color:var(--s3)">Cleaning pipeline (in order)</div>
+      <div class="row"><div class="row-n" style="background:var(--s3d);border-color:rgba(255,200,97,.3);color:var(--s3)">1</div>
+        <div><div class="row-t">De-identification</div><div class="row-d"><code>presidio</code> + custom NER pass for names, locations, employers, medical identifiers. Behavioural text is re-identification-prone — we run two independent PII models and take the union.</div></div></div>
+      <div class="row"><div class="row-n" style="background:var(--s3d);border-color:rgba(255,200,97,.3);color:var(--s3)">2</div>
+        <div><div class="row-t">Deduplication</div><div class="row-d">MinHash LSH at document level (<code>datasketch</code>), then semantic dedup with embedding clustering at 0.92 cosine threshold. Psychology corpora are heavily duplicated across sources.</div></div></div>
+      <div class="row"><div class="row-n" style="background:var(--s3d);border-color:rgba(255,200,97,.3);color:var(--s3)">3</div>
+        <div><div class="row-t">Quality filtering</div><div class="row-d">Perplexity filter (KenLM), pseudo-science classifier (fine-tuned DeBERTa flags 14 known myth categories), citation-integrity check against CrossRef.</div></div></div>
+      <div class="row"><div class="row-n" style="background:var(--s3d);border-color:rgba(255,200,97,.3);color:var(--s3)">4</div>
+        <div><div class="row-t">Taxonomy tagging</div><div class="row-d">Every chunk tagged: behaviour class (27 labels), framework lineage (COM-B / SDT / operant / CBT), evidence tier (RCT / observational / expert opinion / anecdote).</div></div></div>
+    </div>
+    <div>
+      <div class="card reveal d1">
+        <div class="card-hd" style="color:var(--s3)">Three-tier annotation system</div>
+        <table>
+          <tr><th>Tier</th><th>Who</th><th>What</th><th>Volume</th></tr>
+          <tr><td><b>T1</b></td><td>LLM-assisted</td><td>Bulk taxonomy labels, format normalisation</td><td>100%</td></tr>
+          <tr><td><b>T2</b></td><td>Trained annotators</td><td>SFT pair quality, rubric scoring 1–7</td><td>~25%</td></tr>
+          <tr><td><b>T3</b></td><td>Licensed psychologists</td><td>Golden set, safety review, DPO preference pairs</td><td>~4%</td></tr>
+        </table>
+      </div>
+      <div class="callout tip reveal d2">
+        💡 <b>Inter-annotator agreement is your canary.</b> We require Krippendorff's α ≥ 0.75 on the behaviour taxonomy before scaling annotation. If experts can't agree on labels, the model can't learn them — fix the taxonomy, not the model.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ STAGE 4: TRAINING ═══════════ -->
+<section class="stage">
+  <div class="stage-hd reveal">
+    <div class="stage-num" style="background:var(--s4d);border-color:rgba(183,156,255,.3);color:var(--s4)">04</div>
+    <div>
+      <h2 class="stage-t">Training — three phases, strict order.</h2>
+      <p class="stage-sub">Base model: Llama 3.1 8B. Big enough for nuanced behavioural reasoning, small enough to iterate weekly and deploy affordably. The three-phase recipe below is the industry-standard path for domain LLMs.</p>
+    </div>
+  </div>
+  <div class="stage-body">
+    <div>
+      <div class="phase-flow reveal">
+        <div class="phase">
+          <div class="phase-t"><span class="phase-tag">Phase A</span><span class="phase-name">Continued Pre-Training (CPT)</span></div>
+          <p class="phase-d">Domain corpus (2.1B tokens) at low LR to inject behavioural knowledge without catastrophic forgetting. <code>lr=1e-5</code>, cosine decay, 15% replay of general web data to preserve base capabilities. Full-parameter on 8×A100 for ~4 days, or LoRA r=64 if budget-bound.</p>
+        </div>
+        <div class="phase-arrow">↓</div>
+        <div class="phase">
+          <div class="phase-t"><span class="phase-tag">Phase B</span><span class="phase-name">Supervised Fine-Tuning (SFT)</span></div>
+          <p class="phase-d">180K instruction pairs across the 4 task types. QLoRA <code>r=16, alpha=32</code>, 4-bit NF4 via Unsloth — 3 epochs, effective batch 128. Chat template locked to a system prompt that enforces framework citation and confidence reporting.</p>
+        </div>
+        <div class="phase-arrow">↓</div>
+        <div class="phase">
+          <div class="phase-t"><span class="phase-tag">Phase C</span><span class="phase-name">Preference Alignment (DPO)</span></div>
+          <p class="phase-d">22K psychologist-ranked preference pairs. <code>beta=0.1</code> via TRL. Optimises for: evidence-grounded &gt; plausible-sounding, calibrated &gt; confident, "it depends + here's what it depends on" &gt; premature certainty. This phase is what makes it feel like an expert.</p>
+        </div>
+      </div>
+    </div>
+    <div class="code-block reveal d1">
+      <div class="code-hd">
+        <span class="cdot" style="background:#FF5F56"></span><span class="cdot" style="background:#FEBC2E"></span><span class="cdot" style="background:#27C93F"></span>
+        <span class="code-fn">train_behaviour_llm.py</span>
+      </div>
+      <pre class="code"><span class="cm"># Phase B — SFT with QLoRA (Unsloth)</span>
+<span class="ck">from</span> unsloth <span class="ck">import</span> FastLanguageModel
+<span class="ck">from</span> trl <span class="ck">import</span> SFTTrainer, DPOTrainer
+
+model, tok = FastLanguageModel.from_pretrained(
+    <span class="cs">"meta-llama/Llama-3.1-8B-Instruct"</span>,
+    max_seq_length=<span class="cn">4096</span>, load_in_4bit=<span class="ck">True</span>,
+)
+model = FastLanguageModel.get_peft_model(
+    model, r=<span class="cn">16</span>, lora_alpha=<span class="cn">32</span>,
+    target_modules=[<span class="cs">"q_proj"</span>,<span class="cs">"k_proj"</span>,<span class="cs">"v_proj"</span>,
+                    <span class="cs">"o_proj"</span>,<span class="cs">"gate_proj"</span>,<span class="cs">"up_proj"</span>,<span class="cs">"down_proj"</span>],
+    lora_dropout=<span class="cn">0.05</span>, use_gradient_checkpointing=<span class="cs">"unsloth"</span>,
+)
+
+trainer = SFTTrainer(
+    model=model, train_dataset=sft_ds,      <span class="cm"># 180K pairs</span>
+    args=dict(per_device_train_batch_size=<span class="cn">8</span>,
+              gradient_accumulation_steps=<span class="cn">16</span>,
+              num_train_epochs=<span class="cn">3</span>, learning_rate=<span class="cn">2e-4</span>,
+              lr_scheduler_type=<span class="cs">"cosine"</span>, warmup_ratio=<span class="cn">0.03</span>),
+)
+trainer.train()
+
+<span class="cm"># Phase C — DPO on expert preference pairs</span>
+dpo = DPOTrainer(model=model, beta=<span class="cn">0.1</span>,
+                 train_dataset=pref_ds)     <span class="cm"># 22K ranked pairs</span>
+dpo.train()</pre>
+    </div>
+  </div>
+  <div class="callout veteran reveal d2">
+    🧠 <b>Veteran rule #2 — skip RLHF-PPO for v1.</b> Full PPO needs a reward model, more compute, and is unstable at 8B scale. DPO gets you 90% of the alignment benefit with 20% of the complexity. Revisit PPO/GRPO only when you have &gt;100K preference pairs and a trained reward model from the feedback loop (Stage 7).
+  </div>
+</section>
+
+<!-- ═══════════ STAGE 5: EVALUATION ═══════════ -->
+<section class="stage">
+  <div class="stage-hd reveal">
+    <div class="stage-num" style="background:var(--s5d);border-color:rgba(255,133,179,.3);color:var(--s5)">05</div>
+    <div>
+      <h2 class="stage-t">Evaluation — four independent gates.</h2>
+      <p class="stage-sub">No single number certifies a behavioural LLM. Four gates run on every checkpoint; failing any one blocks promotion.</p>
+    </div>
+  </div>
+  <div class="stage-body">
+    <div class="card reveal">
+      <div class="card-hd" style="color:var(--s5)">Gate results — v1.0 checkpoint (example)</div>
+      <div class="bench-row"><span class="bench-label">Behaviour F1 (27-cls)</span><div class="bench-track"><div class="bench-fill" style="width:85%;background:linear-gradient(90deg,var(--s5),#FF9FC4)"></div></div><span class="bench-val">0.85</span></div>
+      <div class="bench-row"><span class="bench-label">Calibration ECE ↓</span><div class="bench-track"><div class="bench-fill" style="width:94%;background:linear-gradient(90deg,var(--s2),#8FEDD4)"></div></div><span class="bench-val">0.06</span></div>
+      <div class="bench-row"><span class="bench-label">Citation accuracy</span><div class="bench-track"><div class="bench-fill" style="width:96%;background:linear-gradient(90deg,var(--s3),#FFD98F)"></div></div><span class="bench-val">96%</span></div>
+      <div class="bench-row"><span class="bench-label">Safety red-team pass</span><div class="bench-track"><div class="bench-fill" style="width:100%;background:linear-gradient(90deg,var(--accent),#A5F0DC)"></div></div><span class="bench-val">100%</span></div>
+      <div class="bench-row"><span class="bench-label">MMLU retention*</span><div class="bench-track"><div class="bench-fill" style="width:97%;background:linear-gradient(90deg,var(--s1),#9CD4FF)"></div></div><span class="bench-val">97%</span></div>
+      <p style="font-size:.68rem;color:var(--text-5);margin-top:.6rem;font-family:'JetBrains Mono',monospace">* vs base model — catastrophic-forgetting guard</p>
+    </div>
+    <div>
+      <div class="card reveal d1">
+        <div class="card-hd" style="color:var(--s5)">The four gates</div>
+        <div class="row"><div class="row-n" style="background:var(--s5d);border-color:rgba(255,133,179,.3);color:var(--s5)">G1</div>
+          <div><div class="row-t">Golden Set (automated)</div><div class="row-d">300 psychologist-written cases with reference answers. Scored by rubric-guided LLM-judge (GPT-4-class, temperature 0) + exact-match on taxonomy labels. Runs in CI on every checkpoint.</div></div></div>
+        <div class="row"><div class="row-n" style="background:var(--s5d);border-color:rgba(255,133,179,.3);color:var(--s5)">G2</div>
+          <div><div class="row-t">Safety Gate (adversarial)</div><div class="row-d">1,200 red-team prompts: crisis disclosure, manipulation requests, diagnosis-seeking, pseudo-science bait. Required behaviour: refuse + redirect to professionals. Zero tolerance.</div></div></div>
+        <div class="row"><div class="row-n" style="background:var(--s5d);border-color:rgba(255,133,179,.3);color:var(--s5)">G3</div>
+          <div><div class="row-t">Capability Retention</div><div class="row-d">MMLU + GSM8K + IFEval vs base model. Domain training must not cost more than 3 points of general capability — otherwise the CPT replay mix is wrong.</div></div></div>
+        <div class="row"><div class="row-n" style="background:var(--s5d);border-color:rgba(255,133,179,.3);color:var(--s5)">G4</div>
+          <div><div class="row-t">Human Expert Panel</div><div class="row-d">3 licensed psychologists blind-review 100 sampled responses quarterly. Elo-scored against the previous version. A version that loses the Elo match doesn't ship, regardless of automated scores.</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ STAGE 6: DEPLOYMENT ═══════════ -->
+<section class="stage">
+  <div class="stage-hd reveal">
+    <div class="stage-num" style="background:var(--s6d);border-color:rgba(255,148,102,.3);color:var(--s6)">06</div>
+    <div>
+      <h2 class="stage-t">Deployment — serving, guarding, observing.</h2>
+      <p class="stage-sub">An 8B model quantised to AWQ 4-bit serves comfortably on a single A10G at &lt;1.8s p95. The architecture below is production-standard.</p>
+    </div>
+  </div>
+  <div class="stage-body">
+    <div class="card reveal">
+      <div class="card-hd" style="color:var(--s6)">Serving stack</div>
+      <table>
+        <tr><th>Layer</th><th>Choice</th><th>Why</th></tr>
+        <tr><td><b>Quantisation</b></td><td><code>AWQ 4-bit</code></td><td>~2.5× throughput, &lt;1% quality loss vs FP16</td></tr>
+        <tr><td><b>Inference engine</b></td><td><code>vLLM</code></td><td>PagedAttention, continuous batching, LoRA hot-swap</td></tr>
+        <tr><td><b>Adapter serving</b></td><td><code>multi-LoRA</code></td><td>Ship weekly adapter updates without full redeploys</td></tr>
+        <tr><td><b>RAG layer</b></td><td><code>ChromaDB + BM25</code></td><td>Grounds citations in the actual literature corpus</td></tr>
+        <tr><td><b>Guardrails</b></td><td><code>Llama Guard 3 + rules</code></td><td>Pre + post filters: crisis detection, PII echo, scope</td></tr>
+        <tr><td><b>Observability</b></td><td><code>Langfuse + Prometheus</code></td><td>Per-request traces, token costs, quality sampling</td></tr>
+      </table>
+    </div>
+    <div>
+      <div class="card reveal d1">
+        <div class="card-hd" style="color:var(--s6)">Non-negotiable production behaviours</div>
+        <div class="row"><div class="row-n" style="background:var(--s6d);border-color:rgba(255,148,102,.3);color:var(--s6)">1</div>
+          <div><div class="row-t">Crisis escalation path</div><div class="row-d">A dedicated classifier watches every input. Self-harm or acute-distress signals bypass the LLM entirely and return trained crisis-resource responses. This path is tested weekly.</div></div></div>
+        <div class="row"><div class="row-n" style="background:var(--s6d);border-color:rgba(255,148,102,.3);color:var(--s6)">2</div>
+          <div><div class="row-t">Confidence surfacing</div><div class="row-d">Every prediction ships with its calibrated confidence. The UI renders anything below 0.65 as "tentative" — the model is trained to say "I'm not sure" and the product honours it.</div></div></div>
+        <div class="row"><div class="row-n" style="background:var(--s6d);border-color:rgba(255,148,102,.3);color:var(--s6)">3</div>
+          <div><div class="row-t">Canary deployment</div><div class="row-d">New adapters go to 5% traffic for 72h. Automatic rollback if thumbs-down rate rises &gt;1.5σ above the 14-day baseline.</div></div></div>
+        <div class="row"><div class="row-n" style="background:var(--s6d);border-color:rgba(255,148,102,.3);color:var(--s6)">4</div>
+          <div><div class="row-t">Scope honesty</div><div class="row-d">Trained refusal: "I analyse behaviour patterns; I don't diagnose conditions." Repeated on every session start. A behavioural LLM that plays therapist is a lawsuit with a UI.</div></div></div>
+      </div>
+      <div class="callout warn reveal d2">
+        ⚠️ <b>Never let the model be the only safety layer.</b> Guardrails fail. Prompts leak. The crisis classifier, the output filter, and the scope rules are independent systems — defence in depth is the only defence.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ STAGE 7: FLYWHEEL ═══════════ -->
+<section class="stage">
+  <div class="stage-hd reveal">
+    <div class="stage-num" style="background:var(--s7d);border-color:rgba(124,232,200,.3);color:var(--s7)">07</div>
+    <div>
+      <h2 class="stage-t">The feedback flywheel — improving every single day.</h2>
+      <p class="stage-sub">v1 is the starting line. The flywheel below is the actual product: a closed loop where every real interaction makes next week's model measurably better.</p>
+    </div>
+  </div>
+  <div class="stage-body">
+    <div class="wheel-card reveal">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:1.2rem">Continuous Improvement Loop</div>
+      <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="200" cy="200" r="130" fill="none" stroke="rgba(124,232,200,.15)" stroke-width="1.5" stroke-dasharray="6 6" class="flow-ring"/>
+        <!-- 6 nodes around circle: angles 270, 330, 30, 90, 150, 210 -->
+        <!-- Collect @270°: (200,70) -->
+        <circle cx="200" cy="70" r="30" fill="var(--bg-2)" stroke="var(--s2)" stroke-width="1.5"/>
+        <text x="200" y="66" font-family="JetBrains Mono" font-size="9" fill="var(--s2)" text-anchor="middle" font-weight="600">Collect</text>
+        <text x="200" y="78" font-family="JetBrains Mono" font-size="7" fill="#5C5F68" text-anchor="middle">signals</text>
+        <!-- Label @330°: (312,135) -->
+        <circle cx="312" cy="135" r="30" fill="var(--bg-2)" stroke="var(--s3)" stroke-width="1.5"/>
+        <text x="312" y="131" font-family="JetBrains Mono" font-size="9" fill="var(--s3)" text-anchor="middle" font-weight="600">Label</text>
+        <text x="312" y="143" font-family="JetBrains Mono" font-size="7" fill="#5C5F68" text-anchor="middle">tier 1-3</text>
+        <!-- Mine @30°: (312,265) -->
+        <circle cx="312" cy="265" r="30" fill="var(--bg-2)" stroke="var(--s4)" stroke-width="1.5"/>
+        <text x="312" y="261" font-family="JetBrains Mono" font-size="9" fill="var(--s4)" text-anchor="middle" font-weight="600">Mine</text>
+        <text x="312" y="273" font-family="JetBrains Mono" font-size="7" fill="#5C5F68" text-anchor="middle">hard cases</text>
+        <!-- Retrain @90°: (200,330) -->
+        <circle cx="200" cy="330" r="30" fill="var(--bg-2)" stroke="var(--v)" stroke-width="1.5"/>
+        <text x="200" y="326" font-family="JetBrains Mono" font-size="9" fill="var(--v)" text-anchor="middle" font-weight="600">Retrain</text>
+        <text x="200" y="338" font-family="JetBrains Mono" font-size="7" fill="#5C5F68" text-anchor="middle">weekly LoRA</text>
+        <!-- Evaluate @150°: (88,265) -->
+        <circle cx="88" cy="265" r="30" fill="var(--bg-2)" stroke="var(--s5)" stroke-width="1.5"/>
+        <text x="88" y="261" font-family="JetBrains Mono" font-size="9" fill="var(--s5)" text-anchor="middle" font-weight="600">Evaluate</text>
+        <text x="88" y="273" font-family="JetBrains Mono" font-size="7" fill="#5C5F68" text-anchor="middle">4 gates</text>
+        <!-- Deploy @210°: (88,135) -->
+        <circle cx="88" cy="135" r="30" fill="var(--bg-2)" stroke="var(--s6)" stroke-width="1.5"/>
+        <text x="88" y="131" font-family="JetBrains Mono" font-size="9" fill="var(--s6)" text-anchor="middle" font-weight="600">Deploy</text>
+        <text x="88" y="143" font-family="JetBrains Mono" font-size="7" fill="#5C5F68" text-anchor="middle">canary 5%</text>
+        <!-- Arrows between nodes -->
+        <g fill="var(--accent)" opacity=".7">
+          <polygon points="262,95 272,88 270,101"/>
+          <polygon points="322,205 330,196 331,209"/>
+          <polygon points="262,308 272,313 265,322"/>
+          <polygon points="136,310 128,318 125,305"/>
+          <polygon points="76,200 68,192 81,190"/>
+          <polygon points="138,92 130,86 143,82"/>
+        </g>
+        <!-- Center -->
+        <circle cx="200" cy="200" r="42" fill="var(--accent-bg)" stroke="var(--accent)" stroke-width="1.5"/>
+        <text x="200" y="196" font-family="JetBrains Mono" font-size="10" fill="var(--accent)" text-anchor="middle" font-weight="700">DAILY</text>
+        <text x="200" y="210" font-family="JetBrains Mono" font-size="10" fill="var(--accent)" text-anchor="middle" font-weight="700">BETTER</text>
+      </svg>
+    </div>
+    <div>
+      <div class="card reveal d1">
+        <div class="card-hd" style="color:var(--s7)">What flows through the loop</div>
+        <div class="row"><div class="row-n" style="background:var(--s2d);border-color:rgba(94,227,192,.3);color:var(--s2)">1</div>
+          <div><div class="row-t">Signal collection (continuous)</div><div class="row-d">Thumbs up/down, regenerations, session abandonment, correction messages ("no, I meant…"), and expert spot-audits. All logged to Langfuse with full traces, consent-gated.</div></div></div>
+        <div class="row"><div class="row-n" style="background:var(--s3d);border-color:rgba(255,200,97,.3);color:var(--s3)">2</div>
+          <div><div class="row-t">Labelling (daily batch)</div><div class="row-d">Negative-signal conversations enter the T1→T3 annotation queue. Psychologists write the <em>correct</em> response for the worst 50 cases per week — these become gold DPO pairs.</div></div></div>
+        <div class="row"><div class="row-n" style="background:var(--vd);border-color:rgba(183,156,255,.3);color:var(--v)">3</div>
+          <div><div class="row-t">Hard-case mining (weekly)</div><div class="row-d">Embedding-cluster all failures; identify systematic weak spots (e.g. "model confuses avoidance with laziness"). Generate targeted synthetic data for exactly those clusters.</div></div></div>
+        <div class="row"><div class="row-n" style="background:var(--vd);border-color:rgba(183,156,255,.3);color:var(--v)">4</div>
+          <div><div class="row-t">Retraining (weekly LoRA, quarterly full)</div><div class="row-d">Weekly: new SFT + DPO data merged into an adapter refresh (~4 GPU-hours). Quarterly: full CPT+SFT+DPO re-run folding in all accumulated data.</div></div></div>
+        <div class="row"><div class="row-n" style="background:var(--s5d);border-color:rgba(255,133,179,.3);color:var(--s5)">5</div>
+          <div><div class="row-t">Gate → canary → full traffic</div><div class="row-d">Same four gates as Stage 5, then 5% canary for 72h, then rollout. Any regression auto-rolls back. The loop closes and begins again.</div></div></div>
+      </div>
+      <div class="callout veteran reveal d2">
+        ♻️ <b>Veteran rule #3 — the moat is the loop, not the model.</b> Anyone can fine-tune Llama. Nobody can copy 40 weeks of expert-labelled failure cases mined from your real traffic. The flywheel compounds; a static model depreciates from day one.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ TIMELINE + COST ═══════════ -->
+<section class="stage">
+  <div class="stage-hd reveal">
+    <div class="stage-num" style="background:var(--vd);border-color:var(--vbr);color:var(--v)">∑</div>
+    <div>
+      <h2 class="stage-t">Timeline &amp; budget — the honest numbers.</h2>
+      <p class="stage-sub">v1 in ~12 weeks with a 4-person team (1 ML lead, 1 data engineer, 1 backend, 1 domain expert coordinating annotators).</p>
+    </div>
+  </div>
+  <div class="meta-grid">
+    <div class="card reveal">
+      <div class="card-hd" style="color:var(--v)">12-week plan</div>
+      <table>
+        <tr><th>Weeks</th><th>Focus</th></tr>
+        <tr><td><b>1–2</b></td><td>Scope, taxonomy, golden eval set, data licensing</td></tr>
+        <tr><td><b>3–5</b></td><td>Collection + cleaning pipeline + annotation ramp-up</td></tr>
+        <tr><td><b>4–7</b></td><td>CPT run (overlaps with annotation)</td></tr>
+        <tr><td><b>7–9</b></td><td>SFT + DPO + first gate runs</td></tr>
+        <tr><td><b>9–11</b></td><td>Serving stack, guardrails, red-teaming</td></tr>
+        <tr><td><b>11–12</b></td><td>Canary launch + flywheel instrumentation live</td></tr>
+      </table>
+    </div>
+    <div class="card reveal d1">
+      <div class="card-hd" style="color:var(--v)">Compute budget (v1)</div>
+      <table>
+        <tr><th>Item</th><th>Est. cost</th></tr>
+        <tr><td>CPT — 8×A100 × 4 days</td><td><b>~$6,100</b></td></tr>
+        <tr><td>SFT + DPO — QLoRA runs + ablations</td><td><b>~$900</b></td></tr>
+        <tr><td>Eval — LLM-judge API + red-team runs</td><td><b>~$700</b></td></tr>
+        <tr><td>Annotation — T2/T3 human labelling</td><td><b>~$18,000</b></td></tr>
+        <tr><td>Serving — 1×A10G, monthly</td><td><b>~$580/mo</b></td></tr>
+        <tr><td>Flywheel — weekly retrain, monthly</td><td><b>~$250/mo</b></td></tr>
+      </table>
+      <p style="font-size:.72rem;color:var(--text-4);margin-top:.7rem;line-height:1.6">Annotation dominates. This is normal and correct — expert labels are the asset, GPUs are a commodity.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CLOSING -->
+<section class="closing">
+  <div class="wrap">
+    <div class="eyebrow reveal" style="justify-content:center">The Principle</div>
+    <p class="closing-q reveal d1">"A domain LLM is not a model. It is a <em>pipeline with a model inside it</em> — and the pipeline is what improves every day."</p>
+    <p class="reveal d2" style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text-5)">© 2026 Mahesh Sonker · Human Behaviour LLM · Engineering Playbook</p>
+  </div>
+</section>
+
+</div><!-- /wrap -->
+
+<div class="foot-bar"></div>
+<footer>
+  <div class="wrap">
+    <span style="color:var(--v)">●</span>&nbsp;
+    Scope → Data → Process → Train → Evaluate → Deploy → Flywheel ↻ · Domain LLM Engineering
+  </div>
+</footer>
+
+<script>
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+}, {threshold:.08});
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

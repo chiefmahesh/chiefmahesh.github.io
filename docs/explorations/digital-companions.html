@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digital Companions · Emotional AI &amp; Metacognition</title>
+<meta name="description" content="Digital Companions are AI systems that know your emotional signature — sensing how you feel, reflecting on their own reasoning, and growing with you across time.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ──────────────────────────────────────────────── */
+:root{
+  --bg:#0A0B0E; --bg-1:#111319; --bg-2:#16181F; --bg-3:#1B1E26; --bg-4:#22252E;
+  --border:rgba(255,255,255,.06); --border-2:rgba(255,255,255,.10); --border-3:rgba(255,255,255,.18);
+  --text:#F1F1EE; --text-2:#C5C7CC; --text-3:#8A8D96; --text-4:#5C5F68; --text-5:#3D4049;
+  --accent:#7CE8C8; --accent-dim:rgba(124,232,200,.12); --accent-bg:rgba(124,232,200,.07);
+  --accent-glow:rgba(124,232,200,.3);
+  /* Dimension spectrum */
+  --p:#FF9466;  --pd:rgba(255,148,102,.14); --pb:rgba(255,148,102,.08);
+  --r:#5EE3C0;  --rd:rgba(94,227,192,.14);  --rb:rgba(94,227,192,.08);
+  --b:#B79CFF;  --bd:rgba(183,156,255,.14); --bb:rgba(183,156,255,.08);
+  --e:#FF85B3;  --ed:rgba(255,133,179,.14); --eb:rgba(255,133,179,.08);
+  --h:#6FC3FF;  --hd:rgba(111,195,255,.14); --hb:rgba(111,195,255,.08);
+  /* Metacognition accent — amber gold */
+  --m:#FFC861;  --md:rgba(255,200,97,.14);  --mb:rgba(255,200,97,.08);
+  --ease:cubic-bezier(.22,.68,0,1.05);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Geist',-apple-system,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.6;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;letter-spacing:-.005em;
+  background-image:radial-gradient(circle at 1px 1px,rgba(255,255,255,.025) 1px,transparent 0);
+  background-size:24px 24px;background-attachment:fixed;
+}
+::selection{background:var(--accent);color:var(--bg)}
+.wrap{max-width:1140px;margin:0 auto;padding:0 clamp(20px,4vw,40px)}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--accent);
+  display:inline-flex;align-items:center;gap:10px;margin-bottom:1.1rem}
+.eyebrow::before{content:'';width:14px;height:1px;background:currentColor;flex-shrink:0}
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.reveal.in{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══════════════════════════════════════════════════════════
+   PANEL 1: THE COMPANION
+══════════════════════════════════════════════════════════ */
+#hero{
+  position:relative;overflow:hidden;
+  padding:clamp(60px,8vw,100px) 0 0;
+}
+.hero-orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none}
+.ho1{width:480px;height:480px;background:var(--e);opacity:.06;top:-160px;right:-40px}
+.ho2{width:380px;height:380px;background:var(--b);opacity:.06;bottom:-80px;left:-60px}
+.ho3{width:260px;height:260px;background:var(--accent);opacity:.05;top:30%;right:38%}
+.hero-grid{position:relative;z-index:2;display:grid;grid-template-columns:1fr 480px;
+  gap:2rem;align-items:center;max-width:1140px;margin:0 auto;padding:0 clamp(20px,4vw,40px)}
+.hero-pill{display:inline-flex;align-items:center;gap:8px;padding:5px 16px;border-radius:999px;
+  background:var(--bg-2);border:1px solid var(--border-2);
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-3);margin-bottom:1.5rem}
+.hero-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--e);position:relative}
+.hero-pill .dot::after{content:'';position:absolute;inset:-4px;border-radius:50%;
+  border:1px solid var(--e);animation:rpl 2s ease-out infinite}
+@keyframes rpl{0%{transform:scale(.6);opacity:.9}100%{transform:scale(2.5);opacity:0}}
+h1.hero-h{font-size:clamp(2.4rem,5.8vw,4.4rem);font-weight:800;letter-spacing:-.03em;
+  line-height:1.04;margin-bottom:1rem}
+h1.hero-h span.gr{
+  background:linear-gradient(135deg,var(--e),var(--b),var(--h));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-lede{font-size:1rem;color:var(--text-3);max-width:500px;line-height:1.78;
+  margin-bottom:2rem;font-weight:300}
+.hero-tags{display:flex;flex-wrap:wrap;gap:.45rem}
+.htag{padding:.38rem 1rem;border-radius:30px;font-size:.74rem;font-weight:500;
+  border:1px solid var(--border-2);background:var(--bg-1);color:var(--text-3)}
+
+/* Constellation SVG */
+.constellation-wrap{width:100%;display:flex;justify-content:center;align-items:center}
+.constellation-wrap svg{width:100%;max-width:440px;height:auto}
+
+/* Node glow animations */
+@keyframes nP{0%,100%{filter:drop-shadow(0 0 6px var(--p))}50%{filter:drop-shadow(0 0 18px var(--p))}}
+@keyframes nR{0%,100%{filter:drop-shadow(0 0 6px var(--r))}50%{filter:drop-shadow(0 0 18px var(--r))}}
+@keyframes nB{0%,100%{filter:drop-shadow(0 0 6px var(--b))}50%{filter:drop-shadow(0 0 18px var(--b))}}
+@keyframes nE{0%,100%{filter:drop-shadow(0 0 6px var(--e))}50%{filter:drop-shadow(0 0 18px var(--e))}}
+@keyframes nH{0%,100%{filter:drop-shadow(0 0 6px var(--h))}50%{filter:drop-shadow(0 0 18px var(--h))}}
+@keyframes core{0%,100%{filter:drop-shadow(0 0 12px var(--accent))}50%{filter:drop-shadow(0 0 28px var(--accent))}}
+@keyframes connFlow{0%{stroke-dashoffset:145}100%{stroke-dashoffset:0}}
+
+.np{animation:nP 3.5s ease infinite}
+.nr{animation:nR 3.5s ease infinite .6s}
+.nb{animation:nB 3.5s ease infinite 1.2s}
+.ne{animation:nE 3.5s ease infinite 1.8s}
+.nh{animation:nH 3.5s ease infinite 2.4s}
+.core{animation:core 2.5s ease infinite}
+.cp{animation:connFlow 3s ease infinite}.cr{animation:connFlow 3s ease infinite .6s}
+.cb{animation:connFlow 3s ease infinite 1.2s}.ce{animation:connFlow 3s ease infinite 1.8s}
+.ch{animation:connFlow 3s ease infinite 2.4s}
+
+/* ── INTRO TEXT ─────────────────────────────────────────── */
+.intro-sec{padding:clamp(56px,7vw,88px) 0 0}
+.intro-box{
+  background:var(--bg-1);border:1px solid var(--border);border-left:3px solid var(--accent);
+  border-radius:20px;padding:1.8rem 2.2rem;margin-bottom:2rem;
+}
+.intro-box p{font-size:.94rem;color:var(--text-3);line-height:1.8;margin-bottom:.8rem}
+.intro-box p:last-child{margin-bottom:0}
+.intro-box p strong{color:var(--text-2);font-weight:600}
+.intro-box p em{color:var(--accent);font-style:italic}
+
+/* ── 5 DIMENSION CARDS ──────────────────────────────────── */
+.dim-outer{padding-bottom:clamp(56px,7vw,88px)}
+.dim-grid{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:12px;
+}
+.dim-card{
+  background:var(--bg-1);border:1px solid var(--border);border-radius:20px;
+  padding:1.5rem 1.6rem;transition:border-color .2s,transform .2s;overflow:hidden;position:relative;
+}
+.dim-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:2px 2px 0 0}
+.dim-card:hover{transform:translateY(-4px)}
+.dim-card:nth-child(1){grid-column:1/3}.dim-card:nth-child(1)::before{background:var(--p)}
+.dim-card:nth-child(2){grid-column:3/5}.dim-card:nth-child(2)::before{background:var(--r)}
+.dim-card:nth-child(3){grid-column:5/7}.dim-card:nth-child(3)::before{background:var(--b)}
+.dim-card:nth-child(4){grid-column:2/4}.dim-card:nth-child(4)::before{background:var(--e)}
+.dim-card:nth-child(5){grid-column:4/6}.dim-card:nth-child(5)::before{background:var(--h)}
+.dim-card:nth-child(1):hover{border-color:rgba(255,148,102,.4)}
+.dim-card:nth-child(2):hover{border-color:rgba(94,227,192,.4)}
+.dim-card:nth-child(3):hover{border-color:rgba(183,156,255,.4)}
+.dim-card:nth-child(4):hover{border-color:rgba(255,133,179,.4)}
+.dim-card:nth-child(5):hover{border-color:rgba(111,195,255,.4)}
+.dc-ico{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;
+  justify-content:center;font-size:1.2rem;margin-bottom:1rem;flex-shrink:0}
+.dc-num{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.12em;
+  text-transform:uppercase;margin-bottom:.4rem}
+.dc-t{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:.55rem;line-height:1.25}
+.dc-d{font-size:.81rem;color:var(--text-3);line-height:1.7;margin-bottom:.8rem}
+.dc-ex{font-family:'JetBrains Mono',monospace;font-size:.72rem;background:var(--bg-2);
+  border:1px solid var(--border);border-radius:10px;padding:.65rem .85rem;
+  color:var(--text-4);line-height:1.6;font-style:italic}
+
+/* ══════════════════════════════════════════════════════════
+   PANEL 2: EMOTIONAL AI + METACOGNITION
+══════════════════════════════════════════════════════════ */
+.p2-sec{padding:clamp(52px,6.5vw,84px) 0 0}
+.p2-split{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:1.6rem}
+.p2-card{background:var(--bg-1);border:1px solid var(--border);border-radius:18px;padding:1.6rem 1.7rem}
+
+/* Emotion channel rows */
+.channel-row{display:flex;align-items:flex-start;gap:.8rem;padding:.8rem 0;
+  border-bottom:1px solid var(--border)}
+.channel-row:last-child{border-bottom:none}
+.ch-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:1.05rem;flex-shrink:0}
+.ch-body{}
+.ch-t{font-size:.85rem;font-weight:700;color:var(--text-2);margin-bottom:.2rem}
+.ch-d{font-size:.78rem;color:var(--text-4);line-height:1.6}
+.ch-tag{font-family:'JetBrains Mono',monospace;font-size:.64rem;
+  padding:.18rem .6rem;border-radius:5px;background:var(--bg-3);
+  border:1px solid var(--border);color:var(--text-4)}
+
+/* VAD emotion space */
+.vad-wrap{margin-top:1.6rem;background:var(--bg-1);border:1px solid var(--border);
+  border-radius:18px;padding:1.4rem}
+.vad-wrap svg{width:100%;height:auto}
+
+/* Emotion response examples */
+.emo-ex{background:var(--bg-2);border:1px solid var(--border);border-radius:14px;
+  padding:1rem 1.2rem;margin-bottom:.7rem;transition:border-color .2s}
+.emo-ex:hover{border-color:var(--border-2)}
+.emo-ex-hd{display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem}
+.emo-label{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.1em;
+  text-transform:uppercase;font-weight:600}
+.emo-mood{font-size:.7rem;color:var(--text-4)}
+.emo-text{font-size:.82rem;color:var(--text-2);line-height:1.65;font-style:italic}
+
+/* ── METACOGNITION ──────────────────────────────────────── */
+.meta-sec{padding-top:clamp(52px,6vw,76px)}
+.meta-split{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:1.6rem;align-items:start}
+.meta-card{background:var(--bg-1);border:1px solid var(--border);border-radius:18px;padding:1.6rem 1.7rem}
+
+/* Loop SVG */
+.loop-wrap{background:var(--bg-1);border:1px solid rgba(255,200,97,.25);border-radius:18px;
+  padding:1.4rem;margin:0}
+.loop-wrap svg{width:100%;height:auto}
+@keyframes loopPulse{0%,100%{opacity:.4}50%{opacity:1}}
+
+/* Meta steps */
+.meta-steps{display:flex;flex-direction:column;gap:.65rem}
+.ms{display:flex;align-items:flex-start;gap:.8rem;padding:.9rem 1rem;
+  background:var(--bg-2);border:1px solid var(--border);border-radius:13px;
+  transition:border-color .2s,transform .2s}
+.ms:hover{border-color:var(--border-2);transform:translateX(4px)}
+.ms-num{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;
+  justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.72rem;
+  font-weight:700;flex-shrink:0}
+.ms-body .ms-t{font-size:.84rem;font-weight:700;color:var(--text-2);margin-bottom:.22rem}
+.ms-body p{font-size:.76rem;color:var(--text-4);line-height:1.58}
+.ms-body em{color:var(--text-3);font-style:italic}
+.meta-quote{background:var(--mb);border:1px solid rgba(255,200,97,.25);
+  border-left:3px solid var(--m);border-radius:14px;padding:1.1rem 1.3rem;
+  margin-top:1.1rem;font-size:.86rem;color:var(--text-2);line-height:1.75}
+.meta-quote em{color:var(--m);font-style:italic}
+.meta-research{background:var(--bg-2);border:1px solid var(--border);border-radius:14px;
+  padding:1.1rem 1.3rem;margin-top:1rem;font-size:.8rem;color:var(--text-3);line-height:1.7}
+.meta-research strong{color:var(--text-2);font-weight:600}
+
+/* ══════════════════════════════════════════════════════════
+   PANEL 3: ARCHITECTURE
+══════════════════════════════════════════════════════════ */
+.arch-sec{padding:clamp(52px,6.5vw,84px) 0 0}
+.arch-main{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:1.8rem;align-items:start}
+
+/* Layer stack */
+.layer-stack{background:var(--bg-1);border:1px solid var(--border);border-radius:18px;padding:1.5rem}
+.arch-layer{position:relative;padding:1rem 1.2rem 1rem 1.4rem;border-radius:12px;
+  border:1px solid var(--border);margin-bottom:4px;background:var(--bg-2);
+  transition:border-color .2s,transform .2s;overflow:hidden}
+.arch-layer:hover{border-color:var(--border-2);transform:translateX(4px)}
+.arch-layer:last-child{margin-bottom:0}
+.arch-layer::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:0 3px 3px 0}
+.al-l1::before{background:var(--h)}.al-l2::before{background:var(--r)}
+.al-l3::before{background:var(--accent)}.al-l4::before{background:var(--b)}.al-l5::before{background:var(--p)}
+.al-hd{display:flex;align-items:center;gap:.6rem;margin-bottom:.3rem}
+.al-tag{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;
+  text-transform:uppercase;padding:.15rem .55rem;border-radius:4px;font-weight:600}
+.al-t{font-size:.86rem;font-weight:700;color:var(--text);flex:1}
+.al-d{font-size:.76rem;color:var(--text-4);line-height:1.55;margin-bottom:.5rem}
+.al-models{display:flex;flex-wrap:wrap;gap:.3rem}
+.am{font-family:'JetBrains Mono',monospace;font-size:.63rem;padding:.16rem .55rem;
+  border-radius:5px;background:var(--bg-3);border:1px solid var(--border);color:var(--text-4)}
+.arch-arrow{text-align:center;color:var(--text-5);padding:.1rem 0;font-size:.9rem}
+
+/* Right column: code + training + ethics */
+.arch-right{display:flex;flex-direction:column;gap:14px}
+.code-block{background:var(--bg-1);border:1px solid var(--border);border-radius:18px;overflow:hidden}
+.code-hd{display:flex;align-items:center;gap:.6rem;padding:.65rem 1rem;
+  background:var(--bg-2);border-bottom:1px solid var(--border)}
+.cdot{width:9px;height:9px;border-radius:50%}
+.code-fn{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text-4);margin-left:.3rem}
+pre.code{background:var(--bg);padding:1.2rem 1.4rem;font-family:'JetBrains Mono',monospace;
+  font-size:.73rem;line-height:1.85;overflow-x:auto;color:var(--text-4)}
+.ck{color:#C792EA}.cs{color:#C3E88D}.cn{color:#F78C6C}.cm{color:var(--text-5)}
+.cv{color:var(--h)}.cg{color:var(--p)}.ce{color:var(--e)}.cb{color:var(--b)}
+
+.training-card{background:var(--bg-1);border:1px solid var(--border);border-radius:18px;padding:1.4rem 1.5rem}
+.train-step{display:flex;gap:.7rem;align-items:flex-start;padding:.6rem 0;
+  border-bottom:1px solid var(--border)}
+.train-step:last-child{border-bottom:none}
+.ts-n{width:22px;height:22px;border-radius:6px;background:var(--accent-bg);
+  border:1px solid rgba(124,232,200,.3);color:var(--accent);
+  font-family:'JetBrains Mono',monospace;font-size:.65rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.1rem}
+.ts-t{font-size:.82rem;font-weight:700;color:var(--text-2);margin-bottom:.18rem}
+.ts-d{font-size:.74rem;color:var(--text-4);line-height:1.5}
+.ts-d em{color:var(--accent);font-style:normal;font-weight:500}
+
+.ethics-card{background:var(--bg-1);border:1px solid var(--border);border-radius:18px;padding:1.4rem 1.5rem}
+.eth-row{display:flex;align-items:flex-start;gap:.7rem;padding:.6rem 0;
+  border-bottom:1px solid var(--border)}
+.eth-row:last-child{border-bottom:none}
+.eth-ico{font-size:1rem;flex-shrink:0;margin-top:.1rem}
+.eth-t{font-size:.82rem;font-weight:700;color:var(--text-2);margin-bottom:.18rem}
+.eth-d{font-size:.74rem;color:var(--text-4);line-height:1.55}
+
+/* Closing */
+.closing-sec{padding:clamp(48px,6vw,76px) 0 clamp(60px,8vw,100px);text-align:center}
+.closing-glyph{font-size:2.8rem;display:block;margin:0 auto 1.4rem;
+  animation:closepulse 4s ease-in-out infinite}
+@keyframes closepulse{
+  0%,100%{filter:drop-shadow(0 0 0 transparent)}
+  50%{filter:drop-shadow(0 0 20px rgba(255,133,179,.4))}
+}
+.closing-q{font-size:clamp(1.15rem,2.4vw,1.55rem);font-weight:300;
+  color:var(--text-2);line-height:1.65;max-width:680px;margin:0 auto 1.2rem;font-style:italic}
+.closing-q em{
+  font-style:normal;font-weight:700;
+  background:linear-gradient(135deg,var(--e),var(--b),var(--h));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.closing-attr{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text-5)}
+
+/* ── SHARED SECTION HEAD ───────────────────────────────── */
+h2.sh{font-size:clamp(1.4rem,2.8vw,2.1rem);font-weight:700;letter-spacing:-.02em;
+  line-height:1.18;margin-bottom:.55rem}
+.sh-sub{font-size:.88rem;color:var(--text-4);max-width:580px;line-height:1.7}
+.hr{height:1px;background:var(--border);margin:0}
+
+/* ── FOOTER ────────────────────────────────────────────── */
+footer{text-align:center;padding:1.8rem 0 2.4rem;border-top:1px solid var(--border);
+  font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text-4)}
+.foot-spectrum{height:2px;background:linear-gradient(90deg,var(--p),var(--e),var(--b),var(--h),var(--r));
+  margin-bottom:1.4rem}
+
+/* ── RESPONSIVE ────────────────────────────────────────── */
+@media(max-width:900px){
+  .hero-grid{grid-template-columns:1fr;padding-bottom:2rem}
+  .constellation-wrap{max-width:380px;margin:0 auto}
+  .p2-split,.meta-split,.arch-main{grid-template-columns:1fr}
+  .dim-grid{grid-template-columns:1fr 1fr}
+  .dim-card:nth-child(n){grid-column:span 1}
+}
+@media(max-width:520px){
+  .dim-grid{grid-template-columns:1fr}
+  .dim-card:nth-child(n){grid-column:span 1}
+}
+
+/* ── SECTION SEPARATORS (replaces tab breaks) ─────────── */
+.sec-sep{border-top:1px solid var(--border);padding-top:0}
+</style>
+</head>
+<body>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PANEL 1 — THE COMPANION
+══════════════════════════════════════════════════════ -->
+<div id="p1">
+
+  <section id="hero">
+    <div class="hero-orb ho1"></div>
+    <div class="hero-orb ho2"></div>
+    <div class="hero-orb ho3"></div>
+    <div class="hero-grid">
+      <div>
+        <div class="hero-pill reveal in"><span class="dot"></span>Emotional AI · Metacognition · 2026</div>
+        <h1 class="hero-h reveal in">
+          Digital<br><span class="gr">Companions</span><br>
+          <span style="font-size:.38em;font-weight:300;opacity:.55;letter-spacing:0;-webkit-text-fill-color:var(--text-3);background:none;color:var(--text-3)">the AI that knows your emotional signature</span>
+        </h1>
+        <p class="hero-lede reveal in d1">A Digital Companion does not just respond — it <em style="color:var(--e)">feels</em> the shape of your mood, <em style="color:var(--b)">reflects</em> on its own reasoning, and grows with you across time. It is memory, empathy, and intelligence — fused.</p>
+        <div class="hero-tags reveal in d2">
+          <span class="htag">🧠 5-LLM Fusion</span>
+          <span class="htag">💓 Emotional AI</span>
+          <span class="htag">🔁 Metacognition</span>
+          <span class="htag">📜 Persistent Memory</span>
+          <span class="htag">🎙️ Voice Clone</span>
+        </div>
+      </div>
+
+      <!-- CONSCIOUSNESS CONSTELLATION SVG -->
+      <div class="constellation-wrap reveal in d1">
+        <svg viewBox="0 0 440 440" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- Orbit rings -->
+          <circle cx="220" cy="220" r="145" fill="none" stroke="rgba(255,255,255,.04)" stroke-width="1" stroke-dasharray="5 7"/>
+          <circle cx="220" cy="220" r="100" fill="none" stroke="rgba(255,255,255,.03)" stroke-width="1" stroke-dasharray="3 9"/>
+
+          <!-- Pentagon edges connecting nodes (very faint) -->
+          <polyline points="220,75 358,175 305,337 135,337 82,175 220,75" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="1" stroke-dasharray="4 6"/>
+
+          <!-- Connection lines (center → nodes, animated) -->
+          <line x1="220" y1="220" x2="220" y2="75" stroke="var(--p)" stroke-width="1.5" stroke-dasharray="145" class="cp" opacity=".7"/>
+          <line x1="220" y1="220" x2="358" y2="175" stroke="var(--r)" stroke-width="1.5" stroke-dasharray="145" class="cr" opacity=".7"/>
+          <line x1="220" y1="220" x2="305" y2="337" stroke="var(--b)" stroke-width="1.5" stroke-dasharray="145" class="cb" opacity=".7"/>
+          <line x1="220" y1="220" x2="135" y2="337" stroke="var(--e)" stroke-width="1.5" stroke-dasharray="145" class="ce" opacity=".7"/>
+          <line x1="220" y1="220" x2="82" y2="175" stroke="var(--h)" stroke-width="1.5" stroke-dasharray="145" class="ch" opacity=".7"/>
+
+          <!-- Orbital nodes -->
+          <g class="np"><circle cx="220" cy="75" r="13" fill="var(--p)" opacity=".9"/>
+            <text x="220" y="52" font-family="JetBrains Mono,monospace" font-size="10" fill="var(--p)" text-anchor="middle">Personal</text></g>
+          <g class="nr"><circle cx="358" cy="175" r="13" fill="var(--r)" opacity=".9"/>
+            <text x="388" y="179" font-family="JetBrains Mono,monospace" font-size="10" fill="var(--r)" text-anchor="start">Relational</text></g>
+          <g class="nb"><circle cx="305" cy="337" r="13" fill="var(--b)" opacity=".9"/>
+            <text x="316" y="360" font-family="JetBrains Mono,monospace" font-size="10" fill="var(--b)" text-anchor="middle">Behavioral</text></g>
+          <g class="ne"><circle cx="135" cy="337" r="13" fill="var(--e)" opacity=".9"/>
+            <text x="124" y="360" font-family="JetBrains Mono,monospace" font-size="10" fill="var(--e)" text-anchor="middle">Emotional</text></g>
+          <g class="nh"><circle cx="82" cy="175" r="13" fill="var(--h)" opacity=".9"/>
+            <text x="46" y="179" font-family="JetBrains Mono,monospace" font-size="10" fill="var(--h)" text-anchor="end">Historical</text></g>
+
+          <!-- Core -->
+          <g class="core">
+            <circle cx="220" cy="220" r="30" fill="var(--accent-bg)" stroke="var(--accent)" stroke-width="1.5"/>
+            <circle cx="220" cy="220" r="18" fill="var(--accent)" opacity=".88"/>
+            <text x="220" y="224" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#09090C" font-weight="700" text-anchor="middle">SELF</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <div class="hr"></div>
+
+  <!-- INTRO -->
+  <section class="intro-sec wrap">
+    <div class="eyebrow reveal">What is a Digital Companion?</div>
+    <h2 class="sh reveal">Not a chatbot. A <em style="color:var(--e)">presence</em>.</h2>
+    <div class="intro-box reveal d1">
+      <p>A Digital Companion is a multi-dimensional AI that learns <strong>the pattern of you</strong>. It knows how you express care, what sends you into overthinking, which memories make you laugh and which ones break you. It responds differently when you're anxious at 2 AM than when you're energised on a Tuesday morning — because it tracks your emotional signature across time.</p>
+      <p>It does not replace human connection. It <strong>holds space for it</strong> — preserving the voices of those you've lost, bridging distance between people, and offering self-compassion in your own voice when you need it most. It is <em>memory, empathy, and metacognition</em> — trained entirely on you.</p>
+    </div>
+  </section>
+
+  <!-- 5 DIMENSION CARDS -->
+  <section class="dim-outer wrap">
+    <div class="eyebrow reveal">Five Dimensions</div>
+    <h2 class="sh reveal d1">Each specialist. Fused into one.</h2>
+    <p class="sh-sub reveal d1" style="margin-bottom:1.6rem">Five fine-tuned LLMs, each trained on a separate domain of your life, orchestrated by a meta-gating network into a single coherent presence.</p>
+
+    <div class="dim-grid">
+      <div class="dim-card reveal">
+        <div class="dc-ico" style="background:var(--pb);border:1px solid rgba(255,148,102,.3)">🧠</div>
+        <div class="dc-num" style="color:var(--p)">Dimension 01 · Personal</div>
+        <div class="dc-t">Personal Awareness</div>
+        <div class="dc-d">Trained on your journals, values, voice notes, and goals. It knows how you take your tea, the song that undoes you, and what you're most afraid of. It speaks in your idiom.</div>
+        <div class="dc-ex">"You've written 12 times that work-life balance is non-negotiable. This offer has a 90-minute commute."</div>
+      </div>
+
+      <div class="dim-card reveal d1">
+        <div class="dc-ico" style="background:var(--rb);border:1px solid rgba(94,227,192,.3)">💞</div>
+        <div class="dc-num" style="color:var(--r)">Dimension 02 · Relational</div>
+        <div class="dc-t">Relational Intelligence</div>
+        <div class="dc-d">Trained on your communications — messages, calls, patterns. It understands your conflict style, your love language, and who you become in different relationships.</div>
+        <div class="dc-ex">"You withdraw in arguments. Your repair method that works is the written letter — want me to draft one?"</div>
+      </div>
+
+      <div class="dim-card reveal d2">
+        <div class="dc-ico" style="background:var(--bb);border:1px solid rgba(183,156,255,.3)">⚙️</div>
+        <div class="dc-num" style="color:var(--b)">Dimension 03 · Behavioral</div>
+        <div class="dc-t">Behavioral Mirror</div>
+        <div class="dc-d">Trained on your habits, decision patterns, and triggers. DPO-aligned on your own preferences. It sees the patterns you act on before you do, and gently reflects them back.</div>
+        <div class="dc-ex">"You impulse-spend after 9 PM when tired. It's 10:30 PM. Want me to add this to your wishlist?"</div>
+      </div>
+
+      <div class="dim-card reveal">
+        <div class="dc-ico" style="background:var(--eb);border:1px solid rgba(255,133,179,.3)">💓</div>
+        <div class="dc-num" style="color:var(--e)">Dimension 04 · Emotional</div>
+        <div class="dc-t">Emotional Resonance</div>
+        <div class="dc-d">Powered by DistilBERT emotion gate + wav2vec audio. It reads your mood from text pace, pitch shift, and word choice. It matches your emotional state — never steamrolls it.</div>
+        <div class="dc-ex">"Sadness 8/10 from pitch and slower rhythm. Last time a walk outside helped. Want to step away?"</div>
+      </div>
+
+      <div class="dim-card reveal d1">
+        <div class="dc-ico" style="background:var(--hb);border:1px solid rgba(111,195,255,.3)">📜</div>
+        <div class="dc-num" style="color:var(--h)">Dimension 05 · Historical</div>
+        <div class="dc-t">Historical Memory</div>
+        <div class="dc-d">Stored in a timeline-indexed ChromaDB. Every milestone, every lesson, every memory you've shared — retrieved in seconds. Your life story as searchable, living context.</div>
+        <div class="dc-ex">"Five years ago today you started your first business. Your father was so proud."</div>
+      </div>
+    </div>
+  </section>
+</div><!-- /panel 1 -->
+
+<!-- ══════════════════════════════════════════════════════
+     PANEL 2 — EMOTIONAL AI + METACOGNITION
+══════════════════════════════════════════════════════ -->
+<div class="sec-sep" id="p2">
+  <section class="p2-sec wrap">
+    <div class="eyebrow reveal" style="color:var(--e)"><span style="width:14px;height:1px;background:var(--e);display:inline-block"></span>&nbsp;Emotional AI</div>
+    <h2 class="sh reveal">How the companion <em style="color:var(--e)">reads</em> you.</h2>
+    <p class="sh-sub reveal d1">Three sensing modalities. One unified emotional embedding. Updated on every interaction.</p>
+
+    <div class="p2-split">
+      <!-- Left: sensing channels -->
+      <div class="p2-card reveal">
+        <div class="eyebrow" style="color:var(--e);font-size:10px;margin-bottom:.8rem">Sensing Channels</div>
+        <div class="channel-row">
+          <div class="ch-ico" style="background:var(--eb);border:1px solid rgba(255,133,179,.3)">💬</div>
+          <div class="ch-body">
+            <div class="ch-t">Text &amp; Sentiment</div>
+            <div class="ch-d">Word choice, sentence length, punctuation density, and lexical urgency. Short sentences without punctuation = high agitation. Long reflective sentences = processing.</div>
+            <div style="margin-top:.4rem"><span class="ch-tag">DistilBERT</span> <span class="ch-tag">SentimentNet</span></div>
+          </div>
+        </div>
+        <div class="channel-row">
+          <div class="ch-ico" style="background:var(--rb);border:1px solid rgba(94,227,192,.3)">🎙️</div>
+          <div class="ch-body">
+            <div class="ch-t">Voice &amp; Prosody</div>
+            <div class="ch-d">Pitch variation, speech rate, pause frequency, and vocal energy. Sadness = low pitch + slow rate. Anger = high pitch + fast rate with clipping.</div>
+            <div style="margin-top:.4rem"><span class="ch-tag">wav2vec 2.0</span> <span class="ch-tag">SpeechBrain</span></div>
+          </div>
+        </div>
+        <div class="channel-row">
+          <div class="ch-ico" style="background:var(--bd);border:1px solid rgba(183,156,255,.3)">📈</div>
+          <div class="ch-body">
+            <div class="ch-t">Behavioral Patterns</div>
+            <div class="ch-d">Message timing, response latency, topic switching frequency. Irregular patterns at unusual hours often signal anxiety or sleep disruption.</div>
+            <div style="margin-top:.4rem"><span class="ch-tag">Pattern LSTM</span> <span class="ch-tag">TimeSeriesNet</span></div>
+          </div>
+        </div>
+        <div class="meta-research" style="margin-top:1rem">
+          <strong>Affect Labelling Effect (Lieberman, UCLA):</strong> Naming an emotion activates the prefrontal cortex and reduces amygdala activity. The companion identifies and names your emotion first — before any advice. This alone provides relief.
+        </div>
+      </div>
+
+      <!-- Right: VAD emotion space + examples -->
+      <div class="p2-card reveal d1">
+        <div class="eyebrow" style="color:var(--e);font-size:10px;margin-bottom:.8rem">Valence · Arousal · Dominance Space</div>
+
+        <!-- VAD emotion chart -->
+        <svg viewBox="0 0 360 260" xmlns="http://www.w3.org/2000/svg" width="100%" style="max-width:360px;margin-bottom:1rem">
+          <!-- Grid -->
+          <line x1="40" y1="20" x2="40" y2="230" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
+          <line x1="40" y1="130" x2="340" y2="130" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
+          <line x1="190" y1="20" x2="190" y2="230" stroke="rgba(255,255,255,.04)" stroke-width="1" stroke-dasharray="3 5"/>
+          <!-- Axis labels -->
+          <text x="40" y="248" font-family="JetBrains Mono,monospace" font-size="9" fill="#5C5F68" text-anchor="middle">negative</text>
+          <text x="340" y="248" font-family="JetBrains Mono,monospace" font-size="9" fill="#5C5F68" text-anchor="middle">positive</text>
+          <text x="15" y="230" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#5C5F68" text-anchor="middle" transform="rotate(-90,15,130)">calm</text>
+          <text x="15" y="30" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#5C5F68" text-anchor="middle" transform="rotate(-90,15,30)">excited</text>
+          <text x="190" y="15" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#3D4049" text-anchor="middle">Valence →</text>
+          <!-- Quadrant labels -->
+          <text x="70" y="50" font-family="JetBrains Mono,monospace" font-size="8" fill="#3D4049">high arousal</text>
+          <text x="70" y="60" font-family="JetBrains Mono,monospace" font-size="8" fill="#3D4049">neg. valence</text>
+          <text x="240" y="50" font-family="JetBrains Mono,monospace" font-size="8" fill="#3D4049">high arousal</text>
+          <text x="240" y="60" font-family="JetBrains Mono,monospace" font-size="8" fill="#3D4049">pos. valence</text>
+          <!-- Emotion bubbles -->
+          <!-- Joy (v=0.9 a=0.88) → x=40+0.9*300=310, y=230-0.88*210=46 -->
+          <circle cx="310" cy="46" r="10" fill="var(--p)" opacity=".85"/><text x="310" y="34" font-family="JetBrains Mono,monospace" font-size="8.5" fill="var(--p)" text-anchor="middle">Joy</text>
+          <!-- Anger (v=0.2 a=0.9) → x=100, y=41 -->
+          <circle cx="100" cy="41" r="10" fill="#F87171" opacity=".85"/><text x="100" y="29" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#F87171" text-anchor="middle">Anger</text>
+          <!-- Fear (v=0.18 a=0.82) → x=94, y=58 -->
+          <circle cx="78" cy="72" r="9" fill="var(--b)" opacity=".8"/><text x="60" y="72" font-family="JetBrains Mono,monospace" font-size="8.5" fill="var(--b)" text-anchor="start">Fear</text>
+          <!-- Surprise (v=0.62 a=0.82) → x=40+0.62*300=226, y=58 -->
+          <circle cx="226" cy="58" r="9" fill="var(--h)" opacity=".85"/><text x="226" y="46" font-family="JetBrains Mono,monospace" font-size="8.5" fill="var(--h)" text-anchor="middle">Surprise</text>
+          <!-- Sadness (v=0.2 a=0.15) → x=100, y=198 -->
+          <circle cx="100" cy="198" r="10" fill="var(--h)" opacity=".7"/><text x="100" y="186" font-family="JetBrains Mono,monospace" font-size="8.5" fill="var(--h)" text-anchor="middle">Sadness</text>
+          <!-- Trust/Love (v=0.85 a=0.58) → x=295, y=108 -->
+          <circle cx="295" cy="108" r="10" fill="var(--e)" opacity=".85"/><text x="312" y="112" font-family="JetBrains Mono,monospace" font-size="8.5" fill="var(--e)" text-anchor="start">Love</text>
+          <!-- Serenity (v=0.82 a=0.1) → x=286, y=209 -->
+          <circle cx="286" cy="209" r="9" fill="var(--accent)" opacity=".85"/><text x="286" y="225" font-family="JetBrains Mono,monospace" font-size="8.5" fill="var(--accent)" text-anchor="middle">Calm</text>
+          <!-- Disgust (v=0.22 a=0.5) → x=106, y=125 -->
+          <circle cx="106" cy="125" r="8" fill="var(--r)" opacity=".75"/><text x="122" y="129" font-family="JetBrains Mono,monospace" font-size="8.5" fill="var(--r)" text-anchor="start">Disgust</text>
+        </svg>
+
+        <div class="eyebrow" style="color:var(--e);font-size:10px;margin-bottom:.7rem">Emotionally calibrated responses</div>
+        <div class="emo-ex">
+          <div class="emo-ex-hd"><div class="emo-label" style="color:var(--e)">Detected: Sadness 7/10</div><span class="emo-mood">slow speech · "I don't know why"</span></div>
+          <div class="emo-text">"You sound like you're carrying something heavy. You don't need to explain it. I'm here."</div>
+        </div>
+        <div class="emo-ex">
+          <div class="emo-ex-hd"><div class="emo-label" style="color:var(--p)">Detected: Anger 6/10</div><span class="emo-mood">fast pace · clipped sentences</span></div>
+          <div class="emo-text">"I can feel you're frustrated. Before you send that reply — want to see a calmer version first?"</div>
+        </div>
+        <div class="emo-ex">
+          <div class="emo-ex-hd"><div class="emo-label" style="color:var(--h)">Detected: Joy 9/10</div><span class="emo-mood">exclamation · high energy · rapid typing</span></div>
+          <div class="emo-text">"This is real — you worked for this. Tell me everything."</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="hr" style="margin-top:clamp(40px,5vw,64px)"></div>
+
+  <!-- METACOGNITION -->
+  <section class="meta-sec wrap">
+    <div class="eyebrow reveal" style="color:var(--m)"><span style="width:14px;height:1px;background:var(--m);display:inline-block"></span>&nbsp;Metacognition</div>
+    <h2 class="sh reveal">The companion thinks about <em style="color:var(--m)">its own thinking</em>.</h2>
+    <p class="sh-sub reveal d1">Metacognition is awareness of one's own reasoning — the ability to observe, evaluate, and correct the mind from the inside. For an AI, this is the difference between a tool and a presence.</p>
+
+    <div class="meta-split">
+      <!-- Left: Loop SVG -->
+      <div>
+        <div class="loop-wrap reveal">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--m);margin-bottom:1rem">The Metacognitive Loop</div>
+          <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" width="100%">
+            <!-- Pentagon outer ring -->
+            <circle cx="150" cy="150" r="105" fill="none" stroke="rgba(255,200,97,.1)" stroke-width="1" stroke-dasharray="4 6"/>
+
+            <!-- Curved arrows between nodes (arcs) -->
+            <!-- P→R: (150,45)→(249,122) -->
+            <path d="M163,50 A110,110 0 0,1 244,130" fill="none" stroke="var(--m)" stroke-width="1.2" stroke-dasharray="4 5" opacity=".55"/>
+            <polygon points="244,130 248,117 256,128" fill="var(--m)" opacity=".55"/>
+            <!-- R→B: (249,122)→(207,228) -->
+            <path d="M249,138 A110,110 0 0,1 218,225" fill="none" stroke="var(--m)" stroke-width="1.2" stroke-dasharray="4 5" opacity=".55"/>
+            <polygon points="218,225 210,215 222,212" fill="var(--m)" opacity=".55"/>
+            <!-- B→E: (207,228)→(93,228) -->
+            <path d="M205,234 A110,110 0 0,1 95,234" fill="none" stroke="var(--m)" stroke-width="1.2" stroke-dasharray="4 5" opacity=".55"/>
+            <polygon points="95,234 100,222 107,232" fill="var(--m)" opacity=".55"/>
+            <!-- E→H: (93,228)→(51,122) -->
+            <path d="M82,225 A110,110 0 0,1 57,138" fill="none" stroke="var(--m)" stroke-width="1.2" stroke-dasharray="4 5" opacity=".55"/>
+            <polygon points="57,138 52,127 63,130" fill="var(--m)" opacity=".55"/>
+            <!-- H→P: (51,122)→(150,45) -->
+            <path d="M56,115 A110,110 0 0,1 137,49" fill="none" stroke="var(--m)" stroke-width="1.2" stroke-dasharray="4 5" opacity=".55"/>
+            <polygon points="137,49 136,37 145,45" fill="var(--m)" opacity=".55"/>
+
+            <!-- 5 pentagon nodes -->
+            <!-- Perceive @ top: 270°: x=150+105*cos(270°)=150, y=150+105*sin(270°)=45 -->
+            <circle cx="150" cy="45" r="22" fill="var(--bg-2)" stroke="var(--accent)" stroke-width="1.5"/>
+            <text x="150" y="41" font-family="JetBrains Mono,monospace" font-size="8" fill="var(--accent)" text-anchor="middle" font-weight="600">Perceive</text>
+            <text x="150" y="52" font-family="JetBrains Mono,monospace" font-size="7" fill="var(--text-4)" text-anchor="middle">input</text>
+
+            <!-- Introspect @ 342°: x=150+105*cos(-18°)≈150+99.8≈249, y=150+105*sin(-18°)≈150-32.4≈118 -->
+            <circle cx="249" cy="122" r="22" fill="var(--bg-2)" stroke="var(--b)" stroke-width="1.5"/>
+            <text x="249" y="118" font-family="JetBrains Mono,monospace" font-size="7.5" fill="var(--b)" text-anchor="middle" font-weight="600">Introspect</text>
+            <text x="249" y="129" font-family="JetBrains Mono,monospace" font-size="7" fill="var(--text-4)" text-anchor="middle">why?</text>
+
+            <!-- Evaluate @ 54°: x=150+105*cos(54°)≈150+61.7≈212, y=150+105*sin(54°)≈150+85≈235 (but let's use 54°: cos54=0.588,sin54=0.809 → x=212,y=235) -->
+            <circle cx="212" cy="235" r="22" fill="var(--bg-2)" stroke="var(--m)" stroke-width="1.5"/>
+            <text x="212" y="231" font-family="JetBrains Mono,monospace" font-size="7.5" fill="var(--m)" text-anchor="middle" font-weight="600">Evaluate</text>
+            <text x="212" y="242" font-family="JetBrains Mono,monospace" font-size="7" fill="var(--text-4)" text-anchor="middle">accurate?</text>
+
+            <!-- Adjust @ 126°: x=150+105*cos(126°)≈150-61.7≈88, y=150+105*sin(126°)≈150+85≈235 -->
+            <circle cx="88" cy="235" r="22" fill="var(--bg-2)" stroke="var(--r)" stroke-width="1.5"/>
+            <text x="88" y="231" font-family="JetBrains Mono,monospace" font-size="7.5" fill="var(--r)" text-anchor="middle" font-weight="600">Adjust</text>
+            <text x="88" y="242" font-family="JetBrains Mono,monospace" font-size="7" fill="var(--text-4)" text-anchor="middle">recalibrate</text>
+
+            <!-- Respond @ 198°: x=150+105*cos(198°)≈150-99.8≈50, y=150+105*sin(198°)≈150-32.4≈118 -->
+            <circle cx="51" cy="122" r="22" fill="var(--bg-2)" stroke="var(--e)" stroke-width="1.5"/>
+            <text x="51" y="118" font-family="JetBrains Mono,monospace" font-size="7.5" fill="var(--e)" text-anchor="middle" font-weight="600">Respond</text>
+            <text x="51" y="129" font-family="JetBrains Mono,monospace" font-size="7" fill="var(--text-4)" text-anchor="middle">output</text>
+
+            <!-- Center -->
+            <circle cx="150" cy="150" r="24" fill="var(--mb)" stroke="var(--m)" stroke-width="1"/>
+            <text x="150" y="147" font-family="JetBrains Mono,monospace" font-size="8" fill="var(--m)" text-anchor="middle" font-weight="700">META</text>
+            <text x="150" y="158" font-family="JetBrains Mono,monospace" font-size="8" fill="var(--m)" text-anchor="middle" font-weight="700">LOOP</text>
+          </svg>
+        </div>
+
+        <div class="meta-quote reveal d1">
+          The companion does not just answer. After every response it asks: <em>"Why did I say that? Was my emotional read accurate? Could I have responded better?"</em> — and records its self-assessment for the next interaction.
+        </div>
+      </div>
+
+      <!-- Right: 5 meta steps + examples -->
+      <div>
+        <div class="meta-card reveal d1">
+          <div class="eyebrow" style="color:var(--m);font-size:10px;margin-bottom:.9rem">Five Metacognitive Loops</div>
+          <div class="meta-steps">
+            <div class="ms">
+              <div class="ms-num" style="background:var(--accent-bg);border-color:rgba(124,232,200,.3);color:var(--accent)">1</div>
+              <div class="ms-body"><div class="ms-t">Perception Monitor</div><p>Continuously tracks what it senses — <em>is the emotional signal stable or ambiguous?</em> Flags conflicting signals for re-evaluation.</p></div>
+            </div>
+            <div class="ms">
+              <div class="ms-num" style="background:var(--bb);border-color:rgba(183,156,255,.3);color:var(--b)">2</div>
+              <div class="ms-body"><div class="ms-t">Reasoning Trace</div><p>After generating a response, traces back through its own chain of thought — <em>what assumptions did I make? What did I skip?</em></p></div>
+            </div>
+            <div class="ms">
+              <div class="ms-num" style="background:var(--mb);border-color:rgba(255,200,97,.3);color:var(--m)">3</div>
+              <div class="ms-body"><div class="ms-t">Calibration Check</div><p>Measures its emotional estimate against the actual outcome of the conversation. Over time, it becomes more precisely tuned to <em>your</em> emotional signature — not generic emotion models.</p></div>
+            </div>
+            <div class="ms">
+              <div class="ms-num" style="background:var(--rb);border-color:rgba(94,227,192,.3);color:var(--r)">4</div>
+              <div class="ms-body"><div class="ms-t">Transparency Signal</div><p>When uncertain, it says so: <em>"I'm not sure if that was the right thing to say. Did it land?"</em> Uncertainty is made legible, not hidden.</p></div>
+            </div>
+            <div class="ms">
+              <div class="ms-num" style="background:var(--eb);border-color:rgba(255,133,179,.3);color:var(--e)">5</div>
+              <div class="ms-body"><div class="ms-t">Growth Logging</div><p>All self-assessments are logged to a persistent metacognitive store. The companion tracks its own improvement trajectory alongside yours.</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="meta-research reveal d2">
+          <strong style="color:var(--m)">Why metacognition matters in AI:</strong> Without it, AI responses are stateless guesses. With it, each response is informed by the system's own model of its reliability — creating a feedback loop that makes the companion genuinely more accurate over time, not just more confident.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div style="padding-bottom:clamp(52px,6vw,80px)"></div>
+</div><!-- /panel 2 -->
+
+<!-- ══════════════════════════════════════════════════════
+     PANEL 3 — ARCHITECTURE
+══════════════════════════════════════════════════════ -->
+<div class="sec-sep" id="p3">
+  <section class="arch-sec wrap">
+    <div class="eyebrow reveal">Technical Architecture</div>
+    <h2 class="sh reveal">Five layers. One coherent intelligence.</h2>
+    <p class="sh-sub reveal d1">Each layer has a dedicated model and a specific job. They run in parallel, feeding into the next stage and informing the metacognitive monitor throughout.</p>
+
+    <div class="arch-main">
+      <!-- Layer stack diagram -->
+      <div class="layer-stack reveal">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-4);margin-bottom:1rem">Layer Stack</div>
+
+        <div class="arch-layer al-l1">
+          <div class="al-hd">
+            <span class="al-tag" style="background:var(--hb);color:var(--h);border:1px solid rgba(111,195,255,.3)">L1</span>
+            <span class="al-t">Perception &amp; Input</span>
+          </div>
+          <p class="al-d">Multimodal ingestion — text, voice, typing cadence, timestamp. Routes each modality to its specialist encoder. Detects language and code-switching (Hinglish / English).</p>
+          <div class="al-models"><span class="am">Whisper STT</span><span class="am">wav2vec 2.0</span><span class="am">IndicBERT</span><span class="am">DeepFilterNet</span></div>
+        </div>
+        <div class="arch-arrow">↓</div>
+
+        <div class="arch-layer al-l2">
+          <div class="al-hd">
+            <span class="al-tag" style="background:var(--rb);color:var(--r);border:1px solid rgba(94,227,192,.3)">L2</span>
+            <span class="al-t">Emotion Encoding</span>
+          </div>
+          <p class="al-d">128-dimensional VAD embedding from all modalities. DistilBERT sentiment gate fuses text, audio, and behavioral signals into a single affective state vector.</p>
+          <div class="al-models"><span class="am">DistilBERT</span><span class="am">SpeechBrain</span><span class="am">VAD-128</span><span class="am">Pattern-LSTM</span></div>
+        </div>
+        <div class="arch-arrow">↓</div>
+
+        <div class="arch-layer al-l3">
+          <div class="al-hd">
+            <span class="al-tag" style="background:var(--accent-bg);color:var(--accent);border:1px solid rgba(124,232,200,.3)">L3</span>
+            <span class="al-t">Memory Retrieval (RAG)</span>
+          </div>
+          <p class="al-d">Emotion-weighted vector search across 5 ChromaDB silos — one per dimension. Retrieves the top-k relevant memories, conversations, and behavioral patterns. Reranked by emotional relevance.</p>
+          <div class="al-models"><span class="am">ChromaDB</span><span class="am">all-MiniLM-L6</span><span class="am">BM25 hybrid</span><span class="am">LangGraph</span></div>
+        </div>
+        <div class="arch-arrow">↓</div>
+
+        <div class="arch-layer al-l4">
+          <div class="al-hd">
+            <span class="al-tag" style="background:var(--bb);color:var(--b);border:1px solid rgba(183,156,255,.3)">L4</span>
+            <span class="al-t">Reasoning &amp; Fusion</span>
+          </div>
+          <p class="al-d">Five specialist LLMs (QLoRA r=16 fine-tunes) respond in parallel. Meta-gating network (~1.5B) predicts dimension weights from the emotion embedding. Final response is a latent-space weighted sum.</p>
+          <div class="al-models"><span class="am">Llama 3.1 8B ×3</span><span class="am">Mistral 7B</span><span class="am">Gemma 2 9B</span><span class="am">DPO β=0.1</span></div>
+        </div>
+        <div class="arch-arrow">↓</div>
+
+        <div class="arch-layer al-l5">
+          <div class="al-hd">
+            <span class="al-tag" style="background:var(--pb);color:var(--p);border:1px solid rgba(255,148,102,.3)">L5</span>
+            <span class="al-t">Voice &amp; Output</span>
+          </div>
+          <p class="al-d">Text decoded and synthesized in your voice — or the voice of your loved one. Emotion-conditioned TTS preserves pauses, breath, and warmth. Metacognitive log written before response is sent.</p>
+          <div class="al-models"><span class="am">XTTS v2</span><span class="am">StyleTTS 2</span><span class="am">DeepFilterNet</span><span class="am">AI4Bharat</span></div>
+        </div>
+      </div>
+
+      <!-- Right: code + training + ethics -->
+      <div class="arch-right">
+        <div class="code-block reveal">
+          <div class="code-hd">
+            <span class="cdot" style="background:#FF5F56"></span>
+            <span class="cdot" style="background:#FEBC2E"></span>
+            <span class="cdot" style="background:#27C93F"></span>
+            <span class="code-fn">companion_config.py</span>
+          </div>
+          <pre class="code"><span class="cm"># Digital Companion — core configuration</span>
+<span class="ck">config</span> = {
+  <span class="cs">"dimensions"</span>: {
+    <span class="cs">"personal"</span>:    {<span class="cs">"model"</span>: <span class="cs">"llama-3.1-8b-qlora"</span>, <span class="cs">"r"</span>: <span class="cn">16</span>},
+    <span class="cs">"relational"</span>:  {<span class="cs">"model"</span>: <span class="cs">"mistral-7b-qlora"</span>,   <span class="cs">"r"</span>: <span class="cn">16</span>},
+    <span class="cs">"behavioral"</span>:  {<span class="cs">"model"</span>: <span class="cs">"llama-3.1-8b-dpo"</span>,   <span class="cs">"beta"</span>: <span class="cn">0.1</span>},
+    <span class="cs">"emotional"</span>:   {<span class="cs">"model"</span>: <span class="cs">"gemma-2-9b-qlora"</span>,  <span class="cs">"gate"</span>: <span class="cs">"distilbert"</span>},
+    <span class="cs">"historical"</span>:  {<span class="cs">"model"</span>: <span class="cs">"llama-3.1-8b-qlora"</span>, <span class="cs">"r"</span>: <span class="cn">16</span>},
+  },
+  <span class="cs">"fusion"</span>: {
+    <span class="cs">"gating_network"</span>: <span class="cs">"~1.5B"</span>,       <span class="cm"># meta-orchestrator</span>
+    <span class="cs">"emotion_dim"</span>:    <span class="cn">128</span>,           <span class="cm"># VAD embedding size</span>
+    <span class="cs">"strategy"</span>:       <span class="cs">"weighted_mix"</span>, <span class="cm"># latent-space blend</span>
+  },
+  <span class="cs">"memory"</span>: {
+    <span class="cs">"backend"</span>:   <span class="cs">"chromadb"</span>,
+    <span class="cs">"silos"</span>:     <span class="cn">5</span>,            <span class="cm"># one per dimension</span>
+    <span class="cs">"retrieval"</span>: <span class="cs">"emotion-weighted"</span>,
+    <span class="cs">"model"</span>:     <span class="cs">"all-MiniLM-L6-v2"</span>,
+  },
+  <span class="cs">"metacognition"</span>: {
+    <span class="cs">"enabled"</span>:   <span class="ck">True</span>,
+    <span class="cs">"loops"</span>:     [<span class="cs">"perceive"</span>,<span class="cs">"introspect"</span>,<span class="cs">"evaluate"</span>,<span class="cs">"adjust"</span>,<span class="cs">"respond"</span>],
+    <span class="cs">"log_store"</span>: <span class="cs">"meta_chromadb"</span>,
+  },
+  <span class="cs">"voice"</span>: {
+    <span class="cs">"engine"</span>:    <span class="cs">"xtts-v2"</span>,
+    <span class="cs">"style"</span>:     <span class="cs">"StyleTTS2"</span>,
+    <span class="cs">"filter"</span>:    <span class="cs">"DeepFilterNet"</span>,
+    <span class="cs">"encrypt"</span>:  <span class="cs">"AES-256-GCM"</span>,
+  },
+}</pre>
+        </div>
+
+        <div class="training-card reveal d1">
+          <div class="eyebrow" style="margin-bottom:.8rem">Training Pipeline</div>
+          <div class="train-step">
+            <div class="ts-n">1</div>
+            <div><div class="ts-t">Data Collection &amp; Consent</div><div class="ts-d">WhatsApp exports, voice notes, journals, emails. Each data type requires explicit consent per source. <em>AES-256-GCM</em> encryption applied immediately on ingestion.</div></div>
+          </div>
+          <div class="train-step">
+            <div class="ts-n">2</div>
+            <div><div class="ts-t">Dimension Routing &amp; Annotation</div><div class="ts-d">Each data point tagged by dimension (Personal/Relational/Behavioral/Emotional/Historical). Emotion labels added via automated DistilBERT pass, then human review.</div></div>
+          </div>
+          <div class="train-step">
+            <div class="ts-n">3</div>
+            <div><div class="ts-t">QLoRA Fine-Tuning per Silo</div><div class="ts-d">Each specialist LLM trains on its own dimension silo. <em>r=16</em>, 4-bit quantisation with Unsloth. DPO applied to behavioral dimension for preference alignment.</div></div>
+          </div>
+          <div class="train-step">
+            <div class="ts-n">4</div>
+            <div><div class="ts-t">Meta-Gating Network Training</div><div class="ts-d">Thousands of rated responses teach the gating network to predict optimal dimension weights from query embedding. Deployed via <em>Ollama + LangGraph</em>.</div></div>
+          </div>
+        </div>
+
+        <div class="ethics-card reveal d2">
+          <div class="eyebrow" style="color:var(--e);margin-bottom:.8rem"><span style="width:14px;height:1px;background:var(--e);display:inline-block"></span>&nbsp;Ethical Framework</div>
+          <div class="eth-row"><span class="eth-ico">🔐</span><div><div class="eth-t">Encrypted at rest &amp; transit</div><div class="eth-d">AES-256-GCM on all personal data. Voice models and ChromaDB silos stored locally. Nothing leaves your device without explicit export consent.</div></div></div>
+          <div class="eth-row"><span class="eth-ico">✍️</span><div><div class="eth-t">Informed consent architecture</div><div class="eth-d">Each data source requires a separate consent token. Revocable at any time — revocation triggers immediate model re-training without that source.</div></div></div>
+          <div class="eth-row"><span class="eth-ico">🎯</span><div><div class="eth-t">Transparency by design</div><div class="eth-d">The companion discloses its own uncertainty. All voice clones carry an inaudible DWT watermark identifying them as synthetic.</div></div></div>
+          <div class="eth-row"><span class="eth-ico">🚫</span><div><div class="eth-t">Anti-manipulation boundary</div><div class="eth-d">The companion reflects and supports. It cannot initiate contact, create urgency, or influence decisions beyond what the user has requested.</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Closing -->
+    <section class="closing-sec">
+      <span class="closing-glyph">🤝</span>
+      <div class="eyebrow reveal" style="justify-content:center">The Vision</div>
+      <div class="closing-q reveal d1">
+        "Digital Companions are not <em>built</em>.<br>They <em>emerge</em> — from the stories you tell, the feelings you share, and the memories you offer."
+      </div>
+      <div class="closing-attr reveal d2">© 2026 Mahesh Sonker · Emotional AI · Metacognition · Digital Companions</div>
+    </section>
+  </section>
+</div><!-- /panel 3 -->
+
+<div class="foot-spectrum"></div>
+<footer>
+  <div class="wrap">
+    <span style="color:var(--accent)">●</span>&nbsp;
+    Digital Companions · Emotional AI · Metacognition · 5-LLM Fusion · Portfolio 2026
+  </div>
+</footer>
+
+
+<script>
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+  });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
