@@ -266,8 +266,8 @@ h2.display{font-weight:600;letter-spacing:-0.035em}
 .avail-rotate.swap{opacity:0;transform:translateY(-4px)}
 
 .hero h1{
-  font-size:clamp(48px,8vw,116px);
-  line-height:0.95;
+  font-size:clamp(34px,5.6vw,82px);
+  line-height:0.98;
   letter-spacing:-0.045em;
   font-weight:600;
 }
@@ -287,6 +287,36 @@ h2.display{font-weight:600;letter-spacing:-0.035em}
   to{opacity:1;transform:translateY(0)}
 }
 .hero h1 em{font-style:normal;color:var(--accent);font-weight:500}
+
+.hero-note{
+  display:flex;
+  align-items:flex-start;
+  gap:4px;
+  margin-top:24px;
+  padding:12px 16px 12px 14px;
+  background:rgba(255,171,124,0.04);
+  border:1px solid rgba(255,171,124,0.15);
+  border-left:2px solid rgba(255,171,124,0.6);
+  border-radius:6px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  line-height:1.65;
+  letter-spacing:0.02em;
+  color:var(--text-3);
+  max-width:56ch;
+  opacity:0;
+  animation:fadeUp 0.7s var(--ease-out-quart) 1.4s forwards;
+  flex-wrap:wrap;
+}
+.hero-note strong{
+  color:#FFAB7C;
+  font-weight:500;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  font-size:10.5px;
+  margin-right:6px;
+  white-space:nowrap;
+}
 
 .hero-meta{
   display:flex;flex-direction:column;
@@ -2241,6 +2271,11 @@ footer{background:var(--bg);padding:60px 0 40px}
           <span class="line"><span class="word">Now</span> <span class="word">exploring</span></span>
           <span class="line"><span class="word"><em>humanity</em></span>.</span>
         </h1>
+
+        <p class="hero-note">
+          <strong>Note —</strong>
+          <span>A personal portfolio of self-initiated projects, built outside of work hours for learning, innovation, technical exploration, and my personal aspiration to serve humanity through technology.</span>
+        </p>
       </div>
 
       <div class="hero-meta">
