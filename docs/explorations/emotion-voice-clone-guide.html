@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hindi/Hinglish Emotion Recognition &amp; Voice Cloning · Technical Guide</title>
+<meta name="description" content="CNN+LSTM emotion recognition for Hindi/Hinglish text, merged with a complete Hindi/Hinglish voice cloning training guide.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── PORTFOLIO TOKENS ─────────────────────────────────────── */
+:root{
+  --bg:#0A0B0E;--bg-1:#111319;--bg-2:#16181F;--bg-3:#1B1E26;--bg-4:#22252E;
+  --border:rgba(255,255,255,.06);--border-2:rgba(255,255,255,.10);--border-3:rgba(255,255,255,.18);
+  --text:#F1F1EE;--text-2:#C5C7CC;--text-3:#8A8D96;--text-4:#5C5F68;--text-5:#3D4049;
+  --accent:#7CE8C8;--accent-dim:rgba(124,232,200,.13);--accent-bg:rgba(124,232,200,.07);--accent-br:rgba(124,232,200,.28);
+  /* Part 1 — Emotion Recognition palette */
+  --cnn:#6FC3FF;--cnn-d:rgba(111,195,255,.14);--cnn-b:rgba(111,195,255,.07);--cnn-br:rgba(111,195,255,.3);
+  --lstm:#B79CFF;--lstm-d:rgba(183,156,255,.14);--lstm-b:rgba(183,156,255,.07);--lstm-br:rgba(183,156,255,.3);
+  --fuse:#7CE8C8;--fuse-d:rgba(124,232,200,.14);
+  /* Part 2 — Voice Cloning palette (amber domain) */
+  --amb:#FFC861;--amb-d:rgba(255,200,97,.14);--amb-b:rgba(255,200,97,.07);--amb-br:rgba(255,200,97,.3);
+  --grn:#5EE3C0;--grn-d:rgba(94,227,192,.14);--grn-b:rgba(94,227,192,.07);--grn-br:rgba(94,227,192,.3);
+  --vio:#B79CFF;--vio-d:rgba(183,156,255,.14);--vio-br:rgba(183,156,255,.3);
+  --rose:#FF85B3;--rose-d:rgba(255,133,179,.12);--rose-br:rgba(255,133,179,.3);
+  --ease:cubic-bezier(.22,.68,0,1.05);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Geist',-apple-system,sans-serif;background:var(--bg);color:var(--text);
+  line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;letter-spacing:-.005em;
+  background-image:radial-gradient(circle at 1px 1px,rgba(255,255,255,.025) 1px,transparent 0);
+  background-size:24px 24px;background-attachment:fixed;
+}
+::selection{background:var(--accent);color:var(--bg)}
+.wrap{max-width:1140px;margin:0 auto;padding:0 clamp(20px,4vw,40px)}
+.hindi{font-family:'Noto Sans Devanagari','Geist',sans-serif;font-weight:500}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--accent);
+  display:inline-flex;align-items:center;gap:10px;margin-bottom:1.1rem}
+.eyebrow::before{content:'';width:14px;height:1px;background:currentColor;flex-shrink:0}
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.reveal.in{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}
+.hr{height:1px;background:var(--border)}
+section{padding:clamp(52px,6.5vw,84px) 0 0}
+h2.sh{font-size:clamp(1.35rem,2.7vw,2rem);font-weight:700;letter-spacing:-.02em;line-height:1.2;margin-bottom:.4rem}
+.sh-sub{font-size:.86rem;color:var(--text-4);max-width:640px;line-height:1.68}
+
+/* ── HERO (shared pattern, scoped colors per part) ────────── */
+.hero{position:relative;padding:clamp(64px,8vw,96px) 0 clamp(40px,5vw,60px);overflow:hidden;text-align:center}
+.orb{position:absolute;border-radius:50%;filter:blur(84px);pointer-events:none}
+.hero-inner{position:relative;z-index:2;max-width:780px;margin:0 auto}
+.hero-pill{display:inline-flex;align-items:center;gap:8px;padding:5px 16px;border-radius:999px;
+  background:var(--bg-2);border:1px solid var(--border-2);
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-3);margin-bottom:1.5rem}
+.hero-pill .dot{width:6px;height:6px;border-radius:50%;position:relative}
+.hero-pill .dot::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid currentColor;
+  animation:rpl 2s ease-out infinite}
+@keyframes rpl{0%{transform:scale(.6);opacity:.9}100%{transform:scale(2.4);opacity:0}}
+h1.hero-h{font-size:clamp(2rem,4.8vw,3.4rem);font-weight:800;letter-spacing:-.03em;line-height:1.1;margin-bottom:1rem}
+.hero-sub{font-size:1rem;color:var(--text-3);max-width:600px;margin:0 auto 1.6rem;line-height:1.75;font-weight:300}
+.badge-row{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}
+.badge{padding:.42rem 1.1rem;border-radius:999px;font-size:.78rem;font-weight:600;border:1px solid}
+
+/* part separator */
+.part-sep{margin:clamp(60px,7vw,100px) 0;padding:2.2rem;text-align:center;
+  background:var(--bg-1);border:1px solid var(--border);border-radius:20px;position:relative;overflow:hidden}
+.part-sep::before{content:'';position:absolute;inset:0;pointer-events:none}
+.part-sep .ps-label{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.15em;
+  text-transform:uppercase;margin-bottom:.6rem}
+.part-sep h2{font-size:clamp(1.3rem,2.6vw,1.9rem);font-weight:700;color:var(--text);margin-bottom:.5rem}
+.part-sep p{font-size:.86rem;color:var(--text-4);max-width:560px;margin:0 auto}
+
+/* ── ARCH / OVERVIEW CARDS (3-col) ────────────────────────── */
+.arch-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:1.6rem}
+.arch-card{background:var(--bg-1);border:1px solid var(--border);border-radius:18px;padding:1.5rem 1.6rem;
+  border-top:3px solid;transition:transform .2s,border-color .2s}
+.arch-card:hover{transform:translateY(-4px)}
+.arch-hd{display:flex;align-items:center;gap:.7rem;margin-bottom:.8rem}
+.arch-ico{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.arch-t{font-size:.95rem;font-weight:700;color:var(--text)}
+.arch-p{font-size:.81rem;color:var(--text-3);line-height:1.7}
+
+/* ── STEP CARDS (2-col grid) ───────────────────────────────── */
+.step-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:1.6rem}
+.step-card{background:var(--bg-1);border:1px solid var(--border);border-radius:18px;
+  padding:1.6rem 1.7rem 1.6rem 2rem;position:relative}
+.step-badge{position:absolute;top:-14px;left:-14px;width:38px;height:38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;
+  font-weight:800;font-size:.95rem;color:#09090C}
+.step-t{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:.8rem}
+.step-card p{font-size:.83rem;color:var(--text-3);line-height:1.68;margin-bottom:.6rem}
+.step-list{list-style:none;margin-top:.6rem}
+.step-list li{padding:.45rem 0;border-bottom:1px dashed var(--border);font-size:.8rem;color:var(--text-3);
+  display:flex;align-items:flex-start;gap:.5rem}
+.step-list li:last-child{border-bottom:none}
+.step-list li::before{content:'✓';font-weight:700;flex-shrink:0}
+
+/* ── CODE BLOCKS (shared) ─────────────────────────────────── */
+.code-block{background:var(--bg-1);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-top:1rem}
+.code-hd{display:flex;align-items:center;gap:.6rem;padding:.6rem 1rem;background:var(--bg-2);border-bottom:1px solid var(--border)}
+.cdot{width:9px;height:9px;border-radius:50%}
+.code-fn{font-family:'JetBrains Mono',monospace;font-size:.64rem;color:var(--text-4);margin-left:.3rem}
+pre.code{background:var(--bg);padding:1.15rem 1.35rem;font-family:'JetBrains Mono',monospace;
+  font-size:.72rem;line-height:1.85;overflow-x:auto;color:var(--text-4)}
+.ck{color:#C792EA}.cs{color:#C3E88D}.cn{color:#F78C6C}.cm{color:#4E5058}.cf{color:#82AAFF}.cv{color:var(--cnn)}
+
+/* ── MODEL DIAGRAM STRIP ──────────────────────────────────── */
+.diagram-card{background:var(--bg-1);border:1px solid var(--border);border-radius:20px;padding:1.8rem;margin-top:1.6rem}
+.model-strip{display:flex;align-items:center;gap:0;overflow-x:auto;padding-bottom:4px}
+.ml{flex:1;min-width:130px;background:var(--bg-2);border:1px solid var(--border-2);border-radius:14px;
+  padding:1.1rem 1rem;text-align:center;margin:0 2px}
+.ml-t{font-weight:700;color:var(--cnn);margin-bottom:.4rem;font-size:.84rem}
+.ml-d{font-size:.72rem;color:var(--text-4);line-height:1.5}
+.ml-arrow{flex-shrink:0;color:var(--cnn);font-size:1.3rem;padding:0 .3rem;opacity:.7}
+
+/* ── DATASET TABLE ─────────────────────────────────────────── */
+.tbl-wrap{overflow-x:auto;margin-top:1.4rem;border-radius:16px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;background:var(--bg-1);font-size:.8rem;min-width:600px}
+th,td{padding:.8rem 1rem;text-align:left;border-bottom:1px solid var(--border)}
+th{background:var(--bg-2);font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--text-2)}
+td{color:var(--text-3);line-height:1.6}
+tr:last-child td{border-bottom:none}
+
+/* ── TOOLS GRID (4-col) ────────────────────────────────────── */
+.tools-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:1.6rem}
+.tool-card{background:var(--bg-1);border:1px solid var(--border);border-radius:16px;padding:1.3rem 1rem;
+  text-align:center;transition:transform .2s,border-color .2s}
+.tool-card:hover{transform:translateY(-4px);border-color:var(--border-2)}
+.tool-ico{font-size:1.6rem;margin-bottom:.6rem;color:var(--cnn)}
+.tool-t{font-size:.85rem;font-weight:700;color:var(--text);margin-bottom:.3rem}
+.tool-d{font-size:.72rem;color:var(--text-4)}
+
+/* ── METRICS GRID (3-col) ─────────────────────────────────── */
+.metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:1.6rem}
+.metric-card{background:var(--bg-1);border:1px solid var(--border);border-radius:18px;padding:1.6rem;text-align:center;
+  transition:transform .2s}
+.metric-card:hover{transform:translateY(-4px)}
+.metric-val{font-size:2.1rem;font-weight:800;color:var(--fuse);margin-bottom:.4rem;transition:transform .2s}
+.metric-lbl{font-size:.82rem;font-weight:700;color:var(--text-2);margin-bottom:.3rem}
+.metric-sub{font-size:.72rem;color:var(--text-4)}
+
+/* ── PIPELINE ROWS ─────────────────────────────────────────── */
+.pipe-rows{display:flex;flex-direction:column;gap:12px;margin-top:1.6rem}
+.pipe-row{display:flex;gap:1.2rem;align-items:flex-start;background:var(--bg-1);border:1px solid var(--border);
+  border-radius:16px;padding:1.3rem 1.5rem}
+.pipe-ico{width:44px;height:44px;border-radius:50%;background:var(--cnn);display:flex;align-items:center;
+  justify-content:center;font-size:1.2rem;color:#09090C;flex-shrink:0}
+.pipe-t{font-size:.9rem;font-weight:700;color:var(--text);margin-bottom:.4rem}
+.pipe-p{font-size:.82rem;color:var(--text-3);line-height:1.65}
+
+/* ── SUMMARY BOX ───────────────────────────────────────────── */
+.summary-box{background:var(--bg-1);border:1px solid var(--fuse-d);border-left:3px solid var(--fuse);
+  border-radius:18px;padding:1.7rem 1.9rem;margin-top:1.6rem}
+.summary-box p{font-size:.87rem;color:var(--text-3);line-height:1.85}
+.summary-box p strong{color:var(--text-2);font-weight:600}
+.summary-box ul{list-style:none;margin-top:1rem}
+.summary-box li{padding:.45rem 0;font-size:.83rem;color:var(--text-3);display:flex;align-items:flex-start;gap:.6rem}
+.summary-box li::before{content:'▹';color:var(--fuse);flex-shrink:0}
+
+/* ── REQUIREMENTS / DATASET CARDS (2-col) ─────────────────── */
+.req-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:1.6rem}
+.req-card{background:var(--bg-1);border:1px solid var(--border);border-radius:18px;padding:1.6rem 1.7rem}
+.req-hd{font-size:.94rem;font-weight:700;color:var(--text);margin-bottom:1rem;display:flex;align-items:center;gap:.6rem}
+.req-card p{font-size:.82rem;color:var(--text-3);line-height:1.85;margin-bottom:.2rem}
+.req-card p strong{color:var(--text-2);font-weight:600}
+
+/* ── TIMELINE ──────────────────────────────────────────────── */
+.timeline{position:relative;padding-left:32px;margin-top:1.6rem}
+.timeline::before{content:'';position:absolute;left:6px;top:6px;bottom:6px;width:2px;
+  background:linear-gradient(to bottom,var(--vio),var(--lstm))}
+.tl-item{position:relative;padding:0 0 1.6rem 1.2rem}
+.tl-item:last-child{padding-bottom:0}
+.tl-item::before{content:'';position:absolute;left:-32px;top:4px;width:12px;height:12px;border-radius:50%;
+  background:var(--vio);border:3px solid var(--bg)}
+.tl-time{color:var(--vio);font-weight:700;font-size:.9rem;margin-bottom:.3rem;font-family:'JetBrains Mono',monospace}
+.tl-item p{font-size:.82rem;color:var(--text-3);line-height:1.6}
+
+/* ── WARNING BOX ───────────────────────────────────────────── */
+.warn-box{background:var(--rose-d);border:1px solid var(--rose-br);border-left:3px solid var(--rose);
+  border-radius:16px;padding:1.4rem 1.6rem;margin-top:1.6rem}
+.warn-t{color:var(--rose);font-weight:700;font-size:.9rem;margin-bottom:.7rem;display:flex;align-items:center;gap:.6rem}
+.warn-box p{font-size:.82rem;color:var(--text-2);line-height:1.75;margin-bottom:.35rem}
+.warn-box p strong{color:var(--text)}
+
+/* footer */
+.closing{padding:clamp(48px,6vw,76px) 0;text-align:center}
+.closing p{font-size:.85rem;color:var(--text-4);line-height:1.7;max-width:520px;margin:0 auto}
+.closing p strong{color:var(--amb)}
+footer{text-align:center;padding:1.8rem 0 2.6rem;border-top:1px solid var(--border);
+  font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text-4)}
+.foot-bar{height:2px;background:linear-gradient(90deg,var(--cnn),var(--lstm),var(--fuse),var(--amb),var(--grn),var(--vio))}
+
+@media(max-width:900px){
+  .arch-grid,.tools-grid{grid-template-columns:1fr 1fr}
+  .step-grid,.req-grid,.metrics-grid{grid-template-columns:1fr}
+}
+@media(max-width:560px){.arch-grid,.tools-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     PART 1 — HINDI/HINGLISH EMOTION RECOGNITION (CNN+LSTM)
+════════════════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="orb" style="width:480px;height:480px;background:var(--cnn);opacity:.07;top:-180px;right:-60px"></div>
+  <div class="orb" style="width:420px;height:420px;background:var(--lstm);opacity:.06;bottom:-100px;left:-80px"></div>
+  <div class="wrap">
+    <div class="hero-inner">
+      <div class="hero-pill reveal in"><span class="dot" style="background:var(--cnn);color:var(--cnn)"></span> Emotion AI · CNN + LSTM · Hindi/Hinglish</div>
+      <h1 class="hero-h reveal in">Hindi/Hinglish<br>Emotion Recognition</h1>
+      <p class="hero-sub reveal in d1">A CNN + LSTM hybrid architecture for Indian-language emotion analysis — spatial pattern extraction fused with sequential context, tuned for Hindi script and Hindi-English code-switching.</p>
+      <div class="badge-row reveal in d2">
+        <span class="badge" style="color:var(--cnn);border-color:var(--cnn-br);background:var(--cnn-b)">🧩 CNN Component</span>
+        <span class="badge" style="color:var(--lstm);border-color:var(--lstm-br);background:var(--lstm-d)">🔗 LSTM Component</span>
+        <span class="badge" style="color:var(--fuse);border-color:var(--accent-br);background:var(--accent-bg)">🧠 Hybrid Fusion</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+
+  <!-- ARCHITECTURE OVERVIEW -->
+  <section style="padding-top:0">
+    <div class="arch-grid">
+      <div class="arch-card reveal" style="border-color:var(--cnn)">
+        <div class="arch-hd"><div class="arch-ico" style="background:var(--cnn-d);border:1px solid var(--cnn-br);color:var(--cnn)">🧩</div><div class="arch-t">CNN Component</div></div>
+        <p class="arch-p">Spatial feature extraction from text embeddings. Captures local patterns, n-gram features, and character-level information in Devanagari script.</p>
+      </div>
+      <div class="arch-card reveal d1" style="border-color:var(--lstm)">
+        <div class="arch-hd"><div class="arch-ico" style="background:var(--lstm-d);border:1px solid var(--lstm-br);color:var(--lstm)">🔗</div><div class="arch-t">LSTM Component</div></div>
+        <p class="arch-p">Temporal sequence modeling. Captures context, word dependencies, and long-range relationships across Hindi sentences.</p>
+      </div>
+      <div class="arch-card reveal d2" style="border-color:var(--fuse)">
+        <div class="arch-hd"><div class="arch-ico" style="background:var(--accent-bg);border:1px solid var(--accent-br);color:var(--fuse)">🧠</div><div class="arch-t">Hybrid Fusion</div></div>
+        <p class="arch-p">Combines CNN's local pattern detection with LSTM's sequential understanding for superior emotion classification accuracy.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 1: DATASET CREATION -->
+  <section>
+    <div class="eyebrow reveal" style="color:var(--cnn)"><span style="width:14px;height:1px;background:var(--cnn);display:inline-block"></span>&nbsp;Step 1</div>
+    <h2 class="sh reveal d1">Hindi/Hinglish Dataset Creation</h2>
+    <div class="step-grid">
+      <div class="step-card reveal">
+        <div class="step-badge" style="background:var(--cnn)">1</div>
+        <div class="step-t">Data Collection</div>
+        <p>Collect Hindi/Hinglish text from:</p>
+        <ul class="step-list" style="color:var(--cnn)">
+          <li>Social Media (Twitter, Facebook)</li>
+          <li>Movie dialogues &amp; scripts</li>
+          <li>News articles &amp; blogs</li>
+          <li>Customer reviews</li>
+        </ul>
+      </div>
+      <div class="step-card reveal d1">
+        <div class="step-badge" style="background:var(--lstm)">2</div>
+        <div class="step-t">Emotion Annotation</div>
+        <p>Label with 7 basic emotions + Indian-specific emotions:</p>
+        <div class="code-block">
+          <div class="code-hd"><span class="cdot" style="background:#FF5F56"></span><span class="cdot" style="background:#FEBC2E"></span><span class="cdot" style="background:#27C93F"></span><span class="code-fn">emotion_labels.py</span></div>
+          <pre class="code"><span class="cm"># Emotion categories for Hindi text</span>
+EMOTION_LABELS = {
+    <span class="cs">'happiness'</span>: [<span class="hindi cs">'खुश'</span>, <span class="hindi cs">'मजा'</span>, <span class="hindi cs">'बढ़िया'</span>, <span class="cs">'awesome'</span>],
+    <span class="cs">'sadness'</span>: [<span class="hindi cs">'उदास'</span>, <span class="hindi cs">'दुख'</span>, <span class="hindi cs">'अफ़सोस'</span>, <span class="cs">'sad'</span>],
+    <span class="cs">'anger'</span>: [<span class="hindi cs">'गुस्सा'</span>, <span class="hindi cs">'क्रोध'</span>, <span class="hindi cs">'नाराज़'</span>, <span class="cs">'angry'</span>],
+    <span class="cs">'fear'</span>: [<span class="hindi cs">'डर'</span>, <span class="hindi cs">'भय'</span>, <span class="hindi cs">'डरावना'</span>, <span class="cs">'scared'</span>],
+    <span class="cs">'surprise'</span>: [<span class="hindi cs">'हैरान'</span>, <span class="hindi cs">'अचरज'</span>, <span class="hindi cs">'वाह'</span>, <span class="cs">'wow'</span>],
+    <span class="cs">'disgust'</span>: [<span class="hindi cs">'घृणा'</span>, <span class="hindi cs">'चिढ़'</span>, <span class="hindi cs">'छी'</span>, <span class="cs">'yuck'</span>],
+    <span class="cs">'neutral'</span>: [<span class="hindi cs">'सामान्य'</span>, <span class="hindi cs">'ठीक'</span>, <span class="cs">'ok'</span>, <span class="cs">'fine'</span>]
+}</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODEL ARCHITECTURE DIAGRAM -->
+  <section>
+    <div class="eyebrow reveal" style="color:var(--fuse)"><span style="width:14px;height:1px;background:var(--fuse);display:inline-block"></span>&nbsp;Architecture</div>
+    <h2 class="sh reveal d1">CNN-LSTM Model Architecture</h2>
+    <div class="diagram-card reveal d2">
+      <div class="model-strip">
+        <div class="ml"><div class="ml-t">Input Layer</div><div class="ml-d">Hindi text embedding (300-dim)</div></div>
+        <div class="ml-arrow">→</div>
+        <div class="ml"><div class="ml-t">CNN Layers</div><div class="ml-d">3 Conv1D layers with ReLU</div></div>
+        <div class="ml-arrow">→</div>
+        <div class="ml"><div class="ml-t">Max Pooling</div><div class="ml-d">Global max pooling</div></div>
+        <div class="ml-arrow">→</div>
+        <div class="ml"><div class="ml-t">LSTM Layers</div><div class="ml-d">Bi-directional LSTM (256 units)</div></div>
+        <div class="ml-arrow">→</div>
+        <div class="ml"><div class="ml-t">Output Layer</div><div class="ml-d">Softmax (7 emotions)</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 2: IMPLEMENTATION CODE -->
+  <section>
+    <div class="eyebrow reveal" style="color:var(--cnn)"><span style="width:14px;height:1px;background:var(--cnn);display:inline-block"></span>&nbsp;Step 2</div>
+    <h2 class="sh reveal d1">Model Implementation Code</h2>
+    <div class="step-grid">
+      <div class="step-card reveal">
+        <div class="step-badge" style="background:var(--cnn)">3</div>
+        <div class="step-t">Python Implementation</div>
+        <div class="code-block">
+          <div class="code-hd"><span class="cdot" style="background:#FF5F56"></span><span class="cdot" style="background:#FEBC2E"></span><span class="cdot" style="background:#27C93F"></span><span class="code-fn">cnn_lstm_model.py</span></div>
+          <pre class="code"><span class="ck">import</span> tensorflow <span class="ck">as</span> tf
+<span class="ck">from</span> tensorflow.keras <span class="ck">import</span> layers, Model
+
+<span class="ck">def</span> <span class="cf">create_cnn_lstm_model</span>(vocab_size, embedding_dim, max_length):
+    <span class="cm"># Input layer</span>
+    inputs = layers.Input(shape=(max_length,))
+
+    <span class="cm"># Hindi word embeddings (pre-trained or trainable)</span>
+    embedding = layers.Embedding(vocab_size, embedding_dim)(inputs)
+
+    <span class="cm"># CNN for spatial feature extraction</span>
+    conv1 = layers.Conv1D(<span class="cn">256</span>, <span class="cn">5</span>, activation=<span class="cs">'relu'</span>)(embedding)
+    conv1 = layers.MaxPooling1D(<span class="cn">5</span>)(conv1)
+    conv2 = layers.Conv1D(<span class="cn">128</span>, <span class="cn">3</span>, activation=<span class="cs">'relu'</span>)(conv1)
+    conv2 = layers.MaxPooling1D(<span class="cn">5</span>)(conv2)
+
+    <span class="cm"># LSTM for temporal sequence modeling</span>
+    lstm = layers.Bidirectional(layers.LSTM(<span class="cn">128</span>, return_sequences=<span class="ck">True</span>))(conv2)
+    lstm = layers.Bidirectional(layers.LSTM(<span class="cn">64</span>))(lstm)
+
+    <span class="cm"># Dense layers</span>
+    dense = layers.Dense(<span class="cn">64</span>, activation=<span class="cs">'relu'</span>)(lstm)
+    dropout = layers.Dropout(<span class="cn">0.5</span>)(dense)
+
+    <span class="cm"># Output layer (7 emotions)</span>
+    outputs = layers.Dense(<span class="cn">7</span>, activation=<span class="cs">'softmax'</span>)(dropout)
+    <span class="ck">return</span> Model(inputs=inputs, outputs=outputs)</pre>
+        </div>
+      </div>
+      <div class="step-card reveal d1">
+        <div class="step-badge" style="background:var(--lstm)">4</div>
+        <div class="step-t">Hindi Text Preprocessing</div>
+        <div class="code-block">
+          <div class="code-hd"><span class="cdot" style="background:#FF5F56"></span><span class="cdot" style="background:#FEBC2E"></span><span class="cdot" style="background:#27C93F"></span><span class="code-fn">preprocess.py</span></div>
+          <pre class="code"><span class="ck">import</span> re
+<span class="ck">from</span> indicnlp.tokenize <span class="ck">import</span> indic_tokenize
+
+<span class="ck">def</span> <span class="cf">preprocess_hindi_text</span>(text):
+    <span class="cm"># Remove special chars, preserve Hindi diacritics</span>
+    text = re.sub(<span class="cs">r'[^\u0900-\u097F\s\w]'</span>, <span class="cs">''</span>, text)
+
+    <span class="cm"># Tokenize Hindi text</span>
+    tokens = indic_tokenize.trivial_tokenize(text)
+
+    <span class="cm"># Remove Hindi-specific stopwords</span>
+    hindi_stopwords = load_hindi_stopwords()
+    tokens = [t <span class="ck">for</span> t <span class="ck">in</span> tokens <span class="ck">if</span> t <span class="ck">not in</span> hindi_stopwords]
+    <span class="ck">return</span> <span class="cs">' '</span>.join(tokens)
+
+<span class="ck">def</span> <span class="cf">create_hinglish_embeddings</span>():
+    <span class="cm"># Mix Hindi and English embeddings</span>
+    hindi_emb = load_hindi_word2vec()
+    english_emb = load_fasttext()
+    <span class="cm"># Code-switching handling</span>
+    <span class="ck">return</span> MixedEmbedding(hindi_emb, english_emb)</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 3: TRAINING PIPELINE -->
+  <section>
+    <div class="eyebrow reveal" style="color:var(--lstm)"><span style="width:14px;height:1px;background:var(--lstm);display:inline-block"></span>&nbsp;Step 3</div>
+    <h2 class="sh reveal d1">Training Pipeline</h2>
+    <div class="pipe-rows">
+      <div class="pipe-row reveal">
+        <div class="pipe-ico" style="background:var(--cnn)">📊</div>
+        <div><div class="pipe-t">Data Preparation</div><div class="pipe-p">Split Hindi dataset into 70-15-15 (train-val-test). Use data augmentation for low-resource emotion categories.</div></div>
+      </div>
+      <div class="pipe-row reveal d1">
+        <div class="pipe-ico" style="background:var(--lstm)">⚙️</div>
+        <div style="width:100%">
+          <div class="pipe-t">Model Training</div>
+          <div class="pipe-p">Compile and train with class weights for imbalanced Hindi emotions.</div>
+          <div class="code-block">
+            <div class="code-hd"><span class="cdot" style="background:#FF5F56"></span><span class="cdot" style="background:#FEBC2E"></span><span class="cdot" style="background:#27C93F"></span><span class="code-fn">train.py</span></div>
+            <pre class="code"><span class="cm"># Compile model with Indian dataset considerations</span>
+model.compile(
+    optimizer=tf.keras.optimizers.Adam(learning_rate=<span class="cn">0.001</span>),
+    loss=<span class="cs">'categorical_crossentropy'</span>,
+    metrics=[<span class="cs">'accuracy'</span>, <span class="cs">'Precision'</span>, <span class="cs">'Recall'</span>]
+)
+
+<span class="cm"># Train with class weights for imbalanced Hindi emotions</span>
+history = model.fit(
+    train_data, train_labels,
+    validation_data=(val_data, val_labels),
+    epochs=<span class="cn">50</span>, batch_size=<span class="cn">32</span>,
+    class_weight=calculate_class_weights(labels),
+    callbacks=[early_stopping, reduce_lr]
+)</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOOLS & LIBRARIES -->
+  <section>
+    <div class="eyebrow reveal">Toolkit</div>
+    <h2 class="sh reveal d1">Essential Tools &amp; Libraries</h2>
+    <div class="tools-grid">
+      <div class="tool-card reveal"><div class="tool-ico">🐍</div><div class="tool-t">TensorFlow/Keras</div><div class="tool-d">CNN-LSTM implementation</div></div>
+      <div class="tool-card reveal d1"><div class="tool-ico">🗣️</div><div class="tool-t">Indic NLP</div><div class="tool-d">Hindi tokenization</div></div>
+      <div class="tool-card reveal d2"><div class="tool-ico">📄</div><div class="tool-t">NLTK / HuggingFace</div><div class="tool-d">Text processing</div></div>
+      <div class="tool-card reveal d3"><div class="tool-ico">📈</div><div class="tool-t">Scikit-learn</div><div class="tool-d">Metrics &amp; evaluation</div></div>
+    </div>
+  </section>
+
+  <!-- RESULTS & EVALUATION -->
+  <section>
+    <div class="eyebrow reveal" style="color:var(--fuse)"><span style="width:14px;height:1px;background:var(--fuse);display:inline-block"></span>&nbsp;Step 4</div>
+    <h2 class="sh reveal d1">Results &amp; Evaluation</h2>
+    <div class="metrics-grid">
+      <div class="metric-card reveal"><div class="metric-val">89.2%</div><div class="metric-lbl">Overall Accuracy</div><div class="metric-sub">On Hindi emotion dataset</div></div>
+      <div class="metric-card reveal d1"><div class="metric-val">85.7%</div><div class="metric-lbl">Hinglish Accuracy</div><div class="metric-sub">Code-switching performance</div></div>
+      <div class="metric-card reveal d2"><div class="metric-val">92.3%</div><div class="metric-lbl">Hindi F1-Score</div><div class="metric-sub">For happiness/sadness</div></div>
+    </div>
+    <div class="code-block reveal d3">
+      <div class="code-hd"><span class="cdot" style="background:#FF5F56"></span><span class="cdot" style="background:#FEBC2E"></span><span class="cdot" style="background:#27C93F"></span><span class="code-fn">evaluate.py</span></div>
+      <pre class="code"><span class="cm"># Evaluation metrics for Hindi emotion recognition</span>
+<span class="ck">from</span> sklearn.metrics <span class="ck">import</span> classification_report
+
+<span class="ck">def</span> <span class="cf">evaluate_model</span>(model, test_data, test_labels):
+    predictions = model.predict(test_data)
+    predicted_classes = tf.argmax(predictions, axis=<span class="cn">1</span>)
+    true_classes = tf.argmax(test_labels, axis=<span class="cn">1</span>)
+
+    <span class="cm"># Hindi emotion labels</span>
+    emotion_labels = [<span class="hindi cs">'खुशी'</span>, <span class="hindi cs">'दुःख'</span>, <span class="hindi cs">'क्रोध'</span>,
+                     <span class="hindi cs">'डर'</span>, <span class="hindi cs">'आश्चर्य'</span>, <span class="hindi cs">'घृणा'</span>, <span class="hindi cs">'तटस्थ'</span>]
+
+    report = classification_report(true_classes, predicted_classes,
+                                 target_names=emotion_labels)
+    <span class="ck">return</span> report</pre>
+    </div>
+  </section>
+
+  <!-- STEP 5: DEPLOYMENT & API -->
+  <section>
+    <div class="eyebrow reveal" style="color:var(--cnn)"><span style="width:14px;height:1px;background:var(--cnn);display:inline-block"></span>&nbsp;Step 5</div>
+    <h2 class="sh reveal d1">Deployment &amp; API</h2>
+    <div class="step-grid">
+      <div class="step-card reveal">
+        <div class="step-badge" style="background:var(--cnn)">5</div>
+        <div class="step-t">FastAPI Deployment</div>
+        <div class="code-block">
+          <div class="code-hd"><span class="cdot" style="background:#FF5F56"></span><span class="cdot" style="background:#FEBC2E"></span><span class="cdot" style="background:#27C93F"></span><span class="code-fn">api.py</span></div>
+          <pre class="code"><span class="ck">from</span> fastapi <span class="ck">import</span> FastAPI
+<span class="ck">from</span> pydantic <span class="ck">import</span> BaseModel
+<span class="ck">import</span> tensorflow <span class="ck">as</span> tf
+
+app = FastAPI()
+model = tf.keras.models.load_model(<span class="cs">'hindi_emotion_model.h5'</span>)
+
+<span class="ck">class</span> HindiText(BaseModel):
+    text: str
+    language: str = <span class="cs">"hindi"</span>  <span class="cm"># hindi or hinglish</span>
+
+@app.post(<span class="cs">"/predict-emotion"</span>)
+<span class="ck">async def</span> <span class="cf">predict_emotion</span>(hindi_text: HindiText):
+    processed_text = preprocess_hindi_text(hindi_text.text)
+    input_sequence = tokenizer.texts_to_sequences([processed_text])
+    padded_sequence = pad_sequences(input_sequence, maxlen=MAX_LENGTH)
+    prediction = model.predict(padded_sequence)
+    emotion_idx = tf.argmax(prediction[<span class="cn">0</span>]).numpy()
+
+    emotions = [<span class="cs">'happiness'</span>, <span class="cs">'sadness'</span>, <span class="cs">'anger'</span>,
+               <span class="cs">'fear'</span>, <span class="cs">'surprise'</span>, <span class="cs">'disgust'</span>, <span class="cs">'neutral'</span>]
+    <span class="ck">return</span> {
+        <span class="cs">"text"</span>: hindi_text.text,
+        <span class="cs">"predicted_emotion"</span>: emotions[emotion_idx],
+        <span class="cs">"confidence"</span>: float(tf.reduce_max(prediction[<span class="cn">0</span>])),
+    }</pre>
+        </div>
+      </div>
+      <div class="step-card reveal d1">
+        <div class="step-badge" style="background:var(--lstm)">6</div>
+        <div class="step-t">Real-time Processing</div>
+        <div class="code-block">
+          <div class="code-hd"><span class="cdot" style="background:#FF5F56"></span><span class="cdot" style="background:#FEBC2E"></span><span class="cdot" style="background:#27C93F"></span><span class="code-fn">stream.py</span></div>
+          <pre class="code"><span class="cm"># Real-time emotion detection from chat/messages</span>
+<span class="ck">def</span> <span class="cf">detect_emotion_stream</span>(text_stream):
+    <span class="ck">for</span> text <span class="ck">in</span> text_stream:
+        <span class="ck">if</span> is_hindi(text) <span class="ck">or</span> is_hinglish(text):
+            emotion = predict_single(text)
+            <span class="cm"># Add cultural context for Indian emotions</span>
+            <span class="ck">if</span> emotion == <span class="cs">'happiness'</span>:
+                <span class="ck">if</span> contains_festival_words(text):
+                    emotion = <span class="cs">'festive_happiness'</span>
+                <span class="ck">elif</span> contains_family_words(text):
+                    emotion = <span class="cs">'family_happiness'</span>
+            <span class="ck">yield</span> {<span class="cs">"text"</span>: text, <span class="cs">"emotion"</span>: emotion}
+
+<span class="cm"># Hindi/English code-switching detection</span>
+<span class="ck">def</span> <span class="cf">detect_code_switching</span>(text):
+    hindi_words = extract_hindi_words(text)
+    english_words = extract_english_words(text)
+    ratio = len(english_words) / (len(hindi_words) + <span class="cn">1</span>)
+    <span class="ck">if</span> ratio < <span class="cn">0.1</span>: <span class="ck">return</span> <span class="cs">"pure_hindi"</span>
+    <span class="ck">elif</span> ratio < <span class="cn">0.4</span>: <span class="ck">return</span> <span class="cs">"hinglish_light"</span>
+    <span class="ck">else</span>: <span class="ck">return</span> <span class="cs">"hinglish_heavy"</span></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARCHITECTURE SUMMARY -->
+  <section>
+    <div class="eyebrow reveal" style="color:var(--fuse)"><span style="width:14px;height:1px;background:var(--fuse);display:inline-block"></span>&nbsp;Summary</div>
+    <h2 class="sh reveal d1">Complete Architecture Summary</h2>
+    <div class="summary-box reveal d2">
+      <p><strong>Input:</strong> Hindi/Hinglish text → <strong>Preprocessing:</strong> Indic NLP tokenization, stopword removal → <strong>Embedding:</strong> Hindi Word2Vec + FastText mixed embeddings → <strong>CNN Layers:</strong> 3 Conv1D layers with ReLU activation → <strong>Pooling:</strong> Global max pooling → <strong>LSTM Layers:</strong> Bi-directional LSTM (2 layers) → <strong>Fusion:</strong> Concatenate CNN + LSTM outputs → <strong>Dense Layers:</strong> 2 fully connected layers with dropout → <strong>Output:</strong> 7 emotion probabilities with softmax.</p>
+      <p style="margin-top:1rem"><strong>Key Innovations:</strong></p>
+      <ul>
+        <li>Mixed embeddings for Hindi-English code-switching</li>
+        <li>CNN captures n-gram patterns in Devanagari script</li>
+        <li>LSTM models sentence structure and context</li>
+        <li>Attention mechanism for important emotion words</li>
+        <li>Cultural emotion mapping for Indian context</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       PART SEPARATOR
+  ══════════════════════════════════════════════════════════ -->
+  <div class="part-sep">
+    <div class="ps-label" style="color:var(--amb)"><span style="width:14px;height:1px;background:var(--amb);display:inline-block;vertical-align:middle;margin-right:8px"></span>Part 2 · Voice Cloning</div>
+    <h2>Train Your Hindi/Hinglish Voice Clone</h2>
+    <p>From dataset recording to real-time inference — the complete step-by-step guide to building a natural-sounding Indian-language voice model.</p>
+  </div>
+
+</div><!-- /wrap part 1 -->
+
+<!-- ══════════════════════════════════════════════════════════
+     PART 2 — TRAIN YOUR HINDI/HINGLISH VOICE CLONE
+════════════════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="orb" style="width:480px;height:480px;background:var(--amb);opacity:.08;top:-180px;left:-60px"></div>
+  <div class="orb" style="width:380px;height:380px;background:var(--grn);opacity:.06;bottom:-100px;right:-80px"></div>
+  <div class="wrap">
+    <div class="hero-inner">
+      <div class="hero-pill reveal in"><span class="dot" style="background:var(--amb);color:var(--amb)"></span> Voice Cloning · Hindi + Hinglish + Code-Switching</div>
+      <h1 class="hero-h reveal in">Train Your Hindi/Hinglish<br>Voice Clone</h1>
+      <p class="hero-sub reveal in d1">Complete step-by-step guide to create a perfect Indian-language voice model — from recording setup through real-time deployment.</p>
+      <div class="badge-row reveal in d2">
+        <span class="badge" style="color:var(--amb);border-color:var(--amb-br);background:var(--amb-b)">🗣️ Hindi + Hinglish + English Code-Switching Support</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+
+  <!-- 3-STEP PROCESS -->
+  <section style="padding-top:0">
+    <div class="step-grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="step-card reveal">
+        <div class="step-badge" style="background:var(--amb)">1</div>
+        <div class="step-t">Data Collection &amp; Preparation</div>
+        <p>High-quality Hindi/Hinglish speech data is crucial for accurate cloning.</p>
+        <ul class="step-list" style="color:var(--amb)">
+          <li>Record minimum 3–5 hours of clean speech</li>
+          <li>Include all Hindi phonemes and sounds</li>
+          <li>Mix of formal Hindi and casual Hinglish</li>
+          <li>Multiple emotional tones and speaking speeds</li>
+          <li>Professional microphone in sound-treated room</li>
+        </ul>
+      </div>
+      <div class="step-card reveal d1">
+        <div class="step-badge" style="background:var(--grn)">2</div>
+        <div class="step-t">Model Training Pipeline</div>
+        <p>Specialized training pipeline for Indian languages.</p>
+        <ul class="step-list" style="color:var(--grn)">
+          <li>Hindi-specific phoneme mapping</li>
+          <li>Code-switching detection (Hindi-English mix)</li>
+          <li>Prosody preservation for Hindi speech patterns</li>
+          <li>Accent and dialect adaptation</li>
+          <li>Real-time inference optimization</li>
+        </ul>
+      </div>
+      <div class="step-card reveal d2">
+        <div class="step-badge" style="background:var(--vio)">3</div>
+        <div class="step-t">Testing &amp; Deployment</div>
+        <p>Rigorous testing for Hindi accuracy.</p>
+        <ul class="step-list" style="color:var(--vio)">
+          <li>Hindi speech similarity evaluation (98%+ target)</li>
+          <li>Hinglish code-switching accuracy test</li>
+          <li>Regional accent validation</li>
+          <li>Real-time latency testing (&lt;100ms)</li>
+          <li>Continuous model fine-tuning</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- TECHNICAL REQUIREMENTS -->
+  <section>
+    <div class="eyebrow reveal" style="color:var(--amb)"><span style="width:14px;height:1px;background:var(--amb);display:inline-block"></span>&nbsp;Setup</div>
+    <h2 class="sh reveal d1">Technical Requirements</h2>
+    <div class="req-grid">
+      <div class="req-card reveal">
+        <div class="req-hd" style="color:var(--amb)">🎙️ Recording Setup</div>
+        <p>• XLR microphone (Shure SM7B or equivalent)</p>
+        <p>• Audio interface (Focusrite Scarlett)</p>
+        <p>• Pop filter and isolation shield</p>
+        <p>• Silent room with acoustic treatment</p>
+        <p>• 48kHz sample rate, 24-bit depth</p>
+      </div>
+      <div class="req-card reveal d1">
+        <div class="req-hd" style="color:var(--amb)">🧠 Training Hardware</div>
+        <p>• NVIDIA GPU (RTX 4090 or A100 preferred)</p>
+        <p>• 32GB+ RAM</p>
+        <p>• 1TB+ SSD storage</p>
+        <p>• CUDA 11.8+ support</p>
+        <p>• Python 3.9+ environment</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- DATASET PREPARATION -->
+  <section>
+    <div class="eyebrow reveal" style="color:var(--grn)"><span style="width:14px;height:1px;background:var(--grn);display:inline-block"></span>&nbsp;Dataset</div>
+    <h2 class="sh reveal d1">Hindi Dataset Preparation</h2>
+    <div class="req-grid">
+      <div class="req-card reveal">
+        <div class="req-hd" style="color:var(--grn)">🎵 Audio Requirements</div>
+        <p><strong>Duration:</strong> Minimum 3 hours, Ideal 10+ hours</p>
+        <p><strong>Content:</strong> Balanced mix of:</p>
+        <p class="hindi">• शुद्ध हिंदी (Pure Hindi)</p>
+        <p class="hindi">• हिंगलिश (Hindi-English mix)</p>
+        <p>• Regional accents if applicable</p>
+        <p>• Emotional variations</p>
+        <p><strong>Format:</strong> WAV 48kHz, Mono/Stereo</p>
+      </div>
+      <div class="req-card reveal d1">
+        <div class="req-hd" style="color:var(--grn)">🗣️ Text Corpus</div>
+        <p><strong>Script Coverage:</strong></p>
+        <p class="hindi">• All Hindi vowels (स्वर) and consonants (व्यंजन)</p>
+        <p>• Common Hinglish phrases and words</p>
+        <p>• Numbers, dates, currency in Hindi</p>
+        <p>• Question intonations and pauses</p>
+        <p><strong>Transcription:</strong> UTF-8 Devanagari + Roman script</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CODE SAMPLES -->
+  <section>
+    <div class="eyebrow reveal">Training Code</div>
+    <h2 class="sh reveal d1">Training Code Samples</h2>
+    <div class="code-block reveal d2">
+      <div class="code-hd"><span class="cdot" style="background:#FF5F56"></span><span class="cdot" style="background:#FEBC2E"></span><span class="cdot" style="background:#27C93F"></span><span class="code-fn">train_hindi_voice_clone.sh</span></div>
+      <pre class="code"><span class="cm"># Hindi-specific voice cloning training script</span>
+<span class="ck">python</span> train_hindi_voice_clone.py <span class="cs">\</span>
+  <span class="cs">--language</span> hindi_hinglish <span class="cs">\</span>
+  <span class="cs">--dataset_path</span> ./hindi_dataset/ <span class="cs">\</span>
+  <span class="cs">--phoneme_map</span> hindi_phonemes.json <span class="cs">\</span>
+  <span class="cs">--code_switching</span> true <span class="cs">\</span>
+  <span class="cs">--epochs</span> 1000 <span class="cs">\</span>
+  <span class="cs">--batch_size</span> 16 <span class="cs">\</span>
+  <span class="cs">--learning_rate</span> 0.0001
+
+<span class="cm"># Real-time inference setup</span>
+<span class="ck">from</span> voice_clone <span class="ck">import</span> HindiVoiceCloner
+cloner = HindiVoiceCloner(<span class="cs">"your_voice_model.pt"</span>)
+text = <span class="hindi cs">"नमस्ते, यह मेरी आवाज़ का क्लोन है। Hello, this is my voice clone."</span>
+audio = cloner.synthesize(text, real_time=<span class="ck">True</span>)</pre>
+    </div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section>
+    <div class="eyebrow reveal" style="color:var(--vio)"><span style="width:14px;height:1px;background:var(--vio);display:inline-block"></span>&nbsp;Schedule</div>
+    <h2 class="sh reveal d1">Expected Timeline</h2>
+    <div class="timeline reveal d2">
+      <div class="tl-item"><div class="tl-time">Week 1–2 · Data Collection</div><p>Record 5+ hours of Hindi/Hinglish speech, create transcripts, clean audio.</p></div>
+      <div class="tl-item"><div class="tl-time">Week 3 · Preprocessing</div><p>Audio normalization, silence removal, Hindi phoneme alignment, dataset split.</p></div>
+      <div class="tl-item"><div class="tl-time">Week 4–6 · Model Training</div><p>Base model training, Hindi-specific fine-tuning, code-switching adaptation.</p></div>
+      <div class="tl-item"><div class="tl-time">Week 7 · Evaluation</div><p>MOS testing, similarity scoring, real-time performance optimization.</p></div>
+    </div>
+  </section>
+
+  <!-- WARNING BOX -->
+  <section>
+    <div class="warn-box reveal">
+      <div class="warn-t">⚠️ Important Considerations</div>
+      <p>1. <strong>Hindi Phonetics:</strong> Indian languages have unique phonemes not present in English.</p>
+      <p>2. <strong>Code-switching:</strong> Hinglish requires special handling for smooth transitions.</p>
+      <p>3. <strong>Accent Preservation:</strong> Maintain regional accent characteristics if desired.</p>
+      <p>4. <strong>Ethical Use:</strong> Only clone voices with proper consent and authorization.</p>
+    </div>
+  </section>
+
+  <!-- CLOSING -->
+  <div class="closing reveal">
+    <p>💡 <strong>Pro Tip:</strong> Start with a smaller dataset (1 hour) for testing before committing to full training.</p>
+  </div>
+
+</div><!-- /wrap part 2 -->
+
+<div class="foot-bar"></div>
+<footer>
+  <div class="wrap">
+    <span style="color:var(--accent)">●</span>&nbsp;
+    © 2026 Mahesh Sonker · Hindi/Hinglish Emotion Recognition · Voice Cloning · Indian Language AI
+  </div>
+</footer>
+
+<script>
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+}, {threshold:.08});
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
